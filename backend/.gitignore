@@ -1,0 +1,36 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database files (if any local testing with SQLite or NeDB)
+*.sqlite
+*.db
+
+# OS / IDE / Editor files
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Build output (if compiled or transpiled)
+dist/
+build/
+
+# Coverage results
+coverage/
+
+# PM2 logs (if using PM2 for process management)
+pids/
+*.pid
+*.seed
+*.pid.lock
