@@ -25,6 +25,7 @@ import AllReviews from "./pages/AllReviews";
 import Volunteerdashboard from "./pages/Volunteerdashboard";
 import BookVolunteer from "./pages/BookVolunteer";
 import Bookingform from "./pages/Bookingform";
+import AllBookingsPage from "./pages/AllBookingsPage";
 
 
 // Import the new ProtectedRoute component
@@ -50,7 +51,8 @@ const AppContent = () => {
         <Route path="/vendor/item/:id" element={<Getitembyid />} />
         <Route path="/Volunteer/dashboard" element={<Volunteerdashboard />} />
         <Route path="/myprofile" element={<MyProfile />} />
-        <Route path="/bookingform/:id" element={<Bookingform />} />
+        <Route path="/allbookings" element={<AllBookingsPage />} />
+        <Route path="/booking/:id" element={<Bookingform />} />
 
 
 

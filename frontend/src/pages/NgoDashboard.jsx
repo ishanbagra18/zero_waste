@@ -385,14 +385,20 @@ const COLORS = ["#10b981", "#6366f1", "#f43f5e"];
         </Link>
       </div>
 
-      {/* Image Section */}
-      <div className="z-10 w-full md:w-1/2 mt-12 md:mt-0 flex justify-center">
-        <img
-          src="https://cdn.pixabay.com/photo/2017/03/05/22/57/delivery-2119588_1280.png"
-          alt="Volunteer Transport Illustration"
-          className="w-full max-w-md md:max-w-lg drop-shadow-2xl"
-        />
-      </div>
+ <div className="z-10 w-full md:w-1/2 mt-12 md:mt-0 flex justify-center relative">
+  <div className="relative w-full max-w-md md:max-w-lg">
+    {/* Blob Background */}
+    <div className="absolute -top-6 -left-6 w-full h-full bg-cyan-400 opacity-30 blur-3xl rounded-full animate-pulse z-0"></div>
+
+    {/* Image with unique shape */}
+    <img
+      src="/transportation.gif"
+      alt="Volunteer Transport Illustration"
+      className="relative z-10 w-full h-auto rounded-[40%_60%_60%_40%/50%_40%_60%_50%] shadow-2xl hover:scale-105 transition-transform duration-300 ease-in-out"
+    />
+  </div>
+</div>
+
     </section>
 
 

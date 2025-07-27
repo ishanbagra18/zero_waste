@@ -84,6 +84,11 @@ export const markAsRead = async (req, res) => {
   }
 };
 
+
+
+
+
+
 // @desc Delete a notification
 export const deleteNotification = async (req, res) => {
   try {

@@ -1,104 +1,102 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
-import { useParams } from "react-router-dom";
-import { toast } from "react-hot-toast";
-import { MdLocationOn, MdOutlineNotes, MdSend } from "react-icons/md";
+
+const statuses = ["pending", "accepted", "rejected", "cancelled", "completed"];
 
 export default function Bookingform() {
-  const { id } = useParams();
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-  const [fromLocation, setFromLocation] = useState("");
-  const [toLocation, setToLocation] = useState("");
-  const [notes, setNotes] = useState("");
+  const [booking, setBooking] = useState(null);
 
   useEffect(() => {
-    console.log("📌 [BookingForm] Volunteer ID from route param:", id);
-  }, [id]);
+    if (!state || !state.booking) {
+      console.warn("No booking data provided in route state");
+      return;
+    }
 
-  const handleBooking = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
+    console.log("Booking state received:", state.booking);
+    setBooking(state.booking);
+  }, [state]);
 
+  useEffect(() => {
     if (!token) {
-      toast.error("You must be logged in to book a volunteer.");
+      console.error("No token found in localStorage. Redirecting to login.");
+      toast.error("Session expired. Please log in again.");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    }
+  }, [token]);
+
+  const updateStatus = async (newStatus) => {
+    if (!booking?._id) {
+      console.error("Booking ID not available");
+      toast.error("Cannot update status. Booking ID missing.");
       return;
     }
 
     try {
-      console.log("📤 Sending booking data to backend:", {
-        fromLocation,
-        toLocation,
-        notes,
-      });
+      console.log(`Attempting to update status to '${newStatus}' for booking:`, booking._id);
 
-      const res = await axios.post(
-        `http://localhost:3002/api/book/bookvolunteer/${id}`,
-        { fromLocation, toLocation, notes },
+      const res = await axios.patch(
+        `http://localhost:3002/api/bookings/${booking._id}/status`,
+        { status: newStatus },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      console.log("✅ Booking success:", res.data);
-      toast.success("Volunteer booked successfully!");
+      console.log("Status update successful:", res.data);
+      toast.success(`Status updated to ${newStatus}`);
+      setBooking((prev) => ({ ...prev, status: newStatus }));
     } catch (err) {
-      console.error("❌ Booking error:", err.response || err.message);
-      toast.error("Booking failed. Please try again.");
+      console.error("Error while updating status:", err.response?.data || err.message);
+      toast.error("Failed to update status");
     }
   };
 
+  if (!booking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white bg-black">
+        <Toaster />
+        <p className="text-lg">No booking data provided.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4">
-      <div className="max-w-xl w-full p-10 bg-[#0d1117] rounded-3xl border border-cyan-800 shadow-[0_0_30px_#06b6d4] text-cyan-100 font-sans">
-        <h2 className="text-center text-4xl font-extrabold mb-10 text-cyan-400 tracking-wider drop-shadow-md">
-          Book Volunteer
-        </h2>
-        <form onSubmit={handleBooking} className="space-y-6">
-          <div className="flex items-center gap-4 bg-[#161b22] p-4 rounded-xl border border-cyan-700 hover:border-cyan-400 transition-all duration-300 shadow-lg hover:shadow-cyan-500/30">
-            <MdLocationOn className="text-3xl text-cyan-400" />
-            <input
-              type="text"
-              placeholder="From Location"
-              value={fromLocation}
-              onChange={(e) => setFromLocation(e.target.value)}
-              required
-              className="bg-transparent placeholder-cyan-500 outline-none w-full text-lg font-medium text-cyan-100"
-            />
-          </div>
+    <div className="min-h-screen bg-black text-white p-10">
+      <Toaster />
+      <h1 className="text-4xl font-bold mb-6">Booking Details</h1>
 
-          <div className="flex items-center gap-4 bg-[#161b22] p-4 rounded-xl border border-cyan-700 hover:border-cyan-400 transition-all duration-300 shadow-lg hover:shadow-cyan-500/30">
-            <MdLocationOn className="text-3xl text-cyan-400" />
-            <input
-              type="text"
-              placeholder="To Location"
-              value={toLocation}
-              onChange={(e) => setToLocation(e.target.value)}
-              required
-              className="bg-transparent placeholder-cyan-500 outline-none w-full text-lg font-medium text-cyan-100"
-            />
-          </div>
+      <div className="bg-gray-800 rounded-lg p-6 space-y-4 shadow-lg">
+        <p><strong>Booking ID:</strong> {booking._id}</p>
+        <p><strong>NGO:</strong> {booking.ngo?.name || "N/A"}</p>
+        <p><strong>Volunteer:</strong> {booking.volunteer?.name || booking.volunteer}</p>
+        <p><strong>From:</strong> {booking.fromLocation || "N/A"}</p>
+        <p><strong>To:</strong> {booking.toLocation || "N/A"}</p>
+        <p><strong>Status:</strong> {booking.status}</p>
+      </div>
 
-          <div className="flex items-center gap-4 bg-[#161b22] p-4 rounded-xl border border-cyan-700 hover:border-cyan-400 transition-all duration-300 shadow-lg hover:shadow-cyan-500/30">
-            <MdOutlineNotes className="text-3xl text-cyan-400" />
-            <input
-              type="text"
-              placeholder="Notes (optional)"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="bg-transparent placeholder-cyan-500 outline-none w-full text-lg font-medium text-cyan-100"
-            />
-          </div>
-
+      <div className="mt-6 flex flex-wrap gap-4">
+        {statuses.map((s) => (
           <button
-            type="submit"
-            className="flex justify-center items-center gap-3 bg-gradient-to-r from-cyan-500 to-cyan-700 hover:from-cyan-600 hover:to-cyan-800 text-gray-900 font-bold text-lg px-8 py-3 rounded-full shadow-md hover:shadow-cyan-500/40 transition-all duration-300"
+            key={s}
+            onClick={() => updateStatus(s)}
+            className={`px-4 py-2 rounded text-white font-semibold transition-all ${
+              booking.status === s
+                ? "bg-green-600 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700"
+            }`}
+            disabled={booking.status === s}
           >
-            <MdSend className="text-2xl" />
-            Book Now
+            {s}
           </button>
-        </form>
+        ))}
       </div>
     </div>
   );

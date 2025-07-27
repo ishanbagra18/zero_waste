@@ -65,6 +65,9 @@ console.log(req.user.userId); // ✅ correct ID
 };
 
 
+
+
+
 export const getAllBookings = async (req, res) => {
   try {
     console.log("📥 Fetching all bookings");
@@ -97,5 +100,44 @@ export const getAllBookings = async (req, res) => {
   } catch (error) {
     console.error("❌ Error fetching bookings:", error);
     res.status(500).json({ message: "Failed to fetch bookings" });
+  }
+};
+
+
+
+
+
+export const updatebooking = async (req, res) => {
+  const { bookingId } = req.params;
+  const { status } = req.body;
+
+  const allowedStatuses = ["pending", "accepted", "rejected", "cancelled", "completed"];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid booking status" });
+  }
+
+  try {
+    const booking = await Booking.findByIdAndUpdate(
+      bookingId,
+      { status },
+      { new: true }
+    ).populate("ngo volunteer");
+
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    await Notification.create({
+      user: booking.volunteer,
+      type: "booking",
+      message: `Booking from ${booking.fromLocation} to ${booking.toLocation} was ${status}.`,
+      data: {
+        bookingId: booking._id,
+        status: booking.status,
+      },
+    });
+
+    res.status(200).json({ message: "Booking updated", booking });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
