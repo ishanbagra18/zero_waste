@@ -24,7 +24,6 @@ const MyClaimed = () => {
         setClaimedItems(res.data.claimedItems || []);
         setLoading(false);
       } catch (error) {
-        toast.error("Failed to fetch claimed items");
         console.error(error);
         setLoading(false);
       }

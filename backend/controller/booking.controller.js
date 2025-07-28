@@ -106,9 +106,8 @@ export const getAllBookings = async (req, res) => {
 
 
 
-
 export const updatebooking = async (req, res) => {
-  const { bookingId } = req.params;
+  const { id } = req.params;
   const { status } = req.body;
 
   const allowedStatuses = ["pending", "accepted", "rejected", "cancelled", "completed"];
@@ -118,26 +117,45 @@ export const updatebooking = async (req, res) => {
 
   try {
     const booking = await Booking.findByIdAndUpdate(
-      bookingId,
+      id,
       { status },
       { new: true }
     ).populate("ngo volunteer");
 
-    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
 
+    const notificationMessage = `Booking from ${booking.fromLocation} to ${booking.toLocation} was ${status}.`;
+
+    // 🔔 Send to Volunteer
     await Notification.create({
-      user: booking.volunteer,
-      type: "booking",
-      message: `Booking from ${booking.fromLocation} to ${booking.toLocation} was ${status}.`,
-      data: {
-        bookingId: booking._id,
-        status: booking.status,
+      userId: booking.volunteer._id,
+      message: notificationMessage,
+      userInfo: {
+        name: booking.volunteer.name,
+        email: booking.volunteer.email,
+        organisation: booking.volunteer.organisation,
+        location: booking.volunteer.location,
       },
     });
 
-    res.status(200).json({ message: "Booking updated", booking });
+    // 🔔 Send to NGO
+    await Notification.create({
+      userId: booking.ngo._id,
+      message: notificationMessage,
+      userInfo: {
+        name: booking.ngo.name,
+        email: booking.ngo.email,
+        organisation: booking.ngo.organisation,
+        location: booking.ngo.location,
+      },
+    });
+
+    res.status(200).json({ message: "Booking updated and notifications sent", booking });
   } catch (err) {
-    console.error(err);
+    console.error("Update booking error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+

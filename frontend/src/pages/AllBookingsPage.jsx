@@ -3,13 +3,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 
-
 const AllBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -54,34 +52,32 @@ const AllBookingsPage = () => {
           All Bookings
         </h1>
 
-        {/* Loading state */}
         {loading && (
           <p className="text-center text-gray-400 text-lg animate-pulse">
             Loading bookings...
           </p>
         )}
 
-        {/* Error state */}
         {error && (
           <p className="text-center text-red-500 font-semibold text-lg mb-6">
             {error}
           </p>
         )}
 
-        {/* No bookings found */}
         {!loading && !error && bookings.length === 0 && (
           <p className="text-center text-gray-400 text-lg italic">
             No bookings found.
           </p>
         )}
 
-        {/* Bookings list */}
         {!loading && !error && bookings.length > 0 && (
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {bookings.map((booking) => (
               <li
                 key={booking._id}
-                onClick={() => navigate(`/booking/${booking._id}`)} // 🔥 Add this
+                onClick={() =>
+                  navigate(`/booking/${booking._id}`, { state: { booking } })
+                }
                 className="cursor-pointer bg-gradient-to-tr from-gray-800 to-gray-900 rounded-xl shadow-xl border border-gray-700 p-7 hover:scale-[1.03] transition-transform duration-300"
               >
                 <h2 className="text-2xl font-bold mb-5 text-indigo-400 tracking-wide border-b border-indigo-600 pb-2">
@@ -100,9 +96,7 @@ const AllBookingsPage = () => {
                     {booking.ngo?.name || "N/A"}
                   </p>
                   <p>
-                    <span className="font-semibold text-indigo-300">
-                      Email:
-                    </span>{" "}
+                    <span className="font-semibold text-indigo-300">Email:</span>{" "}
                     <a
                       href={`mailto:${booking.ngo?.email}`}
                       className="hover:underline text-indigo-400"
@@ -111,48 +105,34 @@ const AllBookingsPage = () => {
                     </a>
                   </p>
                   <p>
-                    <span className="font-semibold text-indigo-300">
-                      Organisation:
-                    </span>{" "}
+                    <span className="font-semibold text-indigo-300">Organisation:</span>{" "}
                     {booking.ngo?.organisation || "N/A"}
                   </p>
                   <p>
-                    <span className="font-semibold text-indigo-300">
-                      Location:
-                    </span>{" "}
+                    <span className="font-semibold text-indigo-300">Location:</span>{" "}
                     {booking.ngo?.location || "N/A"}
                   </p>
                 </div>
 
                 <div className="space-y-2 text-gray-300 mb-5">
                   <p>
-                    <span className="font-semibold text-indigo-300">
-                      Volunteer ID:
-                    </span>{" "}
+                    <span className="font-semibold text-indigo-300">Volunteer ID:</span>{" "}
                     {booking.volunteer || "N/A"}
                   </p>
                   <p>
-                    <span className="font-semibold text-indigo-300">
-                      From Location:
-                    </span>{" "}
+                    <span className="font-semibold text-indigo-300">From Location:</span>{" "}
                     {booking.fromLocation || "N/A"}
                   </p>
                   <p>
-                    <span className="font-semibold text-indigo-300">
-                      To Location:
-                    </span>{" "}
+                    <span className="font-semibold text-indigo-300">To Location:</span>{" "}
                     {booking.toLocation || "N/A"}
                   </p>
                   <p>
-                    <span className="font-semibold text-indigo-300">
-                      Notes:
-                    </span>{" "}
+                    <span className="font-semibold text-indigo-300">Notes:</span>{" "}
                     {booking.notes || "None"}
                   </p>
                   <p>
-                    <span className="font-semibold text-indigo-300">
-                      Status:
-                    </span>{" "}
+                    <span className="font-semibold text-indigo-300">Status:</span>{" "}
                     <span
                       className={`font-bold ${
                         booking.status?.toLowerCase() === "confirmed"

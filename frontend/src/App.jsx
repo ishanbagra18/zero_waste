@@ -26,6 +26,7 @@ import Volunteerdashboard from "./pages/Volunteerdashboard";
 import BookVolunteer from "./pages/BookVolunteer";
 import Bookingform from "./pages/Bookingform";
 import AllBookingsPage from "./pages/AllBookingsPage";
+import VolunteerHub from "./pages/VolunteerHub";
 
 
 // Import the new ProtectedRoute component
@@ -44,15 +45,10 @@ const AppContent = () => {
         {/* ====================================================== */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/review/:id" element={<SendReview />} />
         <Route path="/allreview/:id" element={<AllReviews/>}/>
         <Route path="/vendor/allitems" element={<Allitems />} />
         <Route path="/vendor/item/:id" element={<Getitembyid />} />
-        <Route path="/Volunteer/dashboard" element={<Volunteerdashboard />} />
-        <Route path="/myprofile" element={<MyProfile />} />
-        <Route path="/allbookings" element={<AllBookingsPage />} />
-        <Route path="/booking/:id" element={<Bookingform />} />
 
 
 
@@ -61,14 +57,17 @@ const AppContent = () => {
 
 
         {/* ====================================================== */}
-        {/* Protected Routes for BOTH Vendor and NGO */}
+        {/* Protected Routes for BOTH Vendor NGO and volunteer */}
         {/* ====================================================== */}
-        <Route element={<ProtectedRoute allowedRoles={['vendor', 'NGO','Volunteer']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['vendor','NGO','Volunteer']} />}>
           <Route path="/updateprofile" element={<UpdateProfile />} />
           <Route path="/chatting/:id" element={<Chatting />} />
           <Route path="/notifications" element={<Notifications />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/allvendors" element={<Allvendors />} />
           <Route path="/near" element={<Neartongo />} />
+        <Route path="/myprofile" element={<MyProfile />} />
+        <Route path="/Volunteer/dashboard" element={<Volunteerdashboard />} />
         </Route>
 
         {/* ====================================================== */}
@@ -92,6 +91,24 @@ const AppContent = () => {
 
           
         </Route>
+
+
+
+        {/* ====================================================== */}
+        {/* Protected Routes for Volunteer Only */}
+        {/* ====================================================== */}
+        <Route element={<ProtectedRoute allowedRoles={['Volunteer']} />}>
+          
+        <Route path="/allbookings" element={<AllBookingsPage />} />
+        <Route path="/booking/:id" element={<Bookingform />} />
+        <Route path="/volunteerhub" element={<VolunteerHub />} />
+
+        </Route>
+
+
+
+
+
       </Routes>
 
       {!hideChatbot && <Chatbot />}

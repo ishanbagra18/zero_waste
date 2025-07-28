@@ -11,8 +11,7 @@ const router = express.Router();
 
 router.get("/allbooking",isAuthenticated,getAllBookings);
 router.post("/bookvolunteer/:volunteerId",isAuthenticated ,isVendor("NGO"),bookVolunteer);
-router.patch("/${id}/status",isAuthenticated,updatebooking);
-
+router.patch("/:id/status", isAuthenticated, updatebooking);
 
 
 
