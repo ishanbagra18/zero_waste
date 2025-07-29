@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Menu, X } from 'lucide-react';
-
-const volunteerImg = 'https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=800&q=80';
+import {
+  Bell, Menu, X, LogOut, User, CalendarDays, ThumbsUp,
+} from 'lucide-react';
 
 const Volunteerdashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [volunteers, setVolunteers] = useState([]);
+
+  useEffect(() => {
+    const fetchVolunteers = async () => {
+      try {
+        const response = await fetch('http://localhost:3002/api/users/allvolunteer');
+        const data = await response.json();
+        setVolunteers(data.Volunteer || []);
+      } catch (error) {
+        console.error('Failed to fetch volunteers:', error);
+      }
+    };
+
+    fetchVolunteers();
+  }, []);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-tr from-[#12132B] via-[#21182f] via-70% to-[#18067a] text-gray-100 flex flex-col font-sans relative overflow-x-hidden">
-
-      {/* Background Glow */}
+      {/* Glows */}
       <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-indigo-700 via-fuchsia-600 to-pink-600 rounded-full blur-3xl opacity-30"></div>
       <div className="pointer-events-none absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-sky-500 to-green-500 rounded-full blur-2xl opacity-30 animate-pulse"></div>
 
@@ -26,18 +40,14 @@ const Volunteerdashboard = () => {
           <Link to="/myprofile" className="hover:text-indigo-400 transition">Profile</Link>
           <Link to="/notifications" className="relative group ml-4">
             <Bell className="w-6 h-6 text-indigo-300 hover:text-white transition duration-150" />
-            <span className="absolute -top-2 -right-2 bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse shadow">
-              !
-            </span>
+            <span className="absolute -top-2 -right-2 bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse shadow">!</span>
           </Link>
         </div>
 
         <div className="md:hidden flex items-center gap-4">
           <Link to="/notifications" className="relative group">
             <Bell className="w-6 h-6 text-indigo-300 hover:text-white transition duration-150" />
-            <span className="absolute -top-2 -right-2 bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse shadow">
-              !
-            </span>
+            <span className="absolute -top-2 -right-2 bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse shadow">!</span>
           </Link>
           <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -55,7 +65,6 @@ const Volunteerdashboard = () => {
 
       {/* Hero Section */}
       <section className="flex flex-col-reverse md:flex-row items-center justify-between max-w-7xl mx-auto px-4 sm:px-8 py-44 gap-20 flex-grow w-full relative z-10">
-        {/* Text Content */}
         <div className="text-center md:text-left max-w-xl space-y-9">
           <h1 className="text-5xl md:text-7xl font-extrabold bg-gradient-to-tr from-indigo-400 via-pink-500 to-green-400 text-transparent bg-clip-text drop-shadow-2xl tracking-tight leading-[1.1]">
             Welcome to VolunteerHub
@@ -64,34 +73,61 @@ const Volunteerdashboard = () => {
             Empower your volunteer journey. Discover opportunities, track your impact, and connect with communities that care.
           </p>
           <div className="flex justify-center md:justify-start gap-8 pt-2">
-            <Link
-              to="/volunteerhub"
-              className="px-9 py-3.5 bg-gradient-to-br from-indigo-600 via-fuchsia-700 to-pink-500 rounded-full font-bold text-lg shadow-xl hover:scale-105 transition transform hover:bg-gradient-to-bl outline-none focus:ring-2 focus:ring-pink-400"
-            >
-              Get Started
-            </Link>
-            <Link
-              to="/myprofile"
-              className="px-8 py-3 border-2 border-indigo-400 rounded-full font-bold text-lg text-indigo-100 bg-white/5 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 shadow-md transition"
-            >
-              My Profile
-            </Link>
+            <Link to="/volunteerhub" className="px-9 py-3.5 bg-gradient-to-br from-indigo-600 via-fuchsia-700 to-pink-500 rounded-full font-bold text-lg shadow-xl hover:scale-105 transition transform">Get Started</Link>
+            <Link to="/myprofile" className="px-8 py-3 border-2 border-indigo-400 rounded-full font-bold text-lg text-indigo-100 bg-white/5 hover:bg-indigo-600 hover:text-white shadow-md transition">My Profile</Link>
           </div>
         </div>
-        {/* Image */}
         <div className="max-w-md w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-indigo-400/40 bg-white/10 backdrop-blur-xl relative hover:scale-105 transition-all duration-700">
-          <img
-            src={volunteerImg}
-            alt="Volunteering teamwork"
-            className="object-cover w-full h-full scale-105 hover:scale-110 transition-all duration-700"
-            loading="lazy"
-          />
+          <img src="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=800&q=80" alt="Volunteering" className="object-cover w-full h-full scale-105 hover:scale-110 transition-all duration-700" />
           <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/20 to-transparent pointer-events-none"></div>
         </div>
       </section>
 
-      {/* Bookings Section */}
-      <section className="relative py-20 px-4 sm:px-16 md:px-32 bg-[#161822] border-t border-indigo-800/50 shadow-2xl rounded-t-3xl mt-12 overflow-hidden backdrop-blur-xl z-20">
+ {/* Stats Section */}
+<section className="bg-[#1a1c2b] py-16 px-6 text-center">
+  <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+
+    {/* Total Volunteers */}
+    <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-700 to-pink-500 shadow-xl">
+      <User size={32} className="mx-auto mb-2" />
+      <p className="text-3xl font-bold">{volunteers.length}</p>
+      <p className="text-gray-200">Total Volunteers</p>
+    </div>
+
+    {/* Unique Locations */}
+    <div className="p-6 rounded-2xl bg-gradient-to-br from-green-600 to-indigo-500 shadow-xl">
+      <CalendarDays size={32} className="mx-auto mb-2" />
+      <p className="text-3xl font-bold">
+        {[...new Set(volunteers.map(v => v.location.toLowerCase()))].length}
+      </p>
+      <p className="text-gray-200">Locations Covered</p>
+    </div>
+
+    {/* Organizations */}
+    <div className="p-6 rounded-2xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 shadow-xl">
+      <ThumbsUp size={32} className="mx-auto mb-2" />
+      <p className="text-3xl font-bold">
+        {[...new Set(volunteers.map(v => v.organisation.toLowerCase()))].length}
+      </p>
+      <p className="text-gray-200">Partner Organizations</p>
+    </div>
+
+    {/* Volunteers with Badges */}
+    <div className="p-6 rounded-2xl bg-gradient-to-br from-sky-500 to-green-400 shadow-xl">
+      <User size={32} className="mx-auto mb-2" />
+      <p className="text-3xl font-bold">
+        {volunteers.filter(v => v.badge !== "None").length}
+      </p>
+      <p className="text-gray-200">Badged Volunteers</p>
+    </div>
+    
+  </div>
+</section>
+
+
+
+
+            <section className="relative py-20 px-4 sm:px-16 md:px-32 bg-[#161822] border-t border-indigo-800/50 shadow-2xl rounded-t-3xl mt-12 overflow-hidden backdrop-blur-xl z-20">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/mocha.png')] opacity-10 pointer-events-none"></div>
         <div className="absolute -top-32 right-10 w-80 h-80 bg-gradient-to-tr from-pink-600 to-fuchsia-400 opacity-10 rounded-full blur-2xl"></div>
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-14 max-w-7xl mx-auto">
@@ -123,6 +159,57 @@ const Volunteerdashboard = () => {
           </div>
         </div>
       </section>
+
+
+
+      
+
+
+
+
+
+
+      <section className="bg-[#0f172a] text-white py-16 px-6">
+  <div className="max-w-5xl mx-auto text-center">
+    <h2 className="text-4xl font-bold mb-6 text-teal-400">What Volunteers Can Do for Free</h2>
+    <p className="text-lg leading-relaxed text-gray-300">
+      Volunteering is not just about giving time—it's about creating impact. As a volunteer, there are countless ways to make a difference in your community without spending a single rupee. Your dedication, skills, and willingness to help are the most valuable assets you can offer.
+      <br /><br />
+      Whether you're passionate about education, the environment, animal welfare, or social justice, there’s always something you can contribute. You can tutor underprivileged students online, help local NGOs with their digital presence, organize cleanliness drives in your neighborhood, or even offer emotional support to people through helplines and community groups.
+      <br /><br />
+      Many organizations also need volunteers for tasks like data entry, content writing, graphic designing, or simply spreading awareness on social media. You don’t need professional experience—just the heart to help and the commitment to show up.
+      <br /><br />
+      The best part? Volunteering for free gives you the chance to learn new skills, meet like-minded people, and build a profile that stands out—professionally and personally. Every small act, when done together, leads to a massive ripple of change.
+    </p>
+  </div>
+</section>
+
+
+
+
+
+
+<section className="bg-gradient-to-r from-gray-800 via-gray-900 to-black text-white py-16 px-6 shadow-inner">
+  <div className="max-w-5xl mx-auto text-center border border-gray-700 rounded-xl p-10 bg-gray-950 bg-opacity-80 backdrop-blur-sm">
+    <h2 className="text-4xl font-bold mb-6 text-indigo-400">Meet Your Amazing Volunteers</h2>
+    <p className="text-lg text-gray-300 mb-8">
+      Behind every impactful initiative is a team of selfless, passionate volunteers. Discover who they are, what they do,
+      and how they are helping build a better tomorrow. Their commitment fuels the heart of your mission.
+    </p>
+    <a
+      href="/volunteers"
+      className="inline-block px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition duration-300 shadow-lg"
+    >
+      See All Volunteers
+    </a>
+  </div>
+</section>
+
+
+
+
+
+
 
       {/* Footer */}
       <footer className="text-center py-10 border-t border-indigo-500/40 text-gray-400 text-md font-medium tracking-wide bg-gray-900/70 shadow-inner backdrop-blur-2xl rounded-b-3xl">

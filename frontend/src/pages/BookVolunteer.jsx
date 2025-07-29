@@ -1,7 +1,7 @@
 // src/pages/BookVolunteer.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   MdSearch,
   MdEmail,
@@ -11,12 +11,12 @@ import {
 
 // Neon gradients used per card for color variation
 const gradients = [
-  "from-[#2bc0e4] via-[#eaecc6] to-[#208ea2]",     // Aqua-neon
-  "from-[#fc00ff] via-[#00dbde] to-[#194fa1]",     // Pink/blue magenta
-  "from-[#f7971e] via-[#ffd200] to-[#f7971e]",     // Amber
-  "from-[#21d4fd] via-[#b721ff] to-[#21d4fd]",     // Blue/violet
-  "from-[#4776e6] via-[#8e54e9] to-[#4776e6]",     // Indigo-purple
-  "from-[#ff6a00] via-[#252525] to-[#ee0979]",     // Orange/red with black
+  "from-[#2bc0e4] via-[#eaecc6] to-[#208ea2]",
+  "from-[#fc00ff] via-[#00dbde] to-[#194fa1]",
+  "from-[#f7971e] via-[#ffd200] to-[#f7971e]",
+  "from-[#21d4fd] via-[#b721ff] to-[#21d4fd]",
+  "from-[#4776e6] via-[#8e54e9] to-[#4776e6]",
+  "from-[#ff6a00] via-[#252525] to-[#ee0979]",
 ];
 
 export default function BookVolunteer() {
@@ -53,7 +53,6 @@ export default function BookVolunteer() {
       <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-cyan-400 via-fuchsia-500 to-indigo-500 text-center mb-10 drop-shadow-lg uppercase tracking-wider select-none">
         Meet Our Volunteers
       </h1>
-      {/* Neon glass search bar */}
       <div className="flex justify-center mb-10">
         <div className="relative w-full max-w-lg">
           <MdSearch className="absolute left-4 top-3.5 text-cyan-400 text-2xl pointer-events-none" />
@@ -87,16 +86,21 @@ export default function BookVolunteer() {
 }
 
 function VolunteerCard({ volunteer, idx }) {
+  const navigate = useNavigate();
   const gradient = gradients[idx % gradients.length];
+
+  const handleReviewClick = (e) => {
+    e.preventDefault(); // Prevent link navigation
+    navigate(`/review/${volunteer._id}`);
+  };
 
   return (
     <Link
       to={`/bookingform/${volunteer._id}`}
       className={`relative rounded-3xl shadow-2xl p-0 pb-5 overflow-hidden bg-gradient-to-br ${gradient} border border-black/60 transition-transform duration-300 hover:scale-105 hover:shadow-cyan-400/60 group block`}
-      style={{ minHeight: 380 }}
+      style={{ minHeight: 420 }}
       title={`Book ${volunteer.name}`}
     >
-      {/* Glassy effect, top overlay */}
       <div className="absolute left-4 top-4 z-10 bg-black/30 backdrop-blur-md px-4 py-1 rounded-full font-semibold text-xs text-cyan-100 uppercase tracking-wider">
         Volunteer
       </div>
@@ -119,8 +123,15 @@ function VolunteerCard({ volunteer, idx }) {
           <MdLocationOn size={18} />
           <span>{volunteer.location}</span>
         </div>
+
+        {/* Blue Review Button */}
+        <button
+          onClick={handleReviewClick}
+          className="mt-4 px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md transition duration-200"
+        >
+          Review
+        </button>
       </div>
-      {/* Neon bar at the bottom */}
       <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-500 rounded-b-3xl" />
     </Link>
   );

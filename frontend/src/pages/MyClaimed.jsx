@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Toaster, toast } from "react-hot-toast";
+import LoadingSpinner from "../components/LoadingSpinner";
 import {
   MdLocationOn,
   MdShoppingCart,
@@ -34,9 +35,13 @@ const MyClaimed = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-[#0f172a] text-slate-300 text-lg">
-        Loading your claimed items...
-      </div>
+      // <div className="flex justify-center items-center min-h-screen bg-[#0f172a] text-slate-300 text-lg">
+      //   Loading your claimed items...
+      // </div>
+
+        <LoadingSpinner loading={loading} />
+
+
     );
   }
 

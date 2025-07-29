@@ -1,9 +1,9 @@
-// Allngos.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { MessageCircle, Star } from 'lucide-react'; // ✅ 1. Import the Star icon
+import { MessageCircle, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import LoadingSpinner from '../components/LoadingSpinner'; // ✅ Import spinner
 
 const colorThemes = [
   'from-cyan-500 via-blue-600 to-indigo-700',
@@ -22,20 +22,24 @@ const Allngos = () => {
   const [ngos, setNgos] = useState([]);
   const [filteredNgos, setFilteredNgos] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true); // ✅ Add loading state
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAllNgos = async () => {
       try {
+        setLoading(true); // Start loading
         const response = await axios.get('http://localhost:3002/api/users/allngo', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = response.data.ngos || [];
         setNgos(data);
         setFilteredNgos(data);
+        setLoading(false); // Stop loading
       } catch (error) {
         console.error('Error fetching NGOs:', error);
+        setLoading(false); // Even on error, stop loading
       }
     };
 
@@ -56,10 +60,14 @@ const Allngos = () => {
     navigate(`/chatting/${ngoId}`);
   };
 
-  // ✅ 2. Add the handler function for the review button
   const handleReviewClick = (ngoId) => {
     navigate(`/review/${ngoId}`);
   };
+
+  // ✅ Loading spinner
+  if (loading) {
+    return <LoadingSpinner loading={loading} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white px-6 py-12">
@@ -123,14 +131,12 @@ const Allngos = () => {
                 </div>
               </div>
 
-
               <div className="absolute top-3 right-3 flex flex-col gap-2">
                 <span className="px-3 py-1 rounded-full bg-black/40 text-xs uppercase font-semibold border border-white shadow">
                   {ngo.role}
                 </span>
               </div>
 
-              {/* ✅ 3. Add the button container with both buttons */}
               <div className="mt-5 pt-4 border-t border-white/20 flex justify-center items-center gap-4">
                 <button
                   onClick={() => handleChatClick(ngo._id)}

@@ -42,6 +42,9 @@ export default function Bookingofthevolunteer() {
       );
 
       console.log("✅ Booking success:", res.data);
+      setFromLocation('');
+      setToLocation('');
+      setNotes('');
       toast.success("Volunteer booked successfully!");
     } catch (err) {
       console.error("❌ Booking error:", err.response || err.message);

@@ -126,7 +126,7 @@ const Neartongo = () => {
             ))}
           </div>
         ) : (
-          <p className="text-red-400 text-lg">No nearby vendors found.</p>
+          <p className="text-green-400 text-lg">Finding nearest vendors...</p>
         )}
       </div>
     </div>
