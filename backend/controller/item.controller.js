@@ -280,12 +280,20 @@ export const getClaimedItems = async (req, res) => {
     }
 
     const claimedItems = await Item.find({ claimedBy: ngoId })
-      .populate("vendor", "name email organisation location photo") // include photo
-      .select("name quantity claimStatus claimedAt itemImage"); // include itemImage
+      .populate("vendor", "name email organisation location photo") 
+      .select("name quantity claimStatus claimedAt itemImage"); 
 
     if (!claimedItems || claimedItems.length === 0) {
       return res.status(404).json({ message: "No claimed items found." });
     }
+
+
+        if ( claimedItems.length === 0) {
+      return res.status(201).json({ message: "not claimed yet." });
+    }
+
+
+
 
     return res.status(200).json({
       message: "Claimed items fetched successfully.",

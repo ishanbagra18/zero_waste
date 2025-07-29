@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast, Toaster } from 'react-hot-toast';
+
 
 // Star component for the rating system
 const Star = ({ filled, onClick, onMouseEnter, onMouseLeave }) => (
@@ -51,12 +53,12 @@ const SendReview = () => {
         { rating, comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Review submitted successfully!");
+      toast.success("Review submitted successfully!");
       navigate(-1); // Go back to the previous page after submission
     } catch (err) {
       console.error("Failed to submit review:", err);
       setError(err.response?.data?.message || "An unexpected error occurred. Please try again.");
-      alert("Failed to submit review. " + (err.response?.data?.message || ""));
+      toast.error()("Failed to submit review. " + (err.response?.data?.message || ""));
     } finally {
       setIsSubmitting(false);
     }

@@ -27,6 +27,7 @@ import BookVolunteer from "./pages/BookVolunteer";
 import Bookingform from "./pages/Bookingform";
 import AllBookingsPage from "./pages/AllBookingsPage";
 import VolunteerHub from "./pages/VolunteerHub";
+import Bookingofthevolunteer from "./pages/Bookingofthevolunteer";
 
 
 // Import the new ProtectedRoute component
@@ -49,6 +50,7 @@ const AppContent = () => {
         <Route path="/allreview/:id" element={<AllReviews/>}/>
         <Route path="/vendor/allitems" element={<Allitems />} />
         <Route path="/vendor/item/:id" element={<Getitembyid />} />
+<Route path="/bookingform/:id" element={<Bookingofthevolunteer />} />
 
 
 

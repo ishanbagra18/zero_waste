@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast, Toaster } from "react-hot-toast";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -40,7 +41,7 @@ export default function Register() {
       localStorage.clear();
       localStorage.setItem("token", token);
       localStorage.setItem("role", user.role);
-      alert("Registration successful!");
+      toast.success("Registration successful!");
       if (user.role === "vendor") {
         navigate("/vendor/dashboard");
       } else if (user.role === "NGO") {
