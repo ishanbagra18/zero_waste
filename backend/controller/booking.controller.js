@@ -6,7 +6,7 @@ export const bookVolunteer = async (req, res) => {
   try {
     console.log("⏳ Booking request received");
 
-    const { volunteerId } = req.params;
+    const { volunteerId } = req.params; 
     console.log(volunteerId);
     const { fromLocation, toLocation, notes } = req.body;
 
