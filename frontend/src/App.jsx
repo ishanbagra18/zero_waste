@@ -32,7 +32,6 @@ import Volunteers from "./pages/Volunteers";
 
 // Import the new ProtectedRoute component
 import ProtectedRoute from "./components/ProtectedRoute";
-import Review from "../../backend/models/Review.model";
 
 const AppContent = () => {
   const location = useLocation();
