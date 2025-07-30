@@ -27,7 +27,7 @@ const server = http.createServer(app);
 // ✅ Setup Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: "https://zero-waste200.netlify.app",
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -91,7 +91,7 @@ io.on("connection", (socket) => {
 
 // ✅ Middleware & Config
 app.use(cors({
-  origin: '*',
+  origin: 'https://zero-waste200.netlify.app',
   credentials: true,
 }));
 app.use(express.json());

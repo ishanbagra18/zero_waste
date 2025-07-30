@@ -37,7 +37,7 @@ const VendorDashboard = () => {
       });
       setNotifications(res.data.notifications || []);
     } catch (error) {
-      toast.error("Failed to load notifications");
+      // toast.error("Failed to load notifications");
     }
   };
 
@@ -57,7 +57,7 @@ const VendorDashboard = () => {
           setItems([]);
         }
       } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to load items");
+        // toast.error(error.response?.data?.message || "Failed to load items");
       }
     };
     fetchMyItems();

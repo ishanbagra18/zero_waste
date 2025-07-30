@@ -9,6 +9,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+
+
+
+
 export const createItem = async (req, res) => {
   try {
     if (!req.files || Object.keys(req.files).length === 0) {
