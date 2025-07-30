@@ -46,7 +46,7 @@ export default function Bookingform() {
 
     try {
       await axios.patch(
-        `http://localhost:3002/api/book/${booking._id}/status`,
+        `https://zero-waste-2xxf.onrender.com/api/book/${booking._id}/status`,
         { status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },

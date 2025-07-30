@@ -25,7 +25,7 @@ const Allitems = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/items/get-items", {
+        const res = await axios.get("https://zero-waste-2xxf.onrender.com/api/items/get-items", {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${token}`,

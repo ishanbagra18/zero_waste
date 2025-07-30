@@ -31,7 +31,7 @@ const Getitembyid = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:3002/api/items/get-item/${id}`,
+        `https://zero-waste-2xxf.onrender.com/api/items/get-item/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -59,7 +59,7 @@ const Getitembyid = () => {
           onClick: async () => {
             try {
               await axios.patch(
-                `http://localhost:3002/api/items/${id}/claim`,
+                `https://zero-waste-2xxf.onrender.com/api/items/${id}/claim`,
                 {},
                 {
                   headers: { Authorization: `Bearer ${token}` },

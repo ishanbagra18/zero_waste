@@ -49,7 +49,7 @@ const SendReview = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        `http://localhost:3002/api/review/${reviewedUserId}`,
+        `https://zero-waste-2xxf.onrender.com/api/review/${reviewedUserId}`,
         { rating, comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );

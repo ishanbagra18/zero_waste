@@ -23,7 +23,7 @@ export default function Login() {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.post("http://localhost:3002/api/users/login", {
+      const res = await axios.post("https://zero-waste-2xxf.onrender.com/api/users/login", {
         email,
         password,
         role,

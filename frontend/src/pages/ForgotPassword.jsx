@@ -12,7 +12,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.patch('http://localhost:3002/api/users/forgot-password', {
+      const res = await axios.patch('https://zero-waste-2xxf.onrender.com/api/users/forgot-password', {
         email,
         role,
         newPassword: password,

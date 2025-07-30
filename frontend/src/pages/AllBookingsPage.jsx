@@ -23,7 +23,7 @@ const AllBookingsPage = () => {
 
       try {
         const res = await axios.get(
-          "http://localhost:3002/api/book/allbooking",
+          "https://zero-waste-2xxf.onrender.com/api/book/allbooking",
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,

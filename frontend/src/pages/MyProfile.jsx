@@ -29,7 +29,7 @@ const MyProfile = () => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3002/api/users/myprofile/${userId}`,
+          `https://zero-waste-2xxf.onrender.com/api/users/myprofile/${userId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setUser(res.data.user);

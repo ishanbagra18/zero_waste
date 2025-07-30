@@ -32,7 +32,7 @@ export default function Bookingofthevolunteer() {
       });
 
       const res = await axios.post(
-        `http://localhost:3002/api/book/bookvolunteer/${id}`,
+        `https://zero-waste-2xxf.onrender.com/api/book/bookvolunteer/${id}`,
         { fromLocation, toLocation, notes },
         {
           headers: {

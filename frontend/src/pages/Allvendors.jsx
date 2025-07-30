@@ -27,7 +27,7 @@ const Allvendors = () => {
   useEffect(() => {
     const fetchAllVendors = async () => {
       try {
-        const response = await axios.get('http://localhost:3002/api/users/allvendor', {
+        const response = await axios.get('https://zero-waste-2xxf.onrender.com/api/users/allvendor', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setVendors(response.data.vendors || []);

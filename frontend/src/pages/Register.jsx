@@ -33,7 +33,7 @@ export default function Register() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3002/api/users/register",
+        "https://zero-waste-2xxf.onrender.com/api/users/register",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

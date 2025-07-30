@@ -11,7 +11,7 @@ const Volunteerdashboard = () => {
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch('http://localhost:3002/api/users/allvolunteer');
+        const response = await fetch('https://zero-waste-2xxf.onrender.com/api/users/allvolunteer');
         const data = await response.json();
         setVolunteers(data.Volunteer || []);
       } catch (error) {

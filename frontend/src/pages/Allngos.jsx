@@ -30,7 +30,7 @@ const Allngos = () => {
     const fetchAllNgos = async () => {
       try {
         setLoading(true); // Start loading
-        const response = await axios.get('http://localhost:3002/api/users/allngo', {
+        const response = await axios.get('https://zero-waste-2xxf.onrender.com/api/users/allngo', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = response.data.ngos || [];

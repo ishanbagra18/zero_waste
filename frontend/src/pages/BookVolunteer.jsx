@@ -27,7 +27,7 @@ export default function BookVolunteer() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3002/api/users/allvolunteer")
+      .get("https://zero-waste-2xxf.onrender.com/api/users/allvolunteer")
       .then((res) => {
         const vols = res.data.Volunteer || [];
         setVolunteers(vols);

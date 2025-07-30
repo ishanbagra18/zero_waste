@@ -38,7 +38,7 @@ const NgoDashboard = () => {
 
 
 
-   const NOTIFICATION_API = "http://localhost:3002/api/notifications/notification";
+   const NOTIFICATION_API = "https://zero-waste-2xxf.onrender.com/api/notifications/notification";
 
   const fetchNotifications = async () => {
     // console.log("📡 Fetching notifications...");
@@ -69,7 +69,7 @@ const NgoDashboard = () => {
   useEffect(() => {
     const fetchMyClaimed = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/items/get-claimed-items", {
+        const res = await axios.get("https://zero-waste-2xxf.onrender.com/api/items/get-claimed-items", {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
@@ -104,7 +104,7 @@ const NgoDashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get("http://localhost:3002/api/users/logout", {
+      await axios.get("https://zero-waste-2xxf.onrender.com/api/users/logout", {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });

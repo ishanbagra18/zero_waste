@@ -73,7 +73,7 @@ const CreateItem = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post("http://localhost:3002/api/items/create-item", formData, {
+      await axios.post("https://zero-waste-2xxf.onrender.com/api/items/create-item", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

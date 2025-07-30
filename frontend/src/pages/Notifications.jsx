@@ -10,7 +10,7 @@ const Notification = () => {
   const token = localStorage.getItem("token") || "";
   const role = localStorage.getItem("role") || "";
 
-  const NOTIFICATION_API = "http://localhost:3002/api/notifications/notification";
+  const NOTIFICATION_API = "https://zero-waste-2xxf.onrender.com/api/notifications/notification";
 
   const fetchNotifications = async () => {
     if (!token) {
@@ -32,7 +32,7 @@ const Notification = () => {
   const markAsRead = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:3002/api/notifications/notification/${id}/read`,
+        `https://zero-waste-2xxf.onrender.com/api/notifications/notification/${id}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -47,7 +47,7 @@ const Notification = () => {
   const deleteNotification = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:3002/api/notifications/notification/${id}`,
+        `https://zero-waste-2xxf.onrender.com/api/notifications/notification/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success("Notification deleted");
@@ -65,7 +65,7 @@ const Notification = () => {
     }
     try {
       await axios.patch(
-        `http://localhost:3002/api/items/${itemId}/claim-status`,
+        `https://zero-waste-2xxf.onrender.com/api/items/${itemId}/claim-status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );

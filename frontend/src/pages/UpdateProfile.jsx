@@ -107,7 +107,7 @@ export default function UpdateProfile() {
       }
 
       await axios.put(
-        `http://localhost:3002/api/users/updateProfile/${userId}`,
+        `https://zero-waste-2xxf.onrender.com/api/users/updateProfile/${userId}`,
         formData,
         {
           headers: {

@@ -17,7 +17,7 @@ const MyClaimed = () => {
   useEffect(() => {
     const fetchMyClaimed = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/items/get-claimed-items", {
+        const res = await axios.get("https://zero-waste-2xxf.onrender.com/api/items/get-claimed-items", {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });

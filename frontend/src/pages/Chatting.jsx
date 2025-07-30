@@ -21,7 +21,7 @@ const Chatting = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://localhost:3002/api/message/get/${chatUserId}`,
+          `https://zero-waste-2xxf.onrender.com/api/message/get/${chatUserId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setMessages(res.data);
@@ -55,7 +55,7 @@ const Chatting = () => {
 
     try {
       const res = await axios.post(
-        `http://localhost:3002/api/message/send/${chatUserId}`,
+        `https://zero-waste-2xxf.onrender.com/api/message/send/${chatUserId}`,
         { message: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -9,7 +9,7 @@ const Volunteers = () => {
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const res = await axios.get('http://localhost:3002/api/users/allvolunteer');
+        const res = await axios.get('https://zero-waste-2xxf.onrender.com/api/users/allvolunteer');
         setVolunteers(res.data.Volunteer || []);
       } catch (err) {
         console.error("Failed to fetch volunteers:", err);

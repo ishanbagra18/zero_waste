@@ -23,7 +23,7 @@ const Chatbot = () => {
       const token = localStorage.getItem("token");
 
       const response = await axios.post(
-        "http://localhost:3002/api/chat/chatbot",
+        "https://zero-waste-2xxf.onrender.com/api/chat/chatbot",
         { message: input },
         {
           headers: {

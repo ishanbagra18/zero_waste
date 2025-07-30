@@ -23,7 +23,7 @@ const VendorDashboard = () => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  const NOTIFICATION_API = "http://localhost:3002/api/notifications/notification";
+  const NOTIFICATION_API = "https://zero-waste-2xxf.onrender.com/api/notifications/notification";
 
   const fetchNotifications = async () => {
     if (!token) {
@@ -46,7 +46,7 @@ const VendorDashboard = () => {
   useEffect(() => {
     const fetchMyItems = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/items/my-items", {
+        const res = await axios.get("https://zero-waste-2xxf.onrender.com/api/items/my-items", {
           withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -71,7 +71,7 @@ const VendorDashboard = () => {
 
   const handleDeleteConfirmed = async () => {
     try {
-      await axios.delete(`http://localhost:3002/api/items/delete-item/${deleteItemId}`, {
+      await axios.delete(`https://zero-waste-2xxf.onrender.com/api/items/delete-item/${deleteItemId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setItems((prev) => prev.filter((item) => item._id !== deleteItemId));
@@ -94,7 +94,7 @@ const VendorDashboard = () => {
 
   const handlelogout = async () => {
     try {
-      await axios.get("http://localhost:3002/api/users/logout", {
+      await axios.get("https://zero-waste-2xxf.onrender.com/api/users/logout", {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
