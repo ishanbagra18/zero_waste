@@ -49,7 +49,7 @@ frontend/
 2. Create a `.env` file with your MongoDB URI and JWT secret.
 3. Start the server:
    ```sh
-   npm start
+   npm run dev
    ```
    The backend runs on `http://localhost:3002`.
 
