@@ -29,6 +29,12 @@ import AllBookingsPage from "./pages/AllBookingsPage";
 import VolunteerHub from "./pages/VolunteerHub";
 import Bookingofthevolunteer from "./pages/Bookingofthevolunteer";
 import Volunteers from "./pages/Volunteers";
+import Donation from "./pages/Donation";
+import Blogs from "./pages/Blogs";
+import Createblog from "./pages/Createblog";
+import Myblogs from "./pages/Myblogs";
+import Blogsbyid from "./pages/Blogsbyid";
+import Leaderboard from "./pages/Leaderboard";
 
 // Import the new ProtectedRoute component
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -51,6 +57,13 @@ const AppContent = () => {
         <Route path="/vendor/item/:id" element={<Getitembyid />} />
         <Route path="/bookingform/:id" element={<Bookingofthevolunteer />} />
         <Route path="/ngo/bookvolunteer" element={<BookVolunteer />} />
+        <Route path="/blogs" element={<Blogs />} />
+        <Route path="/createblog" element={<Createblog />} />
+        <Route path="/myblogs" element={<Myblogs />} />
+        <Route path="/blogsbyid/:id" element={<Blogsbyid />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+
+
 
         {/* ====================================================== */}
         {/* Protected Routes for BOTH Vendor NGO and volunteer */}
@@ -79,6 +92,9 @@ const AppContent = () => {
           <Route path="/vendor/updateitem/:id" element={<Updateitem />} />
           <Route path="/allngos" element={<Allngos />} />
           <Route path="/readmore" element={<Readmore />} />
+          <Route path="/donation" element={<Donation />} />
+
+
         </Route>
 
         {/* ====================================================== */}

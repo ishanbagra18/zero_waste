@@ -1,6 +1,16 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
 import Conversation from "../models/Conversation.model.js";
+import { v2 as cloudinary } from "cloudinary";
+
+
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 
 export const sendMessage = async (req, res) => {
   try {
@@ -8,11 +18,11 @@ export const sendMessage = async (req, res) => {
     const { id: receiverId } = req.params;
     const senderId = req.user.userId;
 
-    if (!senderId || !receiverId || !message) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!senderId || !receiverId || (!message && !req.files?.photo)) {
+      return res.status(400).json({ error: "Message text or photo is required" });
     }
 
-    // Find or create conversation
+    // 🔍 Find or create a conversation
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
     });
@@ -23,24 +33,47 @@ export const sendMessage = async (req, res) => {
       });
     }
 
-    // Create the message
+    // 📤 Handle optional photo upload
+    let photo = null;
+    if (req.files && req.files.photo) {
+      const uploadedPhoto = req.files.photo;
+
+      const allowedFormats = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedFormats.includes(uploadedPhoto.mimetype)) {
+        return res.status(400).json({ message: "Invalid photo format." });
+      }
+
+      const cloudinaryResponse = await cloudinary.uploader.upload(
+        uploadedPhoto.tempFilePath,
+        { folder: "chatPhotos" }
+      );
+
+      if (!cloudinaryResponse || cloudinaryResponse.error) {
+        console.error(cloudinaryResponse.error);
+        return res.status(500).json({ message: "Image upload failed." });
+      }
+
+      photo = {
+        public_id: cloudinaryResponse.public_id,
+        url: cloudinaryResponse.secure_url,
+      };
+    }
+
+    // ✉️ Create and save message
     const newMessage = new Message({
       senderId,
       receiverId,
-      message,
+      message: message || "",
+      ...(photo && { photo }),
     });
 
-        if (newMessage) {
-      conversation.messages.push(newMessage._id);
-    }
+    conversation.messages.push(newMessage._id);
 
-
-    // Push message to conversation.messages array
-  await Promise.all([conversation.save(), newMessage.save()]); // run parallel
+    await Promise.all([newMessage.save(), conversation.save()]);
 
     res.status(201).json(newMessage);
   } catch (error) {
-    console.log("Error in sendMessage:", error);
+    console.error("Error in sendMessage:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

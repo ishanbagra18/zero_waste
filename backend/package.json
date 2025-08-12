@@ -23,6 +23,7 @@
     "jwt-decode": "^4.0.0",
     "mongoose": "^8.16.0",
     "nodemon": "^3.1.10",
+    "razorpay": "^2.9.6",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "stripe": "^18.3.0",

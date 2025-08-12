@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../util/api';
 import { ClipLoader } from 'react-spinners';
 
 const Volunteers = () => {
@@ -9,7 +9,7 @@ const Volunteers = () => {
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const res = await axios.get('https://zero-waste-2xxf.onrender.com/api/users/allvolunteer');
+        const res = await api.get('/api/users/allvolunteer');
         setVolunteers(res.data.Volunteer || []);
       } catch (err) {
         console.error("Failed to fetch volunteers:", err);

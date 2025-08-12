@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
+import api from "../util/api";
 
 const Updateitem = () => {
   const { id } = useParams();
@@ -26,7 +26,7 @@ const Updateitem = () => {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        const res = await axios.get(`https://zero-waste-2xxf.onrender.com/api/items/get-item/${id}`, {
+        const res = await api.get(`/api/items/get-item/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -83,8 +83,8 @@ const Updateitem = () => {
         form.append("itemImage", newImageFile); // Match your backend field name
       }
 
-      await axios.put(
-        `https://zero-waste-2xxf.onrender.com/api/items/update-item/${id}`,
+      await api.put(
+        `/api/items/update-item/${id}`,
         form,
         {
           headers: {

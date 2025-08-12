@@ -15,6 +15,7 @@ import chatbotRoute from './routes/chatbot.route.js';
 import notificationRouter from './routes/notification.route.js';
 import messageRoute from "./routes/message.route.js";
 import reviewRoute from "./routes/review.route.js";
+import blogRoute from "./routes/blog.route.js";
 
 import Message from './models/message.model.js';
 
@@ -27,8 +28,8 @@ const server = http.createServer(app);
 // ✅ Setup Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: "https://zero-waste200.netlify.app",
-    methods: ['GET', 'POST'],
+    origin:["https://zero-waste200.netlify.app", "http://localhost:5173"],
+    methods: ['GET', 'POST','PATCH'],
     credentials: true,
   },
 });
@@ -91,7 +92,7 @@ io.on("connection", (socket) => {
 
 // ✅ Middleware & Config
 app.use(cors({
-  origin: 'https://zero-waste200.netlify.app',
+  origin: ['https://zero-waste200.netlify.app','http://localhost:5173'],
   credentials: true,
 }));
 app.use(express.json());
@@ -116,6 +117,7 @@ app.use("/api/message", messageRoute);
 app.use("/api/chat", chatbotRoute);
 app.use("/api/review", reviewRoute);
 app.use("/api/book",bookingRoute);
+app.use("/api/blog",blogRoute);
 
 // ✅ Base route
 app.get('/', (req, res) => {

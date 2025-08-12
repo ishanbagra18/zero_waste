@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
+import api from "../util/api";
 
 // Status colors for chips
 const statuses = ["pending", "accepted", "rejected", "cancelled", "completed"];
@@ -45,8 +46,8 @@ export default function Bookingform() {
     }
 
     try {
-      await axios.patch(
-        `https://zero-waste-2xxf.onrender.com/api/book/${booking._id}/status`,
+      await api.patch(
+        `/api/book/${booking._id}/status`,
         { status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },

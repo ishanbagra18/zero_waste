@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
+import api from "../util/api";
 
 const AllBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -22,8 +23,8 @@ const AllBookingsPage = () => {
       setError(null);
 
       try {
-        const res = await axios.get(
-          "https://zero-waste-2xxf.onrender.com/api/book/allbooking",
+        const res = await api.get(
+          "/api/book/allbooking",
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,

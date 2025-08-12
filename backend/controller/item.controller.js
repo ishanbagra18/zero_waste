@@ -63,6 +63,10 @@ export const createItem = async (req, res) => {
 
     await newItem.save();
 
+
+    await User.findByIdAndUpdate(req.user.userId, { $inc: { points: 10 } });
+
+
     return res.status(201).json({
       message: "Item created successfully.",
       item: newItem,
@@ -73,6 +77,9 @@ export const createItem = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
 
 
 
@@ -368,6 +375,10 @@ export const getClaimedItems = async (req, res) => {
 
       console.log(`📨 Notification sent to vendor (userId: ${item.vendor._id})`);
 
+
+      await User.findByIdAndUpdate(req.user.userId, { $inc: { points: 10 } });
+
+
       return res.status(200).json({
         message: "Item claimed successfully.",
         item,
@@ -385,89 +396,94 @@ export const getClaimedItems = async (req, res) => {
 
 
 
+export const updateClaimStatus = async (req, res) => {
+  try {
+    console.log("\n\n==========================");
+    console.log("🔧 [DEBUG] Entered updateClaimStatus controller");
 
+    const itemId = req.params.id;
+    const { status } = req.body;
 
-  export const updateClaimStatus = async (req, res) => {
-    try {
-      console.log("\n\n==========================");
-      console.log("🔧 [DEBUG] Entered updateClaimStatus controller");
+    console.log("🆔 Item ID:", itemId);
+    console.log("📦 Requested status:", status);
+    console.log("👤 Authenticated user from token:", req.user);
 
-      const itemId = req.params.id;
-      const { status } = req.body;
-
-      console.log("🆔 Item ID:", itemId);
-      console.log("📦 Requested status:", status);
-      console.log("👤 Authenticated user from token:", req.user);
-
-      const validStatuses = ["approved", "rejected", "collected"];
-      if (!itemId || !status || !validStatuses.includes(status)) {
-        console.warn("❌ Invalid request parameters");
-        return res.status(400).json({ message: "Invalid request parameters." });
-      }
-
-      const item = await Item.findById(itemId);
-      if (!item) {
-        console.warn(`❌ Item not found with ID: ${itemId}`);
-        return res.status(404).json({ message: "Item not found." });
-      }
-
-      console.log("✅ Item found:", item.name);
-      console.log("📎 item.vendor:", item.vendor.toString());
-      console.log("📎 req.user.userId:", req.user.userId);
-
-      if (item.vendor.toString() !== req.user.userId.toString()) {
-        console.warn("🚫 Unauthorized: This user is not the item's vendor");
-        return res.status(403).json({ message: "You are not authorized to update this claim." });
-      }
-
-      if (!item.claimedBy) {
-        console.warn("⚠️ Item is not yet claimed");
-        return res.status(400).json({ message: "This item has not been claimed." });
-      }
-
-      if (item.claimStatus === status) {
-        console.info(`ℹ️ Item already marked as '${status}'`);
-        return res.status(400).json({ message: `Item is already marked as ${status}.` });
-      }
-
-      console.log(`✏️ Updating item claimStatus from '${item.claimStatus}' to '${status}'`);
-      item.claimStatus = status;
-
-      if (status === "rejected") {
-        item.status = "available";
-        console.log("🔁 Item marked back to available");
-      } else if (status === "collected") {
-        item.status = "completed";
-        console.log("✅ Item marked as completed");
-      }
-
-      await item.save();
-      console.log("💾 Item updated and saved to DB");
-
-      await Notification.create({
-        userId: item.claimedBy.toString(),
-          itemId: item._id, // ✅ required
-        userInfo: {
-          name: req.user.name,
-          email: req.user.email,
-          organisation: req.user.organisation,
-          location: req.user.location,
-        },
-        message: `Your claim for item "${item.name}" has been ${status}.`,
-      });
-
-      console.log(`📣 Notification sent to NGO (userId: ${item.claimedBy})`);
-      console.log("==========================\n");
-
-      return res.status(200).json({
-        message: `Claim status updated to ${status} successfully.`,
-        item,
-      });
-
-    } catch (error) {
-      console.error("🔥 Error updating claim status:", error);
-      return res.status(500).json({ message: "Server error" });
+    const validStatuses = ["approved", "rejected", "collected"];
+    if (!itemId || !status || !validStatuses.includes(status)) {
+      console.warn("❌ Invalid request parameters");
+      return res.status(400).json({ message: "Invalid request parameters." });
     }
-  };
 
+    const item = await Item.findById(itemId);
+    if (!item) {
+      console.warn(`❌ Item not found with ID: ${itemId}`);
+      return res.status(404).json({ message: "Item not found." });
+    }
 
+    console.log("✅ Item found:", item.name);
+    console.log("📎 item.vendor:", item.vendor.toString());
+    console.log("📎 req.user.userId:", req.user.userId);
+
+    if (item.vendor.toString() !== req.user.userId.toString()) {
+      console.warn("🚫 Unauthorized: This user is not the item's vendor");
+      return res.status(403).json({ message: "You are not authorized to update this claim." });
+    }
+
+    if (!item.claimedBy) {
+      console.warn("⚠️ Item is not yet claimed");
+      return res.status(400).json({ message: "This item has not been claimed." });
+    }
+
+    if (item.claimStatus === status) {
+      console.info(`ℹ️ Item already marked as '${status}'`);
+      return res.status(400).json({ message: `Item is already marked as ${status}.` });
+    }
+
+    console.log(`✏️ Updating item claimStatus from '${item.claimStatus}' to '${status}'`);
+    item.claimStatus = status;
+
+    if (status === "rejected") {
+      item.status = "available";
+      console.log("🔁 Item marked back to available");
+    } else if (status === "collected") {
+      item.status = "completed";
+      console.log("✅ Item marked as completed");
+
+      // 🎯 +20 points to BOTH vendor and NGO
+      await User.findByIdAndUpdate(item.vendor, { $inc: { points: 20 } });
+      await User.findByIdAndUpdate(item.claimedBy, { $inc: { points: 20 } });
+      console.log("🎯 +20 points awarded to vendor & NGO");
+    } else if (status === "approved") {
+      // 🎯 +5 points to vendor only
+      await User.findByIdAndUpdate(item.vendor, { $inc: { points: 5 } });
+      console.log("🎯 +5 points awarded to vendor");
+    }
+
+    await item.save();
+    console.log("💾 Item updated and saved to DB");
+
+    await Notification.create({
+      userId: item.claimedBy.toString(),
+      itemId: item._id, // ✅ required
+      userInfo: {
+        name: req.user.name,
+        email: req.user.email,
+        organisation: req.user.organisation,
+        location: req.user.location,
+      },
+      message: `Your claim for item "${item.name}" has been ${status}.`,
+    });
+
+    console.log(`📣 Notification sent to NGO (userId: ${item.claimedBy})`);
+    console.log("==========================\n");
+
+    return res.status(200).json({
+      message: `Claim status updated to ${status} successfully.`,
+      item,
+    });
+
+  } catch (error) {
+    console.error("🔥 Error updating claim status:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};

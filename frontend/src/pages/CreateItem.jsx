@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../util/api";
 import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import { MdErrorOutline, MdCheckCircle } from "react-icons/md";
@@ -73,7 +73,7 @@ const CreateItem = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post("https://zero-waste-2xxf.onrender.com/api/items/create-item", formData, {
+      await api.post("/api/items/create-item", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

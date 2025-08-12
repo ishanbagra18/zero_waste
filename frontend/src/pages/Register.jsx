@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
+import api from "../util/api";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -32,8 +32,8 @@ export default function Register() {
     formData.append("photo", photo);
 
     try {
-      const res = await axios.post(
-        "https://zero-waste-2xxf.onrender.com/api/users/register",
+      const res = await api.post(
+        "/api/users/register",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../util/api";
 import { Link, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import Footer from "../components/Footer";
@@ -23,7 +23,7 @@ const VendorDashboard = () => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  const NOTIFICATION_API = "https://zero-waste-2xxf.onrender.com/api/notifications/notification";
+  const NOTIFICATION_API = "/api/notifications/notification";
 
   const fetchNotifications = async () => {
     if (!token) {
@@ -31,7 +31,7 @@ const VendorDashboard = () => {
       return;
     }
     try {
-      const res = await axios.get(NOTIFICATION_API, {
+      const res = await api.get(NOTIFICATION_API, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
@@ -46,7 +46,7 @@ const VendorDashboard = () => {
   useEffect(() => {
     const fetchMyItems = async () => {
       try {
-        const res = await axios.get("https://zero-waste-2xxf.onrender.com/api/items/my-items", {
+        const res = await api.get("/api/items/my-items", {
           withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -71,7 +71,7 @@ const VendorDashboard = () => {
 
   const handleDeleteConfirmed = async () => {
     try {
-      await axios.delete(`https://zero-waste-2xxf.onrender.com/api/items/delete-item/${deleteItemId}`, {
+      await api.delete(`/api/items/delete-item/${deleteItemId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setItems((prev) => prev.filter((item) => item._id !== deleteItemId));
@@ -88,13 +88,25 @@ const VendorDashboard = () => {
     navigate("/allngos");
   };
 
+
+  const handledonation = () =>
+  {
+    navigate("/donation");
+  }
+
+
+  const handleExploreCommunity = ()=>
+  {
+    navigate("/blogs")
+  }
+
   const handlereadmore = () => {
     navigate("/readmore");
   };
 
   const handlelogout = async () => {
     try {
-      await axios.get("https://zero-waste-2xxf.onrender.com/api/users/logout", {
+      await api.get("/api/users/logout", {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
@@ -132,44 +144,19 @@ const VendorDashboard = () => {
       <Toaster />
 
       {/* Navbar */}
-      <nav className="flex justify-between items-center px-10 py-5 bg-[#101624] border-b border-gray-700 shadow-md sticky top-0 z-50">
-        <h1 className="text-3xl font-extrabold text-emerald-400 tracking-wide select-none">
+      <nav className="flex flex-wrap justify-between items-center px-4 sm:px-8 py-4 bg-[#101624] border-b border-gray-700 shadow-md sticky top-0 z-50 gap-2">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-emerald-400 tracking-wide select-none">
           Zero Waste
         </h1>
-        <div className="flex gap-4 items-center">
-          <Link
-            to="/vendor/createitem"
-            className="bg-emerald-600 px-4 py-2 rounded-md hover:bg-green-600 transition shadow-md focus:outline-none focus:ring-2 focus:ring-green-400"
-          >
-            ➕ Create Item
-          </Link>
-          <Link
-            to="/vendor/allitems"
-            className="bg-indigo-600 px-4 py-2 rounded-md hover:bg-blue-600 transition shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            🧾 All Items
-          </Link>
-
-          <Link
-            to="/myprofile"
-            className="bg-pink-700 px-4 py-2 rounded-md hover:bg-pink-500 transition shadow-md focus:outline-none focus:ring-2 focus:ring-pink-400"
-          >
-            👤 My Profile
-          </Link>
-          <button
-            onClick={handlelogout}
-            className="border border-black pt-2 pb-2 px-4 bg-sky-500 hover:bg-sky-600 rounded-md shadow-md transition focus:outline-none focus:ring-2 focus:ring-sky-400"
-          >
-            📤 Logout
-          </button>
-          <Link
-            to="/notifications"
-            className="relative p-2 rounded-full hover:bg-gray-800 transition focus:outline-none focus:ring-2 focus:ring-emerald-400"
-            aria-label="Notifications"
-          >
+        <div className="flex flex-wrap gap-2 items-center">
+          <Link to="/vendor/createitem" className="bg-emerald-600 px-4 py-2 rounded-md hover:bg-green-600 shadow-md">➕ Create Item</Link>
+          <Link to="/vendor/allitems" className="bg-indigo-600 px-4 py-2 rounded-md hover:bg-blue-600 shadow-md">🧾 All Items</Link>
+          <Link to="/myprofile" className="bg-pink-700 px-4 py-2 rounded-md hover:bg-pink-500 shadow-md">👤 My Profile</Link>
+          <button onClick={handlelogout} className="bg-sky-500 hover:bg-sky-600 px-4 py-2 rounded-md shadow-md">📤 Logout</button>
+          <Link to="/notifications" className="relative p-2 rounded-full hover:bg-gray-800">
             <Bell className="text-white w-6 h-6" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1 rounded-full font-bold select-none">
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1 rounded-full font-bold">
                 {unreadCount}
               </span>
             )}
@@ -462,6 +449,121 @@ const VendorDashboard = () => {
           </ResponsiveContainer>
         </div>
       </section>
+
+
+
+
+
+
+<section className="relative px-6 md:px-24 py-24 bg-gradient-to-b from-[#0f172a] via-[#111827] to-[#0f172a] overflow-hidden border-t border-gray-800">
+  <div className="max-w-4xl mx-auto bg-white/5 backdrop-blur-lg rounded-2xl shadow-2xl p-10 md:p-16 text-center border border-emerald-500/30">
+    <h3 className="text-4xl md:text-5xl font-extrabold text-emerald-400 mb-6 drop-shadow-lg leading-tight">
+      Ready to Make a Difference? 💚
+    </h3>
+    <p className="text-gray-300 text-lg md:text-xl mb-10 leading-relaxed">
+      Join our mission to eliminate waste. Explore verified NGOs working 
+      tirelessly toward sustainability. Your donation can spark real change.
+    </p>
+    <button
+      onClick={handledonation}
+      className="group relative inline-flex items-center px-10 py-4 bg-emerald-500 text-black font-semibold rounded-xl shadow-lg transition-all duration-300 hover:bg-emerald-600 hover:shadow-emerald-400/50 focus:outline-none focus:ring-4 focus:ring-emerald-400"
+    >
+      <span className="relative z-10">View All NGOs</span>
+      <span className="absolute right-4 text-xl transform group-hover:translate-x-1 transition-transform duration-300">
+        →
+      </span>
+    </button>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+{/* EXPLORE THE COMMUNITY - HERO STYLE */}
+<section className="relative py-28 overflow-hidden">
+  {/* Background split */}
+  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 skew-y-3 transform origin-top"></div>
+
+  <div className="relative max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12">
+    {/* Left: Text */}
+    <div className="flex-1 text-center lg:text-left text-white">
+      <h2 className="text-5xl font-extrabold leading-tight mb-6 drop-shadow-lg">
+        Join the Conversation, <br /> Change the World 🌍
+      </h2>
+      <p className="text-lg text-gray-200 mb-8 max-w-xl">
+        Dive into a thriving community of eco-conscious changemakers.  
+        Read inspiring blogs, share your ideas, and learn from real journeys.
+      </p>
+      <button
+        onClick={handleExploreCommunity}
+        className="group relative px-8 py-4 bg-white text-blue-700 font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+      >
+        Explore Blogs
+   
+      </button>
+    </div>
+
+    {/* Right: Illustration */}
+    <div className="flex-1 relative flex justify-center">
+      {/* Main circle */}
+      <div className="w-72 h-72 lg:w-96 lg:h-96 bg-white/10 rounded-full backdrop-blur-lg border border-white/30 shadow-2xl flex items-center justify-center relative">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/3176/3176364.png"
+          alt="Community"
+          className="w-36 lg:w-48 animate-float"
+        />
+
+        {/* Floating icons */}
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png"
+          className="w-10 absolute -top-6 left-12 animate-bounce-slow"
+        />
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1077/1077035.png"
+          className="w-10 absolute bottom-4 -left-6 animate-bounce-slow delay-200"
+        />
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png"
+          className="w-10 absolute top-8 -right-6 animate-bounce-slow delay-500"
+        />
+      </div>
+    </div>
+  </div>
+
+  {/* Animations */}
+  <style>
+    {`
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+      }
+      .animate-float {
+        animation: float 4s ease-in-out infinite;
+      }
+      @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+      }
+      .animate-bounce-slow {
+        animation: bounce-slow 5s ease-in-out infinite;
+      }
+    `}
+  </style>
+</section>
+
+
+
+
+
+
+
+
+
 
       <Footer />
     </div>

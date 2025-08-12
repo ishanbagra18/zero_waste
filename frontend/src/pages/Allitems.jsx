@@ -11,6 +11,7 @@ import {
   MdCheckCircle,
   MdCancel,
 } from "react-icons/md";
+import api from "../util/api";
 
 const Allitems = () => {
   const [items, setItems] = useState([]);
@@ -25,7 +26,7 @@ const Allitems = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const res = await axios.get("https://zero-waste-2xxf.onrender.com/api/items/get-items", {
+        const res = await api.get("/api/items/get-items", {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${token}`,

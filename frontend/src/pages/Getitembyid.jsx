@@ -1,7 +1,8 @@
+// (File: Getitembyid.jsx)
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
+import api from "../util/api";
 import {
   MdLocationOn,
   MdCategory,
@@ -30,12 +31,9 @@ const Getitembyid = () => {
   const fetchItemById = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `https://zero-waste-2xxf.onrender.com/api/items/get-item/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await api.get(`/api/items/get-item/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (res.data && res.data.item) {
         setItem(res.data.item);
       } else {
@@ -49,40 +47,44 @@ const Getitembyid = () => {
     }
   };
 
-  const handleClaim = () => {
-    confirmAlert({
-      title: "Confirm to Claim",
-      message: "Are you sure you want to claim this item?",
-      buttons: [
-        {
-          label: "Yes, Claim",
-          onClick: async () => {
-            try {
-              await axios.patch(
-                `https://zero-waste-2xxf.onrender.com/api/items/${id}/claim`,
-                {},
-                {
-                  headers: { Authorization: `Bearer ${token}` },
-                }
-              );
-              toast.success("Item claimed successfully!");
-              fetchItemById();
-            } catch (error) {
-              const errMsg =
-                error.response?.data?.message || "Failed to claim item.";
-              toast.error(errMsg);
-            }
-          },
+const handleClaim = () => {
+  confirmAlert({
+    title: "Confirm to Claim",
+    message: "Are you sure you want to claim this item?",
+    buttons: [
+      {
+        label: "Yes, Claim",
+        onClick: async () => {
+          try {
+            const response = await api.patch(
+              `/api/items/${id}/claim`,
+              {},
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            toast.success("Item claimed successfully!");
+            fetchItemById();
+          } catch (error) {
+            console.error("Error claiming item:", error);
+            toast.error(
+              error.response?.data?.message || "Failed to claim item."
+            );
+          }
         },
-        {
-          label: "Cancel",
-          onClick: () => {
-            toast("Claim cancelled.");
-          },
+      },
+      {
+        label: "Cancel",
+        onClick: () => {
+          toast("Claim cancelled.");
         },
-      ],
-    });
-  };
+      },
+    ],
+  });
+};
+
 
   const handleFetchError = (error) => {
     if (error.response?.status === 401) {
@@ -104,7 +106,6 @@ const Getitembyid = () => {
         </div>
       ) : item ? (
         <div className="w-full min-h-screen bg-gradient-to-br from-[#121826] via-[#1a2239] to-[#21263b] relative pb-12 sm:pb-10">
-          {/* BG IMAGE Overlay */}
           <div
             className="absolute inset-0 z-0"
             style={{
@@ -116,13 +117,9 @@ const Getitembyid = () => {
               filter: "blur(7px) brightness(0.45)",
             }}
           />
-          {/* Darkness overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
-          {/* Main Content */}
           <div className="relative z-20 flex justify-center items-start px-3 sm:px-6 pt-10 sm:pt-20">
             <div className="w-full max-w-2xl rounded-3xl bg-[#181c27]/95 shadow-2xl backdrop-blur-2xl ring-1 ring-blue-700/20 relative flex flex-col items-center pb-10 border border-[#23294e]/50">
-
-              {/* Hero - item image */}
               <div className="w-full h-72 rounded-t-3xl overflow-hidden relative border-b border-[#23294e]/60">
                 <img
                   src={item.itemImage?.url || "/images/no-image.png"}
@@ -133,10 +130,7 @@ const Getitembyid = () => {
                     e.target.src = "/images/no-image.png";
                   }}
                 />
-                {/* Gradient for aesthetic */}
                 <div className="absolute inset-0 bg-gradient-to-b from-[#181c27]/80 to-transparent" />
-
-                {/* Back button */}
                 <button
                   onClick={() => navigate(-1)}
                   className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/60 text-gray-100 hover:bg-indigo-900/90 transition shadow-sm font-medium"
@@ -147,7 +141,6 @@ const Getitembyid = () => {
                 </button>
               </div>
 
-              {/* Details */}
               <div className="w-full pt-10 px-6 pb-8 flex flex-col gap-4">
                 <h1 className="text-3xl font-bold text-emerald-400 mb-1 tracking-tight">
                   {item.name}
@@ -167,16 +160,12 @@ const Getitembyid = () => {
                     value={item.location}
                   />
                   <DetailCard
-                    icon={
-                      <MdShoppingCart size={22} className="text-pink-400" />
-                    }
+                    icon={<MdShoppingCart size={22} className="text-pink-400" />}
                     label="Quantity"
                     value={item.quantity}
                   />
                   <DetailCard
-                    icon={
-                      <MdPriceChange size={22} className="text-yellow-300" />
-                    }
+                    icon={<MdPriceChange size={22} className="text-yellow-300" />}
                     label="Price"
                     value={`₹${item.price}`}
                   />
@@ -203,9 +192,9 @@ const Getitembyid = () => {
                   />
                 </div>
 
-                {/* Claim Button - moved below details grid */}
+                {/* Claim Button: updated logic based on item.status */}
                 <div className="w-full flex justify-center my-4">
-                  {item.claimedBy ? (
+                  {item.status !== "available" ? (
                     <button
                       disabled
                       className="px-10 py-3 rounded-2xl text-gray-400 bg-[#23294e]/80 cursor-not-allowed font-semibold text-lg shadow-xl border-2 border-gray-500/80"
@@ -223,7 +212,6 @@ const Getitembyid = () => {
                   )}
                 </div>
 
-                {/* Vendor Info */}
                 <div className="w-full px-2 pt-5 border-t border-[#23294e]/60 text-sm space-y-1.5">
                   <p>
                     <span className="font-semibold text-emerald-400">Vendor:</span>{" "}

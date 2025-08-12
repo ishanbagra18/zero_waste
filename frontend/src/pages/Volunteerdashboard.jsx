@@ -3,17 +3,36 @@ import { Link } from 'react-router-dom';
 import {
   Bell, Menu, X, LogOut, User, CalendarDays, ThumbsUp,
 } from 'lucide-react';
+import api from '../util/api';
+import { useNavigate } from "react-router-dom";
+import Spline from '@splinetool/react-spline';
+
+
 
 const Volunteerdashboard = () => {
+
+
+    const navigate = useNavigate();
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [volunteers, setVolunteers] = useState([]);
+
+
+
+    const handleExploreCommunity = ()=>
+  {
+    navigate("/blogs")
+  }
+
+
 
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch('https://zero-waste-2xxf.onrender.com/api/users/allvolunteer');
-        const data = await response.json();
+        const response = await api.get('/api/users/allvolunteer');// check for errors volunteers count
+        const data = response.data
         setVolunteers(data.Volunteer || []);
+        console.log(response);
       } catch (error) {
         console.error('Failed to fetch volunteers:', error);
       }
@@ -23,19 +42,20 @@ const Volunteerdashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-tr from-[#12132B] via-[#21182f] via-70% to-[#18067a] text-gray-100 flex flex-col font-sans relative overflow-x-hidden">
+   <div className="min-h-screen w-full bg-gradient-to-tr from-[#12132B] via-[#21182f] via-70% to-[#18067a] text-gray-100 flex flex-col font-sans relative overflow-x-hidden">
+      
       {/* Glows */}
       <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-indigo-700 via-fuchsia-600 to-pink-600 rounded-full blur-3xl opacity-30"></div>
       <div className="pointer-events-none absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-sky-500 to-green-500 rounded-full blur-2xl opacity-30 animate-pulse"></div>
 
       {/* Navbar */}
       <nav className="w-full z-50 px-6 sm:px-12 py-5 flex items-center justify-between bg-transparent backdrop-blur-md bg-white/5 border-b border-indigo-500/10 shadow-md fixed top-0">
-        <Link to="/" className="text-2xl font-extrabold bg-gradient-to-r from-pink-400 via-indigo-400 to-green-400 bg-clip-text text-transparent">
+        <Link to="/volunteer/dashboard" className="text-2xl font-extrabold bg-gradient-to-r from-pink-400 via-indigo-400 to-green-400 bg-clip-text text-transparent">
           VolunteerHub
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-semibold">
-          <Link to="/" className="hover:text-pink-400 transition">Dashboard</Link>
+          <Link to="/volunteer/dashboard" className="hover:text-pink-400 transition">Dashboard</Link>
           <Link to="/allbookings" className="hover:text-green-400 transition">Bookings</Link>
           <Link to="/myprofile" className="hover:text-indigo-400 transition">Profile</Link>
           <Link to="/notifications" className="relative group ml-4">
@@ -56,7 +76,7 @@ const Volunteerdashboard = () => {
 
         {isMenuOpen && (
           <div className="absolute top-16 right-6 bg-[#1f2235] border border-indigo-500/20 rounded-lg px-6 py-4 shadow-xl z-50 flex flex-col gap-4 md:hidden">
-            <Link to="/" className="hover:text-pink-400 transition" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+            <Link to="/volunteer/dashboard" className="hover:text-pink-400 transition" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
             <Link to="/allbookings" className="hover:text-green-400 transition" onClick={() => setIsMenuOpen(false)}>Bookings</Link>
             <Link to="/myprofile" className="hover:text-indigo-400 transition" onClick={() => setIsMenuOpen(false)}>Profile</Link>
           </div>
@@ -65,7 +85,7 @@ const Volunteerdashboard = () => {
 
       {/* Hero Section */}
       <section className="flex flex-col-reverse md:flex-row items-center justify-between max-w-7xl mx-auto px-4 sm:px-8 py-44 gap-20 flex-grow w-full relative z-10">
-        <div className="text-center md:text-left max-w-xl space-y-9">
+        <div className="text-center md:text-left max-w-xl space-y-9 flex-1">
           <h1 className="text-5xl md:text-7xl font-extrabold bg-gradient-to-tr from-indigo-400 via-pink-500 to-green-400 text-transparent bg-clip-text drop-shadow-2xl tracking-tight leading-[1.1]">
             Welcome to VolunteerHub
           </h1>
@@ -77,9 +97,13 @@ const Volunteerdashboard = () => {
             <Link to="/myprofile" className="px-8 py-3 border-2 border-indigo-400 rounded-full font-bold text-lg text-indigo-100 bg-white/5 hover:bg-indigo-600 hover:text-white shadow-md transition">My Profile</Link>
           </div>
         </div>
-        <div className="max-w-md w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-indigo-400/40 bg-white/10 backdrop-blur-xl relative hover:scale-105 transition-all duration-700">
-          <img src="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=800&q=80" alt="Volunteering" className="object-cover w-full h-full scale-105 hover:scale-110 transition-all duration-700" />
-          <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/20 to-transparent pointer-events-none"></div>
+
+        {/* Fixed Alignment Spline Container */}
+        <div className="flex-1 h-[500px] md:h-[600px]">
+          <Spline 
+            scene="https://prod.spline.design/HsBTXpxLGtNrZAHv/scene.splinecode" 
+            className="w-full h-full" 
+          />
         </div>
       </section>
 
@@ -204,6 +228,81 @@ const Volunteerdashboard = () => {
     </a>
   </div>
 </section>
+
+
+<section className="relative py-28 overflow-hidden">
+  {/* Gradient angled background */}
+  <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-pink-500 to-yellow-400 transform skew-y-3 origin-top"></div>
+
+  <div className="relative max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-14">
+    
+    {/* LEFT: Text Content */}
+    <div className="flex-1 text-center lg:text-left text-white">
+      <h2 className="text-5xl font-extrabold leading-tight mb-6 drop-shadow-lg">
+        Join the Conversation, <br /> Change the World 🌍
+      </h2>
+      <p className="text-lg text-orange-100 mb-8 max-w-xl">
+        Be part of a vibrant zero-waste community — read stories, share your tips, 
+        and get inspired by people making real change.
+      </p>
+      <button
+        onClick={handleExploreCommunity}
+        className="group relative px-8 py-4 bg-white text-orange-700 font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+      >
+        Explore Blogs
+      </button>
+    </div>
+
+    {/* RIGHT: Illustration with floating icons */}
+    <div className="flex-1 relative flex justify-center">
+      {/* Glassmorphism circle */}
+      <div className="w-72 h-72 lg:w-96 lg:h-96 bg-white/10 rounded-full backdrop-blur-lg border border-white/30 shadow-2xl flex items-center justify-center relative overflow-visible">
+        
+        {/* Main Illustration */}
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/3176/3176364.png"
+          alt="Community"
+          className="w-36 lg:w-48 animate-float"
+        />
+
+        {/* Floating icons */}
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png"
+          className="w-10 absolute -top-6 left-12 animate-bounce-slow"
+        />
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1077/1077035.png"
+          className="w-10 absolute bottom-4 -left-6 animate-bounce-slow delay-200"
+        />
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png"
+          className="w-10 absolute top-8 -right-6 animate-bounce-slow delay-500"
+        />
+      </div>
+    </div>
+  </div>
+
+  {/* Floating animations */}
+  <style>
+    {`
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+      }
+      .animate-float {
+        animation: float 4s ease-in-out infinite;
+      }
+      @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+      }
+      .animate-bounce-slow {
+        animation: bounce-slow 5s ease-in-out infinite;
+      }
+    `}
+  </style>
+</section>
+
 
 
 

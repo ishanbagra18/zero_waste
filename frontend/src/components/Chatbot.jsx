@@ -1,8 +1,7 @@
 // src/components/Chatbot.jsx
 import React, { useState } from 'react';
-import axios from 'axios';
 import { FaRobot, FaTimes } from 'react-icons/fa';
-
+import api from '../util/api'
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -22,8 +21,8 @@ const Chatbot = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await axios.post(
-        "https://zero-waste-2xxf.onrender.com/api/chat/chatbot",
+      const response = await api.post(
+        "/api/chat/chatbot",
         { message: input },
         {
           headers: {

@@ -16,8 +16,20 @@ const messageSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      required: true,
+      required: false,
     },
+
+
+
+   photo: {
+  public_id: { type: String },
+  url: { type: String }
+},
+
+
+
+
+
     isSeen: {
       type: Boolean,
       default: false,

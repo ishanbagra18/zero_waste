@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../util/api";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -106,8 +106,8 @@ export default function UpdateProfile() {
         if (form[key]) formData.append(key, form[key]);
       }
 
-      await axios.put(
-        `https://zero-waste-2xxf.onrender.com/api/users/updateProfile/${userId}`,
+      await api.put(
+        `/api/users/updateProfile/${userId}`,
         formData,
         {
           headers: {

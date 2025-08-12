@@ -1,7 +1,8 @@
 // src/pages/ForgotPassword.jsx
 import React, { useState } from 'react';
-import axios from 'axios';
 import { MdEmail, MdLock, MdPerson } from 'react-icons/md';
+import api from '../util/api';
+import { Toaster, toast } from "react-hot-toast";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -12,13 +13,17 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.patch('https://zero-waste-2xxf.onrender.com/api/users/forgot-password', {
+      const res = await api.patch('/api/users/forgot-password', {
         email,
         role,
         newPassword: password,
       });
-
+      
       setMessage(res.data.message);
+
+      toast.success("password updated successfully");
+
+
     } catch (error) {
       setMessage(error.response?.data?.message || 'Error resetting password');
     }
@@ -26,6 +31,8 @@ const ForgotPassword = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white px-4">
+            <Toaster />
+      
       <form
         onSubmit={handleSubmit}
         className="bg-[#0f172a] p-8 md:p-12 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700 space-y-6"

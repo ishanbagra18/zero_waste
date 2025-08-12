@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
 import { MdDelete, MdCheckCircle, MdCancel } from "react-icons/md";
+import api from "../util/api";
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
@@ -10,7 +10,7 @@ const Notification = () => {
   const token = localStorage.getItem("token") || "";
   const role = localStorage.getItem("role") || "";
 
-  const NOTIFICATION_API = "https://zero-waste-2xxf.onrender.com/api/notifications/notification";
+  const NOTIFICATION_API = "/api/notifications/notification";
 
   const fetchNotifications = async () => {
     if (!token) {
@@ -19,7 +19,7 @@ const Notification = () => {
     }
 
     try {
-      const res = await axios.get(NOTIFICATION_API, {
+      const res = await api.get(NOTIFICATION_API, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
@@ -31,8 +31,8 @@ const Notification = () => {
 
   const markAsRead = async (id) => {
     try {
-      await axios.patch(
-        `https://zero-waste-2xxf.onrender.com/api/notifications/notification/${id}/read`,
+      await api.patch(
+        `/api/notifications/notification/${id}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -46,8 +46,8 @@ const Notification = () => {
 
   const deleteNotification = async (id) => {
     try {
-      await axios.delete(
-        `https://zero-waste-2xxf.onrender.com/api/notifications/notification/${id}`,
+      await api.delete(
+        `/api/notifications/notification/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success("Notification deleted");
@@ -64,8 +64,8 @@ const Notification = () => {
       return;
     }
     try {
-      await axios.patch(
-        `https://zero-waste-2xxf.onrender.com/api/items/${itemId}/claim-status`,
+      await api.patch(
+        `/api/items/${itemId}/claim-status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );

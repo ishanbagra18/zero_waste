@@ -10,6 +10,7 @@ import {
   MdVisibilityOff,
 } from "react-icons/md";
 import { toast, Toaster } from "react-hot-toast";
+import api from "../util/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ export default function Login() {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.post("https://zero-waste-2xxf.onrender.com/api/users/login", {
+      const res = await api.post("/api/users/login", {
         email,
         password,
         role,

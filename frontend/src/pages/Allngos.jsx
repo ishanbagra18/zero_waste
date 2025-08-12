@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MessageCircle, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner'; // ✅ Import spinner
+import api from '../util/api';
 
 const colorThemes = [
   'from-cyan-500 via-blue-600 to-indigo-700',
@@ -19,7 +20,7 @@ const colorThemes = [
 ];
 
 const Allngos = () => {
-  const [ngos, setNgos] = useState([]);
+  const [ngos, setNgos] = useState([]); 
   const [filteredNgos, setFilteredNgos] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true); // ✅ Add loading state
@@ -30,10 +31,10 @@ const Allngos = () => {
     const fetchAllNgos = async () => {
       try {
         setLoading(true); // Start loading
-        const response = await axios.get('https://zero-waste-2xxf.onrender.com/api/users/allngo', {
+        const response = await api.get('/api/users/allngo', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const data = response.data.ngos || [];
+        const data = response.data.ngos || [];  
         setNgos(data);
         setFilteredNgos(data);
         setLoading(false); // Stop loading
@@ -43,7 +44,6 @@ const Allngos = () => {
       }
     };
 
-    fetchAllNgos();
   }, [token]);
 
   useEffect(() => {
@@ -133,7 +133,7 @@ const Allngos = () => {
 
               <div className="absolute top-3 right-3 flex flex-col gap-2">
                 <span className="px-3 py-1 rounded-full bg-black/40 text-xs uppercase font-semibold border border-white shadow">
-                  {ngo.role}
+                  {ngo.badge}
                 </span>
               </div>
 

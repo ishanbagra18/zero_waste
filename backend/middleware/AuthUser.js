@@ -32,6 +32,7 @@ export const isAuthenticated = async (req, res, next) => {
       name: user.name,
       organisation: user.organisation,
       location: user.location,
+      photo: user.photo,
     };
 
     next();

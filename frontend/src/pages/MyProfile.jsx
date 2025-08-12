@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Toaster, toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import api from "../util/api";
 
 const MyProfile = () => {
   const [user, setUser] = useState(null);
@@ -9,6 +9,14 @@ const MyProfile = () => {
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+
+  const getTitleFromPoints = (points) => {
+    if (points >= 1000) return "Zero Waste Legend";
+    if (points >= 500) return "Planet Protector";
+    if (points >= 250) return "Waste Warrior";
+    if (points >= 100) return "Eco Helper";
+    return "Newcomer";
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -28,11 +36,17 @@ const MyProfile = () => {
 
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(
-          `https://zero-waste-2xxf.onrender.com/api/users/myprofile/${userId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setUser(res.data.user);
+        const res = await api.get(`/api/users/myprofile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // dynamically assign title based on points
+        const fetchedUser = {
+          ...res.data.user,
+          title: getTitleFromPoints(res.data.user.points || 0),
+        };
+        setUser(fetchedUser);
+
+        console.log(fetchedUser);
       } catch (err) {
         toast.error(err.response?.data?.message || "Failed to fetch profile.");
       } finally {
@@ -99,6 +113,14 @@ const MyProfile = () => {
           >
             📋 View All Reviews
           </button>
+
+          <button
+          onClick={() => navigate('/leaderboard')}
+            className="inline-flex items-center bg-yellow-500 px-4 py-3 rounded-lg font-semibold transition shadow-lg text-white"
+            aria-label="points"
+          >
+            🪙 {user.points} points
+          </button>
         </div>
       </header>
 
@@ -118,8 +140,18 @@ const MyProfile = () => {
           <h2 className="text-4xl font-extrabold text-green-300 capitalize mb-1 truncate">
             {user.name}
           </h2>
-          <p className="text-lg text-green-400 font-semibold mb-6">
-            {user.role === "vendor" ? "Vendor Partner" : "NGO Partner"}
+          <p className="text-lg text-green-400 font-semibold mb-2">
+            {user.role === "vendor"
+              ? "Vendor Partner"
+              : user.role === "NGO"
+              ? "NGO Partner"
+              : user.role === "Volunteer"
+              ? "Volunteer Partner"
+              : "Partner"}
+          </p>
+          {/* Title display */}
+          <p className="text-md text-yellow-300 italic mb-6">
+            {user.title}
           </p>
 
           {/* Badges & Rating */}
@@ -165,10 +197,13 @@ const MyProfile = () => {
 
           {/* Impact message */}
           <div className="bg-gradient-to-r from-green-900 via-green-800 to-green-900 border border-green-700 rounded-3xl p-8 shadow-lg flex flex-col items-center text-center text-green-100 max-w-4xl mx-auto select-none">
-            <h4 className="text-2xl font-extrabold mb-3">🌱 Making an Impact</h4>
+            <h4 className="text-2xl font-extrabold mb-3">
+              🌱 Making an Impact
+            </h4>
             <p className="max-w-xl leading-relaxed">
-              You’ve taken a strong step toward sustainability by joining Zero Waste.
-              Keep donating surplus, supporting NGOs, and reducing environmental impact.
+              You’ve taken a strong step toward sustainability by joining Zero
+              Waste. Keep donating surplus, supporting NGOs, and reducing
+              environmental impact.
             </p>
           </div>
         </section>

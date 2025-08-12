@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Toaster, toast } from "react-hot-toast";
 import LoadingSpinner from "../components/LoadingSpinner";
 import {
@@ -8,6 +7,7 @@ import {
   MdSyncAlt,
 } from "react-icons/md";
 import { motion } from "framer-motion";
+import api from "../util/api";
 
 const MyClaimed = () => {
   const [claimedItems, setClaimedItems] = useState([]);
@@ -17,7 +17,7 @@ const MyClaimed = () => {
   useEffect(() => {
     const fetchMyClaimed = async () => {
       try {
-        const res = await axios.get("https://zero-waste-2xxf.onrender.com/api/items/get-claimed-items", {
+        const res = await api.get("/api/items/get-claimed-items", {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });

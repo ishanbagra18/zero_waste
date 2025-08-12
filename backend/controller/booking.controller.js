@@ -10,9 +10,8 @@ export const bookVolunteer = async (req, res) => {
     console.log(volunteerId);
     const { fromLocation, toLocation, notes } = req.body;
 
-
     console.log(req.user);
-console.log(req.user.userId); // ✅ correct ID
+    console.log(req.user.userId); // ✅ correct ID
 
     if (!req.user || !req.user.userId) {
       console.error("🚫 req.user is missing. Check your auth middleware.");
@@ -42,6 +41,10 @@ console.log(req.user.userId); // ✅ correct ID
       status: "pending",
     });
 
+    // 🎯 Add 10 points to volunteer
+    await User.findByIdAndUpdate(volunteerId, { $inc: { points: 10 } });
+    console.log(`🎯 +10 points awarded to volunteer (${volunteerId})`);
+
     // Create notification
     await Notification.create({
       userId: volunteerId,
@@ -63,6 +66,7 @@ console.log(req.user.userId); // ✅ correct ID
     return res.status(500).json({ message: "Server error while booking volunteer." });
   }
 };
+
 
 
 

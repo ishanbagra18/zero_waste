@@ -70,10 +70,33 @@ badge: {
   enum: ['None', 'Gold', 'Silver', 'Bronze'],  
   default: 'None',
 },
+
+
+title:{
+    type:String,
+    enum:['Newcomer','Eco Helper','Waste Warrior','Planet Protector','zero waste legend'],
+    default:'Newcomer',
+},
+
+
 reviewCount: {
   type: Number,
   default: 0,
-}
+},
+
+
+
+
+points: {
+        type: Number,
+        default: 0
+    },
+
+
+
+
+
+
 
 
 },{timestamps:true})

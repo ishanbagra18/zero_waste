@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-spring/web": "^9.7.5",
+    "@splinetool/react-spline": "^4.1.0",
     "axios": "^1.10.0",
     "framer-motion": "^12.23.11",
     "jwt-decode": "^4.0.0",

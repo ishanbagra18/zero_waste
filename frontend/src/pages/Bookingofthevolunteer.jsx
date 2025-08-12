@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { MdLocationOn, MdOutlineNotes, MdSend } from "react-icons/md";
+import api from "../util/api";
 
 export default function Bookingofthevolunteer() {
   const { id } = useParams();
@@ -31,8 +32,8 @@ export default function Bookingofthevolunteer() {
         notes,
       });
 
-      const res = await axios.post(
-        `https://zero-waste-2xxf.onrender.com/api/book/bookvolunteer/${id}`,
+      const res = await api.post(
+        `/api/book/bookvolunteer/${id}`,
         { fromLocation, toLocation, notes },
         {
           headers: {

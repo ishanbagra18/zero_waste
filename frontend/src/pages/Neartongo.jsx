@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { haversineDistance, getCoordinates } from '../util/utils';
+import api from '../util/api';
 
 const Neartongo = () => {
   const [user, setUser] = useState(null);
@@ -29,7 +29,7 @@ const Neartongo = () => {
     const fetchProfile = async () => {
       if (!userId) return;
       try {
-        const res = await axios.get(`https://zero-waste-2xxf.onrender.com/api/users/myprofile/${userId}`, {
+        const res = await api.get(`/api/users/myprofile/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data.user);
@@ -50,7 +50,7 @@ const Neartongo = () => {
         const userCoords = await getCoordinates(user.location);
         if (!userCoords) return toast.error("Can't get your coordinates.");
 
-        const res = await axios.get("https://zero-waste-2xxf.onrender.com/api/users/allvendor", {
+        const res = await api.get("/api/users/allvendor", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

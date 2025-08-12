@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import api from '../util/api';
 
 const colorThemes = [
   'from-cyan-500 via-blue-600 to-indigo-700',
@@ -27,7 +27,7 @@ const Allvendors = () => {
   useEffect(() => {
     const fetchAllVendors = async () => {
       try {
-        const response = await axios.get('https://zero-waste-2xxf.onrender.com/api/users/allvendor', {
+        const response = await api.get('/api/users/allvendor', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setVendors(response.data.vendors || []);
@@ -124,7 +124,7 @@ const Allvendors = () => {
 
               <div className="absolute top-3 right-3 flex flex-col gap-2">
                 <span className="px-3 py-1 rounded-full bg-black/40 text-xs uppercase font-semibold border border-white shadow">
-                  {vendor.role}
+                  {vendor.badge}
                 </span>
               </div>
 

@@ -1,6 +1,6 @@
 // SendReview.jsx
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../util/api';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 
@@ -48,8 +48,8 @@ const SendReview = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
-        `https://zero-waste-2xxf.onrender.com/api/review/${reviewedUserId}`,
+      await api.post(
+        `/api/review/${reviewedUserId}`,
         { rating, comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );

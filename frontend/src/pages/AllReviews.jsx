@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import api from '../util/api';
 
 // A simple utility to get initials from a name, kept in the same file for consolidation.
 const getInitials = (name = '') => {
@@ -23,7 +23,7 @@ const AllReviews = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await axios.get(`https://zero-waste-2xxf.onrender.com/api/review/${id}`);
+        const res = await api.get(`/api/review/${id}`);
         setReviews(res.data.reviews);
       } catch (err) {
         console.error('Error fetching reviews:', err);

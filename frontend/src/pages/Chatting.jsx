@@ -1,18 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Send, Paperclip } from 'lucide-react';
+import { Send, Paperclip, X } from 'lucide-react';
+import api from '../util/api';
 
 const Chatting = () => {
   const { id: chatUserId } = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
   const token = localStorage.getItem("token");
 
-  // Fallback receiver name (temporary)
-  const receiverUsername = `User ${chatUserId?.slice(-4) || 'Unknown'}`; // e.g. "User 9a7b"
+  const receiverUsername = `User ${chatUserId?.slice(-4) || 'Unknown'}`;
 
   useEffect(() => {
     if (!chatUserId || !token) return;
@@ -20,8 +20,8 @@ const Chatting = () => {
     const fetchMessages = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(
-          `https://zero-waste-2xxf.onrender.com/api/message/get/${chatUserId}`,
+        const res = await api.get(
+          `/api/message/get/${chatUserId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setMessages(res.data);
@@ -39,26 +39,42 @@ const Chatting = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() && !imageFile) return;
+
+    const formData = new FormData();
+    formData.append("message", newMessage);
+    if (imageFile) formData.append("photo", imageFile);
 
     const optimisticMessage = {
       _id: Date.now().toString(),
       message: newMessage,
       senderId: 'currentUser',
       createdAt: new Date().toISOString(),
+      photo: imageFile ? { url: URL.createObjectURL(imageFile) } : null,
     };
 
     setMessages((prev) => [...prev, optimisticMessage]);
     setNewMessage('');
+    setImageFile(null);
 
     try {
-      const res = await axios.post(
-        `https://zero-waste-2xxf.onrender.com/api/message/send/${chatUserId}`,
-        { message: newMessage },
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await api.post(
+        `/api/message/send/${chatUserId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
       );
+
       setMessages((prevMessages) =>
         prevMessages.map((msg) =>
           msg._id === optimisticMessage._id ? res.data : msg
@@ -74,12 +90,10 @@ const Chatting = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white font-sans">
-      {/* Header */}
       <header className="flex items-center justify-center p-4 bg-gray-800 border-b border-gray-700 shadow-md">
         <h2 className="text-xl font-bold">{receiverUsername}</h2>
       </header>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {loading ? (
           <div className="flex justify-center items-center h-full">
@@ -96,15 +110,27 @@ const Chatting = () => {
             return (
               <div key={msg._id} className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`max-w-md lg:max-w-lg px-4 py-2 rounded-2xl break-words ${
+                  className={`max-w-xs lg:max-w-sm px-4 py-2 rounded-2xl break-words ${
                     isMyMessage
                       ? 'bg-blue-600 rounded-br-lg'
                       : 'bg-gray-700 rounded-bl-lg'
                   }`}
                 >
-                  <p className="text-sm">{msg.message}</p>
+                  {msg.photo?.url && (
+                    <img
+                      src={msg.photo.url}
+                      alt="Sent"
+                      className="mb-2 max-w-xs max-h-60 rounded-lg object-cover"
+                    />
+                  )}
+                  {msg.message && (
+                    <p className="text-sm">{msg.message}</p>
+                  )}
                   <div className="text-xs text-gray-300 mt-1 text-right opacity-70">
-                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </div>
                 </div>
               </div>
@@ -114,14 +140,33 @@ const Chatting = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Box */}
       <form
         onSubmit={handleSendMessage}
-        className="p-4 bg-gray-800 border-t border-gray-700 flex items-center gap-4"
+        className="p-4 bg-gray-800 border-t border-gray-700 flex items-center gap-2"
       >
-        <button type="button" className="p-2 text-gray-400 hover:text-white">
+        <label className="p-2 text-gray-400 hover:text-white cursor-pointer">
           <Paperclip size={20} />
-        </button>
+          <input
+            type="file"
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+          />
+        </label>
+
+        {imageFile && (
+          <div className="flex items-center gap-2 text-sm bg-gray-700 px-3 py-1 rounded-full">
+            <span>{imageFile.name}</span>
+            <button
+              type="button"
+              onClick={() => setImageFile(null)}
+              className="text-red-400 hover:text-red-600"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
         <input
           type="text"
           value={newMessage}
@@ -130,10 +175,11 @@ const Chatting = () => {
           className="flex-1 bg-gray-700 rounded-full py-2 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           autoComplete="off"
         />
+
         <button
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 disabled:opacity-50"
-          disabled={!newMessage.trim()}
+          disabled={!newMessage.trim() && !imageFile}
         >
           <Send size={20} />
         </button>
