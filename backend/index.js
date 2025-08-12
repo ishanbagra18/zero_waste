@@ -8,7 +8,6 @@ import fileUpload from 'express-fileupload';
 import cloudinary from 'cloudinary';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-
 import bookingRoute from './routes/booking.route.js';
 import userRoute from './routes/user.route.js';
 import itemRoute from './routes/item.route.js';
@@ -26,36 +25,11 @@ const port = process.env.PORT || 3002;
 
 const server = http.createServer(app);
 
-// ===================
-// ✅ CORS CONFIG
-// ===================
-const allowedOrigins = [
-  'https://zero-waste200.netlify.app',
-  'http://localhost:5173'
-];
-
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-}));
-
-// ✅ Explicit preflight handling
-app.options('*', cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-}));
-
-// ===================
-// ✅ Socket.IO setup
-// ===================
+// ✅ Setup Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PATCH'],
+    origin:["https://zero-waste200.netlify.app", "http://localhost:5173"],
+    methods: ['GET', 'POST','PATCH'],
     credentials: true,
   },
 });
@@ -116,9 +90,11 @@ io.on("connection", (socket) => {
   });
 });
 
-// ===================
 // ✅ Middleware & Config
-// ===================
+app.use(cors({
+  origin: ['https://zero-waste200.netlify.app','http://localhost:5173'],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -133,26 +109,22 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
-// ===================
 // ✅ API Routes
-// ===================
 app.use("/api/users", userRoute);
 app.use("/api/items", itemRoute);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/message", messageRoute);
 app.use("/api/chat", chatbotRoute);
 app.use("/api/review", reviewRoute);
-app.use("/api/book", bookingRoute);
-app.use("/api/blog", blogRoute);
+app.use("/api/book",bookingRoute);
+app.use("/api/blog",blogRoute);
 
 // ✅ Base route
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// ===================
 // ✅ MongoDB & Server Startup
-// ===================
 const mongo = process.env.MONGODB_URI;
 
 const startServer = async () => {
