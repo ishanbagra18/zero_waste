@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import { MdLocationOn, MdShoppingCart, MdHistory, MdCalendarToday } from "react-icons/md";
 import { motion } from "framer-motion";
@@ -148,6 +149,31 @@ const MyClaimed = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Delivery Status and Actions */}
+              {item.claimStatus === "approved" && (
+                <div className="mt-4 pt-4 border-t border-zinc-800/60">
+                  {item.deliveryStatus === "none" || !item.deliveryStatus ? (
+                    <Link
+                      to={`/ngo/bookvolunteer?itemId=${item._id}&from=${encodeURIComponent(item.vendor?.location || "")}`}
+                      className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs transition duration-200 text-center block shadow-lg shadow-purple-900/30"
+                    >
+                      Book Volunteer
+                    </Link>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-zinc-400">Delivery:</span>
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${
+                        item.deliveryStatus === "volunteer_assigned" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" :
+                        item.deliveryStatus === "pickup_confirmed" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                        "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      }`}>
+                        {item.deliveryStatus.replace("_", " ").toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
 
             </motion.div>
           ))}

@@ -9,7 +9,6 @@ const volunteerImg = "https://images.unsplash.com/photo-1529101091764-c3526daf38
 const Volunteerdashboard = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token") || "";
-  const [itemId, setItemId] = useState("");
   const [bookings, setBookings] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,27 +49,7 @@ const Volunteerdashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  const sendPickupConfirmation = async (event) => {
-    event.preventDefault();
 
-    if (!itemId.trim()) {
-      toast.error("Enter an item ID first.");
-      return;
-    }
-
-    try {
-      await axios.patch(
-        `http://localhost:3002/api/items/${itemId.trim()}/pickup-confirmed`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Pickup confirmation sent to the NGO.");
-      setItemId("");
-      fetchDashboardData();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to confirm pickup.");
-    }
-  };
 
   const acceptBookingAction = async (bookingId) => {
     const ngoId = (bookingNgoIdInputs[bookingId] || "").trim();
@@ -208,152 +187,120 @@ const Volunteerdashboard = () => {
         <StatCard icon={<MdOutlineMarkEmailUnread />} label="Pending Bookings" value={pendingBookings} accent="from-fuchsia-500 to-pink-500" />
       </section>
 
-      <section className="max-w-7xl mx-auto w-full px-6 pb-12 grid gap-8 lg:grid-cols-[1fr_1.15fr] items-start">
-        <div className="rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-gray-900 to-slate-950 p-8 shadow-2xl">
-          <h2 className="text-3xl font-bold mb-3 text-emerald-300">Pickup Confirmation</h2>
-          <p className="text-gray-300 mb-6 max-w-2xl">
-            After you pick up the item, enter the item ID to notify the NGO. They will verify delivery with the OTP shown in their notification feed.
-          </p>
+      <section className="max-w-7xl mx-auto w-full px-6 pb-12 grid gap-8 md:grid-cols-2 items-start">
+        <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-xl">
+          <h2 className="text-2xl font-bold mb-4 text-white">Recent Bookings</h2>
+          {loading ? (
+            <p className="text-gray-400">Loading bookings...</p>
+          ) : bookings.length === 0 ? (
+            <p className="text-gray-400">No bookings available yet.</p>
+          ) : (
+            <div className="space-y-3 max-h-[400px] overflow-auto pr-1">
+              {bookings.map((booking) => (
+                <div key={booking._id} className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-white">{booking.ngo?.name || "NGO"}</p>
+                    <span className="text-xs rounded-full px-3 py-1 bg-cyan-500/15 text-cyan-200 border border-cyan-500/20 capitalize">
+                      {booking.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-300 mt-2">From: {booking.fromLocation} → To: {booking.toLocation}</p>
+                  {booking.notes && <p className="text-xs text-gray-400 mt-1">Notes: {booking.notes}</p>}
+                  <p className="text-xs text-gray-500 mt-1">{new Date(booking.createdAt).toLocaleString()}</p>
 
-          <form onSubmit={sendPickupConfirmation} className="flex flex-col md:flex-row gap-4">
-            <input
-              type="text"
-              value={itemId}
-              onChange={(e) => setItemId(e.target.value)}
-              placeholder="Paste item ID here"
-              className="flex-1 rounded-2xl bg-slate-950/80 border border-slate-700 px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-emerald-400"
-              aria-label="Item ID"
-            />
-            <button
-              type="submit"
-              className="rounded-2xl bg-emerald-500 px-6 py-3 font-semibold text-slate-950 hover:bg-emerald-400 transition inline-flex items-center justify-center gap-2"
-            >
-              <MdCheckCircle size={20} /> Confirm Pickup
-            </button>
-          </form>
+                  {/* Pending Status Input & Action */}
+                  {booking.status === "pending" && (
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        value={bookingNgoIdInputs[booking._id] || ""}
+                        onChange={(e) =>
+                          setBookingNgoIdInputs((prev) => ({ ...prev, [booking._id]: e.target.value }))
+                        }
+                        placeholder="Enter NGO ID to Accept"
+                        className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-cyan-400"
+                      />
+                      <button
+                        onClick={() => acceptBookingAction(booking._id)}
+                        className="rounded-xl bg-cyan-500 text-slate-950 px-3 py-1.5 text-xs font-bold hover:bg-cyan-400 transition"
+                      >
+                        Accept
+                      </button>
+                    </div>
+                  )}
 
-          <div className="mt-6 space-y-3 text-sm text-gray-300">
-            <p className="flex items-center gap-2"><MdCheckCircle className="text-emerald-400" /> Booking accepted by NGO</p>
-            <p className="flex items-center gap-2"><MdCheckCircle className="text-emerald-400" /> Pickup confirmation sent by volunteer</p>
-            <p className="flex items-center gap-2"><MdCheckCircle className="text-emerald-400" /> NGO verifies OTP to complete delivery</p>
-          </div>
+                  {/* Accepted Status Input & Action */}
+                  {booking.status === "accepted" && (
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        value={bookingNgoIdInputs[booking._id] || ""}
+                        onChange={(e) =>
+                          setBookingNgoIdInputs((prev) => ({ ...prev, [booking._id]: e.target.value }))
+                        }
+                        placeholder="Enter NGO ID for Transport Confirmation"
+                        className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-400"
+                      />
+                      <button
+                        onClick={() => confirmBookingPickupAction(booking._id)}
+                        className="rounded-xl bg-emerald-500 text-slate-950 px-3 py-1.5 text-xs font-bold hover:bg-emerald-400 transition"
+                      >
+                        Confirm Transport
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Pickup Confirmed Status Input & Action */}
+                  {booking.status === "pickup_confirmed" && (
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        value={bookingOtpInputs[booking._id] || ""}
+                        onChange={(e) =>
+                          setBookingOtpInputs((prev) => ({ ...prev, [booking._id]: e.target.value }))
+                        }
+                        placeholder="Enter OTP to Confirm Delivery"
+                        className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-fuchsia-400"
+                      />
+                      <button
+                        onClick={() => verifyBookingOtpAction(booking._id)}
+                        className="rounded-xl bg-fuchsia-500 text-white px-3 py-1.5 text-xs font-bold hover:bg-fuchsia-400 transition"
+                      >
+                        Verify OTP
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>)}
         </div>
 
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-xl">
-            <h2 className="text-2xl font-bold mb-4 text-white">Recent Bookings</h2>
-            {loading ? (
-              <p className="text-gray-400">Loading bookings...</p>
-            ) : bookings.length === 0 ? (
-              <p className="text-gray-400">No bookings available yet.</p>
-            ) : (
-              <div className="space-y-3 max-h-[400px] overflow-auto pr-1">
-                {bookings.map((booking) => (
-                  <div key={booking._id} className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-semibold text-white">{booking.ngo?.name || "NGO"}</p>
-                      <span className="text-xs rounded-full px-3 py-1 bg-cyan-500/15 text-cyan-200 border border-cyan-500/20 capitalize">
-                        {booking.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-300 mt-2">From: {booking.fromLocation} → To: {booking.toLocation}</p>
-                    {booking.notes && <p className="text-xs text-gray-400 mt-1">Notes: {booking.notes}</p>}
-                    <p className="text-xs text-gray-500 mt-1">{new Date(booking.createdAt).toLocaleString()}</p>
-
-                    {/* Pending Status Input & Action */}
-                    {booking.status === "pending" && (
-                      <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                        <input
-                          type="text"
-                          value={bookingNgoIdInputs[booking._id] || ""}
-                          onChange={(e) =>
-                            setBookingNgoIdInputs((prev) => ({ ...prev, [booking._id]: e.target.value }))
-                          }
-                          placeholder="Enter NGO ID to Accept"
-                          className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-cyan-400"
-                        />
-                        <button
-                          onClick={() => acceptBookingAction(booking._id)}
-                          className="rounded-xl bg-cyan-500 text-slate-950 px-3 py-1.5 text-xs font-bold hover:bg-cyan-400 transition"
-                        >
-                          Accept
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Accepted Status Input & Action */}
-                    {booking.status === "accepted" && (
-                      <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                        <input
-                          type="text"
-                          value={bookingNgoIdInputs[booking._id] || ""}
-                          onChange={(e) =>
-                            setBookingNgoIdInputs((prev) => ({ ...prev, [booking._id]: e.target.value }))
-                          }
-                          placeholder="Enter NGO ID for Transport Confirmation"
-                          className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-400"
-                        />
-                        <button
-                          onClick={() => confirmBookingPickupAction(booking._id)}
-                          className="rounded-xl bg-emerald-500 text-slate-950 px-3 py-1.5 text-xs font-bold hover:bg-emerald-400 transition"
-                        >
-                          Confirm Transport
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Pickup Confirmed Status Input & Action */}
-                    {booking.status === "pickup_confirmed" && (
-                      <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                        <input
-                          type="text"
-                          value={bookingOtpInputs[booking._id] || ""}
-                          onChange={(e) =>
-                            setBookingOtpInputs((prev) => ({ ...prev, [booking._id]: e.target.value }))
-                          }
-                          placeholder="Enter OTP to Confirm Delivery"
-                          className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-fuchsia-400"
-                        />
-                        <button
-                          onClick={() => verifyBookingOtpAction(booking._id)}
-                          className="rounded-xl bg-fuchsia-500 text-white px-3 py-1.5 text-xs font-bold hover:bg-fuchsia-400 transition"
-                        >
-                          Verify OTP
-                        </button>
-                      </div>
-                    )}
+        <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-xl">
+          <h2 className="text-2xl font-bold mb-4 text-white">Notifications</h2>
+          {loading ? (
+            <p className="text-gray-400">Loading notifications...</p>
+          ) : notifications.length === 0 ? (
+            <p className="text-gray-400">No notifications yet.</p>
+          ) : (
+            <div className="space-y-3 max-h-[360px] overflow-auto pr-1">
+              {notifications.slice(0, 8).map((note) => (
+                <div key={note._id} className={`rounded-2xl border p-4 ${note.isRead ? "border-white/10 bg-slate-950/50" : "border-cyan-400/20 bg-cyan-500/10"}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-white">{note.notificationType || "notification"}</p>
+                    <span className="text-[11px] uppercase tracking-wider text-gray-400">
+                      {note.isRead ? "Read" : "Unread"}
+                    </span>
                   </div>
-                ))}
-              </div>)}
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-xl">
-            <h2 className="text-2xl font-bold mb-4 text-white">Notifications</h2>
-            {loading ? (
-              <p className="text-gray-400">Loading notifications...</p>
-            ) : notifications.length === 0 ? (
-              <p className="text-gray-400">No notifications yet.</p>
-            ) : (
-              <div className="space-y-3 max-h-[360px] overflow-auto pr-1">
-                {notifications.slice(0, 8).map((note) => (
-                  <div key={note._id} className={`rounded-2xl border p-4 ${note.isRead ? "border-white/10 bg-slate-950/50" : "border-cyan-400/20 bg-cyan-500/10"}`}>
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-semibold text-white">{note.notificationType || "notification"}</p>
-                      <span className="text-[11px] uppercase tracking-wider text-gray-400">
-                        {note.isRead ? "Read" : "Unread"}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-200 mt-2">{note.message}</p>
-                    <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-400">
-                      {note.itemId && <span className="rounded-full border border-white/10 px-2 py-1">Item: {note.itemId}</span>}
-                      {note.bookingId && <span className="rounded-full border border-white/10 px-2 py-1">Booking: {note.bookingId}</span>}
-                      {note.otpCode && <span className="rounded-full border border-emerald-400/20 px-2 py-1 text-emerald-200">OTP attached</span>}
-                    </div>
+                  <p className="text-sm text-gray-200 mt-2">{note.message}</p>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-400">
+                    {note.itemId && <span className="rounded-full border border-white/10 px-2 py-1">Item: {note.itemId}</span>}
+                    {note.bookingId && <span className="rounded-full border border-white/10 px-2 py-1">Booking: {note.bookingId}</span>}
+                    {note.otpCode && <span className="rounded-full border border-emerald-400/20 px-2 py-1 text-emerald-200">OTP attached</span>}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

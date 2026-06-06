@@ -43,7 +43,7 @@ const ForgotPassword = () => {
       
       // Auto redirect to login gateway after short reading delay
       setTimeout(() => {
-        navigate('/login');
+        navigate('/myprofile');
       }, 2000);
 
     } catch (error) {

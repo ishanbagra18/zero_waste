@@ -1,6 +1,7 @@
 import Booking from "../models/booking.model.js";
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
+import { Item } from "../models/item.model.js";
 
 const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
 
@@ -10,11 +11,11 @@ export const bookVolunteer = async (req, res) => {
 
     const { volunteerId } = req.params;
     console.log(volunteerId);
-    const { fromLocation, toLocation, notes } = req.body;
+    const { fromLocation, toLocation, notes, itemId } = req.body;
 
 
     console.log(req.user);
-console.log(req.user.userId); // ✅ correct ID
+    console.log(req.user.userId); // ✅ correct ID
 
     if (!req.user || !req.user.userId) {
       console.error("🚫 req.user is missing. Check your auth middleware.");
@@ -27,6 +28,9 @@ console.log(req.user.userId); // ✅ correct ID
     console.log("🔐 Authenticated NGO ID:", ngoId);
     console.log("📍 Booking from:", fromLocation, "to:", toLocation);
     console.log("🧑 Volunteer ID:", volunteerId);
+    if (itemId) {
+      console.log("📦 Linked Item ID:", itemId);
+    }
 
     // Find volunteer
     const volunteer = await User.findById(volunteerId);
@@ -41,8 +45,19 @@ console.log(req.user.userId); // ✅ correct ID
       fromLocation,
       toLocation,
       notes,
+      item: itemId || null,
       status: "pending",
     });
+
+    // If itemId is provided, update the Item deliveryStatus & assignedVolunteer
+    if (itemId) {
+      const item = await Item.findById(itemId);
+      if (item) {
+        item.assignedVolunteer = volunteerId;
+        item.deliveryStatus = "volunteer_assigned";
+        await item.save();
+      }
+    }
 
     // Create notification
     await Notification.create({
@@ -171,6 +186,18 @@ export const confirmBookingPickup = async (req, res) => {
     booking.deliveryOtpExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await booking.save();
 
+    // If booking is linked to an item, sync status
+    if (booking.item) {
+      const item = await Item.findById(booking.item);
+      if (item) {
+        item.deliveryStatus = "pickup_confirmed";
+        item.pickupConfirmedAt = new Date();
+        item.deliveryOtp = otp;
+        item.deliveryOtpExpiresAt = booking.deliveryOtpExpiresAt;
+        await item.save();
+      }
+    }
+
     // Notify NGO (only NGO gets the OTP code)
     await Notification.create({
       userId: booking.ngo,
@@ -251,6 +278,34 @@ export const verifyBookingOtp = async (req, res) => {
     booking.deliveryOtp = null;
     booking.deliveryOtpExpiresAt = null;
     await booking.save();
+
+    // If booking is linked to an item, sync status
+    if (booking.item) {
+      const item = await Item.findById(booking.item);
+      if (item) {
+        item.deliveryStatus = "delivered";
+        item.status = "completed";
+        item.claimStatus = "collected";
+        item.deliveredAt = new Date();
+        item.deliveryOtp = null;
+        item.deliveryOtpExpiresAt = null;
+        await item.save();
+
+        // Mark related item notifications as read/completed
+        await Notification.updateMany(
+          {
+            itemId: item._id,
+            notificationType: { $in: ["pickup_confirmed", "claim_request"] }
+          },
+          {
+            $set: {
+              actionStatus: "collected",
+              isRead: true,
+            },
+          }
+        );
+      }
+    }
 
     // Mark previous notifications as reading/action completed
     await Notification.updateMany(

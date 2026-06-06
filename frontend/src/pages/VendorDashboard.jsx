@@ -170,14 +170,19 @@ const VendorDashboard = () => {
             <User size={16} /> <span className="hidden md:inline">Profile</span>
           </Link>
 
-          <Link to="/notifications" className="relative p-2.5 text-slate-400 hover:text-white rounded-xl hover:bg-white/5 transition" aria-label="Notifications">
-            <Bell size={18} />
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 bg-rose-500 text-white font-bold text-[10px] px-1.5 py-0.5 rounded-full ring-2 ring-slate-950 animate-pulse">
-                {unreadCount}
-              </span>
-            )}
-          </Link>
+          <Link 
+  to="/notifications" 
+  className="relative p-2 text-slate-400 hover:text-white rounded-xl hover:bg-white/5 active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 flex items-center justify-center"
+  aria-label={`${unreadCount || 0} unread notifications`}
+>
+  <Bell size={20} />
+  
+  {unreadCount > 0 && (
+    <span className="absolute top-1 right-1 h-4 min-w-[16px] px-1 bg-rose-500 text-white font-bold text-[9px] flex items-center justify-center rounded-full ring-2 ring-slate-950 animate-pulse select-none">
+      {unreadCount}
+    </span>
+  )}
+</Link>
 
           <button
             onClick={handlelogout}

@@ -1,7 +1,7 @@
 // src/pages/BookVolunteer.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   MdSearch,
   MdEmail,
@@ -21,6 +21,10 @@ const glowGradients = [
 ];
 
 export default function BookVolunteer() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const itemId = queryParams.get("itemId") || "";
+
   const [volunteers, setVolunteers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -109,7 +113,7 @@ export default function BookVolunteer() {
       ) : (
         <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {filteredVolunteers.map((vol, idx) => (
-            <VolunteerCard key={vol._id} volunteer={vol} idx={idx} />
+            <VolunteerCard key={vol._id} volunteer={vol} idx={idx} itemId={itemId} />
           ))}
         </main>
       )}
@@ -117,12 +121,12 @@ export default function BookVolunteer() {
   );
 }
 
-function VolunteerCard({ volunteer, idx }) {
+function VolunteerCard({ volunteer, idx, itemId }) {
   const glowGradient = glowGradients[idx % glowGradients.length];
 
   return (
     <Link
-      to={`/bookingform/${volunteer._id}`}
+      to={`/bookingform/${volunteer._id}${itemId ? `?itemId=${itemId}` : ""}`}
       className="relative group block rounded-3xl p-[1px] transition-all duration-300 hover:-translate-y-1.5"
       title={`Book ${volunteer.name}`}
     >

@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { MdLocationOn, MdOutlineNotes, MdSend, MdVolunteerActivism, MdChecklist, MdShield, MdInfoOutline } from "react-icons/md";
 
 export default function Bookingform() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const itemId = queryParams.get("itemId") || "";
+  const fromParam = queryParams.get("from") || "";
 
-  const [fromLocation, setFromLocation] = useState("");
+  const [fromLocation, setFromLocation] = useState(fromParam);
   const [toLocation, setToLocation] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -35,7 +39,7 @@ export default function Bookingform() {
       setSubmitting(true);
       const res = await axios.post(
         `http://localhost:3002/api/book/bookvolunteer/${id}`,
-        { fromLocation, toLocation, notes },
+        { fromLocation, toLocation, notes, itemId },
         {
           headers: {
             Authorization: `Bearer ${token}`,
