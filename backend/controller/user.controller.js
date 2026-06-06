@@ -1,4 +1,4 @@
-import { User } from "../models/user.model.js";
+import User from "../models/user.model.js";
 import { v2 as cloudinary } from "cloudinary";
 import bcrypt from "bcryptjs";
 import createTokenAndSaveCookies from "../jwt/AuthToken.js";
@@ -9,6 +9,42 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const register = async (req, res) => {
   try {
@@ -93,6 +129,29 @@ export const register = async (req, res) => {
   }
 };
 
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const login = async (req, res) => {
   const { email, password, role } = req.body;
 
@@ -138,6 +197,15 @@ export const login = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
+
+
+
+
+
+
 
 
 
@@ -260,6 +328,15 @@ export const updateProfile = async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
 export const myProfile = async (req, res) => {
   try {
     const { id } = req.params;
@@ -283,3 +360,81 @@ export const myProfile = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
+
+
+
+
+
+
+
+export const getAllNGOs = async (req, res) => {
+  try {
+    const ngos = await User.find({ role: "NGO" }).sort({ createdAt: -1 }).select("-password");
+
+    return res.status(200).json({
+      message: "NGOs fetched successfully.",
+      ngos,
+    });
+  } catch (error) {
+    console.error("Error fetching NGOs:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+export const getAllVendors = async (req, res) => {
+  try {
+    const vendors = await User.find({ role: "vendor" }).sort({ createdAt: -1 }).select("-password");
+
+    return res.status(200).json({
+      message: "Vendors fetched successfully.",
+      vendors,
+    });
+  } catch (error) {
+    console.error("Error fetching Vendors:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+export const getAllVolunteer = async (req,res)=>
+{
+  try {
+
+    const Volunteer = await User.find({role :"Volunteer"}).sort({createdAt:-1}).select("-password");
+
+    return res.status(200).json({
+      message: "Volunteer fetched successfully.",
+      Volunteer,
+      });
+  
+  } catch (error) {
+        console.error("Error fetching Volunteer:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+}

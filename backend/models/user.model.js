@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
     {
         type:String,
         required:true,
-        enum:["NGO", "vendor"],
+        enum:["NGO", "vendor","Volunteer"],
     },
 
 
@@ -59,9 +59,26 @@ const userSchema = new mongoose.Schema({
         required:true,
         select:false,
         minlength:8,
-    }
+    },
+
+averageRating: {
+  type: Number,
+  default: 0,
+},
+badge: {
+  type: String,
+  enum: ['None', 'Gold', 'Silver', 'Bronze'],  
+  default: 'None',
+},
+reviewCount: {
+  type: Number,
+  default: 0,
+}
+
 
 },{timestamps:true})
 
 
-export const User = mongoose.model("User", userSchema);
+ const User = mongoose.model("User", userSchema);
+
+ export default User;

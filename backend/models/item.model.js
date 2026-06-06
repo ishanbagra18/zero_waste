@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { User } from "./user.model.js";
+import User from "../models/user.model.js";
 
 const itemSchema = new mongoose.Schema({
     name: {
@@ -42,7 +42,7 @@ const itemSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ["available", "claimed", "completed", "expired"],
+        enum: ["available", "claimed", "rejected", "completed", "expired"],
         default: "available",
         required: true,
     },
@@ -77,10 +77,68 @@ const itemSchema = new mongoose.Schema({
         default: null, // Initialize as null
     },
 
+    deliveryStatus: {
+        type: String,
+        enum: ["none", "volunteer_assigned", "pickup_confirmed", "delivered"],
+        default: "none",
+    },
+
+    assignedVolunteer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+    },
+
+    deliveryOtp: {
+        type: String,
+        default: null,
+        select: false,
+    },
+
+    deliveryOtpExpiresAt: {
+        type: Date,
+        default: null,
+    },
+
+    pickupConfirmedAt: {
+        type: Date,
+        default: null,
+    },
+
+    deliveredAt: {
+        type: Date,
+        default: null,
+    },
+
     claimedAt: {
         type: Date,
         default: null, // Initialize as null
     },
+
+    rejectionHistory: [
+        {
+            rejectedBy: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+            rejectedByName: {
+                type: String,
+            },
+            previousClaimedBy: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+                default: null,
+            },
+            rejectedAt: {
+                type: Date,
+                default: Date.now,
+            },
+            restoredAt: {
+                type: Date,
+                default: null,
+            },
+        },
+    ],
 
 }, { timestamps: true });
 
