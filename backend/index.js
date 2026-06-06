@@ -90,10 +90,25 @@ io.on("connection", (socket) => {
 });
 
 // ✅ Middleware & Config
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}));
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://zero-waste200.netlify.app'
+];
+
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
