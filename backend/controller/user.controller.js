@@ -213,19 +213,25 @@ export const login = async (req, res) => {
 
 
 export const forgotPassword = async (req, res) => {
-  const { email, role, newPassword } = req.body;
+  const { email, role, oldPassword, newPassword } = req.body;
 
   try {
-    if (!email || !role || !newPassword) {
+    if (!email || !role || !oldPassword || !newPassword) {
       return res
         .status(400)
         .json({ message: "Please provide all fields for password reset" });
     }
 
-    const user = await User.findOne({ email, role });
+    const user = await User.findOne({ email, role }).select("+password");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    // Verify old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid old password." });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);

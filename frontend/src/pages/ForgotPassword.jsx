@@ -8,6 +8,7 @@ import { Toaster, toast } from 'react-hot-toast';
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const ForgotPassword = () => {
     if (isSubmitting) return;
 
     // Client-side quick checks
-    if (!email || !role || !password) {
+    if (!email || !role || !oldPassword || !password) {
       toast.error("Please complete all mandatory processing fields.");
       return;
     }
@@ -34,6 +35,7 @@ const ForgotPassword = () => {
       const res = await axios.patch('http://localhost:3002/api/users/forgot-password', {
         email: email.trim(),
         role,
+        oldPassword,
         newPassword: password,
       });
 
@@ -117,6 +119,26 @@ const ForgotPassword = () => {
                 </select>
                 {/* Custom absolute layout drop-down caret arrow */}
                 <div className="absolute right-4 pointer-events-none text-xs text-slate-500 group-focus-within:text-blue-400">&nbsp;▼</div>
+              </div>
+            </div>
+
+            {/* Field: Old Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
+                Old Password
+              </label>
+              <div className="group flex items-center gap-3 bg-slate-950/50 focus-within:bg-slate-950/90 px-3.5 py-2.5 rounded-xl border border-white/[0.06] focus-within:border-blue-500/60 transition-all duration-150 shadow-inner">
+                <MdLock className="text-slate-500 group-focus-within:text-blue-400 text-lg transition-colors shrink-0" />
+                <input
+                  type="password"
+                  placeholder="••••••••••••"
+                  disabled={isSubmitting}
+                  className="bg-transparent outline-none flex-1 text-sm text-slate-100 placeholder-slate-600 w-full disabled:text-slate-500"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
               </div>
             </div>
 
