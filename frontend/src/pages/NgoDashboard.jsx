@@ -530,16 +530,16 @@ const COLORS = ["#10b981", "#6366f1", "#f43f5e"];
         <div className="w-full h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-             <Pie
-  data={pieData}
-  cx="50%"
-  cy="42%"
-  outerRadius={100}
-  innerRadius={65}
-  paddingAngle={4}
-  dataKey="value"
-  label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
->
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="42%"
+                outerRadius={100}
+                innerRadius={65}
+                paddingAngle={4}
+                dataKey="value"
+                label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+              >
                 {pieData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="#020617" strokeWidth={2} />
                 ))}
