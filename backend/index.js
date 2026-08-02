@@ -4,12 +4,14 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import dns from 'dns';
 
-// Fix querySrv ECONNREFUSED for MongoDB Atlas on Windows
-dns.setDefaultResultOrder('ipv4first');
-try {
-  dns.setServers(['8.8.8.8', '8.8.4.4']);
-} catch (e) {
-  // Ignore if custom DNS fails
+// Fix querySrv ECONNREFUSED for MongoDB Atlas on local Windows
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    dns.setDefaultResultOrder('ipv4first');
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+  } catch (e) {
+    // Ignore if custom DNS fails
+  }
 }
 
 import http from 'http';
