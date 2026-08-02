@@ -2,6 +2,16 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Fix querySrv ECONNREFUSED for MongoDB Atlas on Windows
+dns.setDefaultResultOrder('ipv4first');
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (e) {
+  // Ignore if custom DNS fails
+}
+
 import http from 'http';
 import { Server } from 'socket.io';
 import fileUpload from 'express-fileupload';
@@ -17,6 +27,7 @@ import messageRoute from "./routes/message.route.js";
 import reviewRoute from "./routes/review.route.js";
 
 import Message from './models/message.model.js';
+import { notificationQueue } from './queues/notification.queue.js';
 
 dotenv.config();
 const app = express();
@@ -42,6 +53,9 @@ const io = new Server(server, {
 
 // ✅ Manage online users
 let onlineUsers = new Map();
+
+// ✅ Initialize Notification Message Queue System
+notificationQueue.init({ io, onlineUsers });
 
 const addUser = (userId, socketId) => {
   if (!onlineUsers.has(userId)) {

@@ -10,6 +10,7 @@ import {
   MdVisibilityOff,
 } from "react-icons/md";
 import { toast, Toaster } from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -18,6 +19,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,9 +31,7 @@ export default function Login() {
         role,
       });
       const { token, user } = res.data;
-      localStorage.clear();
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", user.role);
+      authLogin(token, user.role, user);
       toast.success("Login successful!");
       if (user.role === "vendor") {
         navigate("/vendor/dashboard");

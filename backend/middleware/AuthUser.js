@@ -12,8 +12,8 @@ export const isAuthenticated = async (req, res, next) => {
       token = req.cookies.jwt;
     }
 
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized. Token not found." });
+    if (!token || token === "null" || token === "undefined" || token === "[object Object]" || token.trim() === "") {
+      return res.status(401).json({ message: "Unauthorized. Token not found or invalid." });
     }
 
     // Verify token

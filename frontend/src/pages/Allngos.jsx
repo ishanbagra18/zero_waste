@@ -3,31 +3,17 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { MessageCircle, Star, Search, MapPin, Mail, Phone, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useData } from '../context/DataContext';
 
 const Allngos = () => {
-  const [ngos, setNgos] = useState([]);
+  const { ngos, fetchNgos, loadingNgos } = useData();
   const [filteredNgos, setFilteredNgos] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAllNgos = async () => {
-      try {
-        const response = await axios.get('http://localhost:3002/api/users/allngo', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const allFetchedNgos = response.data.ngos || [];
-        setNgos(allFetchedNgos);
-        
-        setFilteredNgos(allFetchedNgos.slice(0, 10));
-      } catch (error) {
-        console.error('Error fetching NGOs:', error);
-      }
-    };
-
-    fetchAllNgos();
-  }, [token]);
+    fetchNgos();
+  }, [fetchNgos]);
 
   useEffect(() => {
     const lowerQuery = searchQuery.trim().toLowerCase();
@@ -82,7 +68,12 @@ const Allngos = () => {
       </div>
 
       {/* NGO Cards Grid */}
-      {filteredNgos.length === 0 ? (
+      {loadingNgos ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-3 text-sm text-zinc-400 font-medium">Loading NGOs...</p>
+        </div>
+      ) : filteredNgos.length === 0 ? (
         <div className="text-center py-20 border border-dashed border-zinc-800 rounded-2xl max-w-md mx-auto">
           <p className="text-zinc-500 font-medium">No NGOs match your search criteria.</p>
         </div>

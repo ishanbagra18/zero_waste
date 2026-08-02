@@ -4,13 +4,19 @@ import { Toaster, toast } from "react-hot-toast";
 import { MdLocationOn, MdShoppingCart, MdHistory, MdCalendarToday } from "react-icons/md";
 import { motion } from "framer-motion";
 
+import { useAuth } from "../context/AuthContext";
+
 const MyClaimed = () => {
   const [claimedItems, setClaimedItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("token");
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchMyClaimed = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
       try {
         const res = await axios.get("http://localhost:3002/api/items/get-claimed-items", {
           headers: { Authorization: `Bearer ${token}` },
@@ -19,7 +25,7 @@ const MyClaimed = () => {
 
         setClaimedItems(res.data.claimedItems || []);
       } catch (error) {
-        toast.error("Failed to fetch claimed items");
+        toast.error(error.response?.data?.message || "Failed to fetch claimed items");
         console.error(error);
       } finally {
         setLoading(false);

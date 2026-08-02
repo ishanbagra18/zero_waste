@@ -13,64 +13,21 @@ import {
   MdAccountCircle,
   MdRefresh
 } from "react-icons/md";
+import { useAuth } from "../context/AuthContext";
 
 const MyProfile = () => {
-  const [user, setUser] = useState(null);
-  const [userId, setUserId] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const { user, userId, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
-  // Validate Token and Decrypt Payload
-  useEffect(() => {
-    if (!token) {
-      toast.error("Session expired. Please log in again.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const base64Url = token.split(".")[1];
-      if (!base64Url) throw new Error("Invalid token structure");
-      
-      const payload = JSON.parse(atob(base64Url));
-      if (payload.userId) {
-        setUserId(payload.userId);
-      } else {
-        throw new Error("Missing user payload data.");
-      }
-    } catch (err) {
-      toast.error("Invalid session credentials.");
-      localStorage.removeItem("token");
-      setToken(null);
-      setLoading(false);
-    }
-  }, [token]);
-
-  // Fetch Profile Details
   const fetchProfile = async () => {
-    if (!userId || !token) return;
-    setLoading(true);
-    setError(null);
     try {
-      const res = await axios.get(
-        `http://localhost:3002/api/users/myprofile/${userId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setUser(res.data.user);
+      await refreshProfile();
+      setError(null);
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to sync profile information.";
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setLoading(false);
+      setError("Failed to sync profile information.");
     }
   };
-
-  useEffect(() => {
-    fetchProfile();
-  }, [userId, token]);
 
   // Loading State with Micro Spinner
   if (loading) {

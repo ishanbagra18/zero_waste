@@ -12,9 +12,10 @@ import {
   MdCancel,
   MdLayers,
 } from "react-icons/md";
+import { useData } from "../context/DataContext";
 
 const Allitems = () => {
-  const [items, setItems] = useState([]);
+  const { items, fetchItems, loadingItems } = useData();
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -22,38 +23,27 @@ const Allitems = () => {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8; 
-  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const res = await axios.get("http://localhost:3002/api/items/get-items", {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: {
-            limit: 100,
-          },
-        });
-
-        if (Array.isArray(res.data.items)) {
-          setItems(res.data.items);
-          setFilteredItems(res.data.items);
-          setCategories([...new Set(res.data.items.map((item) => item.category))]);
-          setLocations([...new Set(res.data.items.map((item) => item.location))]);
-        } else {
-          toast.error("Invalid response format.");
-        }
-      } catch (error) {
-        console.error("❌ Error fetching items:", error.response?.data || error);
-        toast.error(error.response?.data?.message || "Failed to load items");
-      }
-    };
-
     fetchItems();
-  }, [token]);
+  }, [fetchItems]);
+
+  useEffect(() => {
+    if (Array.isArray(items)) {
+      setCategories([...new Set(items.map((item) => item.category).filter(Boolean))]);
+      setLocations([...new Set(items.map((item) => item.location).filter(Boolean))]);
+    }
+  }, [items]);
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     let filtered = [...items];

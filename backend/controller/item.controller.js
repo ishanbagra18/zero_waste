@@ -2,6 +2,7 @@ import { Item } from "../models/item.model.js";
 import { v2 as cloudinary } from "cloudinary";
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
+import { enqueueNotification } from "../queues/notification.queue.js";
 
 const REJECTION_RECOVERY_DELAY_MS = 5000;
 
@@ -385,10 +386,10 @@ export const getClaimedItems = async (req, res) => {
       await item.save();
       console.log(`✅ Item "${item.name}" claimed by ${req.user.name}`);
 
-      // Create notification for vendor
-      const newNotification = await Notification.create({
+      // Create notification for vendor via queue
+      enqueueNotification({
         userId: item.vendor._id,
-        itemId: item._id, // ✅ include item ID here
+        itemId: item._id,
         notificationType: "claim_request",
         actionStatus: "pending",
         userInfo: {
@@ -400,12 +401,11 @@ export const getClaimedItems = async (req, res) => {
         message: `Your item "${item.name}" has been claimed by ${req.user.name}.`,
       });
 
-      console.log(`📨 Notification sent to vendor (userId: ${item.vendor._id})`);
+      console.log(`📨 Notification queued for vendor (userId: ${item.vendor._id})`);
 
       return res.status(200).json({
         message: "Item claimed successfully.",
         item,
-        notification: newNotification,
       });
 
     } catch (error) {
@@ -485,18 +485,19 @@ export const getClaimedItems = async (req, res) => {
       item.claimStatus = status;
 
       if (status === "approved" || status === "rejected") {
-        await Notification.updateMany(
-          {
+        enqueueNotification({
+          type: "updateMany",
+          updateQuery: {
             itemId: item._id,
             notificationType: "claim_request",
           },
-          {
+          updateFields: {
             $set: {
               actionStatus: status === "collected" ? "collected" : status,
               notificationType: status === "approved" ? "claim_approved" : status === "rejected" ? "claim_rejected" : "claim_collected",
             },
-          }
-        );
+          },
+        });
       }
 
       if (status === "rejected") {
@@ -519,23 +520,19 @@ export const getClaimedItems = async (req, res) => {
         await item.save();
         console.log("💾 Rejected item saved before delayed recovery");
 
-        try {
-          await Notification.create({
-            userId: rejectedNgoId,
-            itemId: item._id,
-            notificationType: "claim_rejected",
-            actionStatus: "rejected",
-            userInfo: {
-              name: req.user.name,
-              email: req.user.email,
-              organisation: req.user.organisation,
-              location: req.user.location,
-            },
-            message: `Your claim for item "${item.name}" has been rejected by the vendor.`,
-          });
-        } catch (notificationError) {
-          console.error("❌ Failed to notify the rejected NGO:", notificationError);
-        }
+        enqueueNotification({
+          userId: rejectedNgoId,
+          itemId: item._id,
+          notificationType: "claim_rejected",
+          actionStatus: "rejected",
+          userInfo: {
+            name: req.user.name,
+            email: req.user.email,
+            organisation: req.user.organisation,
+            location: req.user.location,
+          },
+          message: `Your claim for item "${item.name}" has been rejected by the vendor.`,
+        });
 
         setTimeout(async () => {
           try {
@@ -577,7 +574,7 @@ export const getClaimedItems = async (req, res) => {
               }));
 
             if (notifications.length > 0) {
-              await Notification.insertMany(notifications);
+              notifications.forEach((notif) => enqueueNotification(notif));
             }
 
             console.log(`🔔 Item "${recheckItem.name}" restored to available after rejection delay`);
@@ -586,19 +583,20 @@ export const getClaimedItems = async (req, res) => {
           }
         }, REJECTION_RECOVERY_DELAY_MS);
       } else if (status === "collected") {
-        await Notification.updateMany(
-          {
+        enqueueNotification({
+          type: "updateMany",
+          updateQuery: {
             itemId: item._id,
             notificationType: "delivery_reached",
             actionStatus: "pending",
             userId: req.user.userId,
           },
-          {
+          updateFields: {
             $set: {
               actionStatus: "collected",
             },
-          }
-        );
+          },
+        });
 
         item.status = "completed";
         console.log("✅ Item marked as completed");
@@ -612,29 +610,30 @@ export const getClaimedItems = async (req, res) => {
 
         await item.save();
 
-        await Notification.updateMany(
-          {
+        enqueueNotification({
+          type: "updateMany",
+          updateQuery: {
             itemId: item._id,
             notificationType: "claim_request",
             userId: item.claimedBy,
           },
-          {
+          updateFields: {
             $set: {
               notificationType: "claim_approved",
               actionStatus: "approved",
               otpCode: deliveryOtp,
               message: `Your claim for item "${item.name}" has been approved. Delivery OTP: ${deliveryOtp}`,
             },
-          }
-        );
+          },
+        });
       }
 
       if (status === "collected") {
         await item.save();
         console.log("💾 Item updated and saved to DB");
-        await Notification.create({
+        enqueueNotification({
           userId: item.claimedBy.toString(),
-            itemId: item._id, // ✅ required
+          itemId: item._id,
           notificationType: status === "approved" ? "claim_approved" : "claim_collected",
           actionStatus: status,
           userInfo: {
@@ -646,7 +645,7 @@ export const getClaimedItems = async (req, res) => {
           message: `Your claim for item "${item.name}" has been ${status}.`,
         });
 
-        console.log(`📣 Notification sent to NGO (userId: ${item.claimedBy})`);
+        console.log(`📣 Notification queued for NGO (userId: ${item.claimedBy})`);
       }
       console.log("==========================\n");
 
@@ -679,7 +678,7 @@ export const markItemDeliveryReached = async (req, res) => {
       return res.status(400).json({ message: "Delivery reached can only be sent after claim approval." });
     }
 
-    const deliveryNotification = await Notification.create({
+    enqueueNotification({
       userId: item.claimedBy,
       itemId: item._id,
       notificationType: "delivery_reached",
@@ -695,7 +694,6 @@ export const markItemDeliveryReached = async (req, res) => {
 
     return res.status(200).json({
       message: "Delivery reached notification sent successfully.",
-      notification: deliveryNotification,
     });
   } catch (error) {
     console.error("🔥 Error sending delivery reached notification:", error);
@@ -724,7 +722,7 @@ export const confirmPickup = async (req, res) => {
     item.pickupConfirmedAt = new Date();
     await item.save();
 
-    await Notification.create({
+    enqueueNotification({
       userId: item.claimedBy,
       itemId: item._id,
       notificationType: "pickup_confirmed",
@@ -787,7 +785,7 @@ export const verifyDeliveryOtp = async (req, res) => {
     item.deliveryOtpExpiresAt = null;
     await item.save();
 
-    await Notification.create({
+    enqueueNotification({
       userId: item.vendor,
       itemId: item._id,
       notificationType: "claim_collected",

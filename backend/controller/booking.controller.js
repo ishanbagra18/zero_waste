@@ -2,6 +2,7 @@ import Booking from "../models/booking.model.js";
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 import { Item } from "../models/item.model.js";
+import { enqueueNotification } from "../queues/notification.queue.js";
 
 const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
 
@@ -59,8 +60,8 @@ export const bookVolunteer = async (req, res) => {
       }
     }
 
-    // Create notification
-    await Notification.create({
+    // Enqueue notification asynchronously
+    enqueueNotification({
       userId: volunteerId,
       bookingId: booking._id,
       notificationType: "booking_request",
@@ -114,21 +115,22 @@ export const acceptBooking = async (req, res) => {
     booking.status = "accepted";
     await booking.save();
 
-    await Notification.updateMany(
-      {
+    enqueueNotification({
+      type: "updateMany",
+      updateQuery: {
         bookingId: booking._id,
         notificationType: "booking_request",
         userId: req.user.userId,
       },
-      {
+      updateFields: {
         $set: {
           actionStatus: "approved",
           isRead: true,
         },
-      }
-    );
+      },
+    });
 
-    await Notification.create({
+    enqueueNotification({
       userId: booking.ngo,
       bookingId: booking._id,
       notificationType: "booking_accepted",
@@ -199,7 +201,7 @@ export const confirmBookingPickup = async (req, res) => {
     }
 
     // Notify NGO (only NGO gets the OTP code)
-    await Notification.create({
+    enqueueNotification({
       userId: booking.ngo,
       bookingId: booking._id,
       notificationType: "booking_pickup_confirmed",
@@ -215,7 +217,7 @@ export const confirmBookingPickup = async (req, res) => {
     });
 
     // Notify Volunteer (without OTP code)
-    await Notification.create({
+    enqueueNotification({
       userId: booking.volunteer,
       bookingId: booking._id,
       notificationType: "booking_pickup_confirmed",
@@ -292,37 +294,39 @@ export const verifyBookingOtp = async (req, res) => {
         await item.save();
 
         // Mark related item notifications as read/completed
-        await Notification.updateMany(
-          {
+        enqueueNotification({
+          type: "updateMany",
+          updateQuery: {
             itemId: item._id,
             notificationType: { $in: ["pickup_confirmed", "claim_request"] }
           },
-          {
+          updateFields: {
             $set: {
               actionStatus: "collected",
               isRead: true,
             },
-          }
-        );
+          },
+        });
       }
     }
 
     // Mark previous notifications as reading/action completed
-    await Notification.updateMany(
-      {
+    enqueueNotification({
+      type: "updateMany",
+      updateQuery: {
         bookingId: booking._id,
         notificationType: "booking_pickup_confirmed",
       },
-      {
+      updateFields: {
         $set: {
           actionStatus: "collected",
           isRead: true,
         },
-      }
-    );
+      },
+    });
 
     // Notify Volunteer
-    await Notification.create({
+    enqueueNotification({
       userId: booking.volunteer,
       bookingId: booking._id,
       notificationType: "booking_delivered",
@@ -337,7 +341,7 @@ export const verifyBookingOtp = async (req, res) => {
     });
 
     // Notify NGO
-    await Notification.create({
+    enqueueNotification({
       userId: booking.ngo,
       bookingId: booking._id,
       notificationType: "booking_delivered",

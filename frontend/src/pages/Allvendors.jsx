@@ -3,40 +3,30 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { MessageCircle, Star, Search, MapPin, Mail, Phone, Building } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useData } from '../context/DataContext';
 
 const Allvendors = () => {
-  const [vendors, setVendors] = useState([]);
+  const { vendors, fetchVendors, loadingVendors } = useData();
   const [filteredVendors, setFilteredVendors] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAllVendors = async () => {
-      try {
-        const response = await axios.get('http://localhost:3002/api/users/allvendor', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const allFetchedVendors = response.data.vendors || [];
-        setVendors(allFetchedVendors);
-        
-        // शुरुआत में सिर्फ पहले 10 Vendors दिखाई देंगे
-        setFilteredVendors(allFetchedVendors.slice(0, 10));
-      } catch (error) {
-        console.error('Error fetching vendors:', error);
-      }
-    };
-    fetchAllVendors();
-  }, [token]);
+    fetchVendors();
+  }, [fetchVendors]);
+
+
+
+
+
+  
 
   useEffect(() => {
     const lowerQuery = searchQuery.trim().toLowerCase();
 
     if (lowerQuery === '') {
-      // अगर सर्च बॉक्स खाली है, तो सिर्फ पहले 10vendors दिखाओ
       setFilteredVendors(vendors.slice(0, 10));
     } else {
-      // अगर यूजर कुछ टाइप कर रहा है, तो पूरे डेटाबेस (vendors) में से खोजो
       const filtered = vendors.filter(
         (vendor) =>
           vendor.name?.toLowerCase().includes(lowerQuery) ||
@@ -84,7 +74,12 @@ const Allvendors = () => {
       </div>
 
       {/* Vendor Cards Grid */}
-      {filteredVendors.length === 0 ? (
+      {loadingVendors ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-3 text-sm text-zinc-400 font-medium">Loading vendors...</p>
+        </div>
+      ) : filteredVendors.length === 0 ? (
         <div className="text-center py-20 border border-dashed border-zinc-800 rounded-2xl max-w-md mx-auto">
           <p className="text-zinc-500 font-medium">No vendors match your search criteria.</p>
         </div>

@@ -29,16 +29,16 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useAuth } from "../context/AuthContext";
 
 const VendorDashboard = () => {
+  const { token, logout: authLogout } = useAuth();
   const [items, setItems] = useState([]);
   const [visibleCount, setVisibleCount] = useState(5);
   const [deleteItemId, setDeleteItemId] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   const NOTIFICATION_API = "http://localhost:3002/api/notifications/notification";
@@ -116,17 +116,11 @@ const VendorDashboard = () => {
 
   const handlelogout = async () => {
     try {
-      await axios.get("http://localhost:3002/api/users/logout", {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
-      localStorage.clear();
+      await authLogout();
       toast.success("Logout successful!");
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
+      navigate("/");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Logout failed");
+      toast.error("Logout failed");
     }
   };
 

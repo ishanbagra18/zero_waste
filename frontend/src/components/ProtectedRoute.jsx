@@ -1,10 +1,17 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ allowedRoles }) => {
-  
-  const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
+  const { token, role, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
+        <div className="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   // If no token, redirect to the login page
   if (!token) {
@@ -16,7 +23,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
     if (role === 'vendor') {
       return <Navigate to="/vendor/dashboard" replace />;
     }
-    if (role === 'ngo') {
+    if (role === 'NGO' || role === 'ngo') {
       return <Navigate to="/ngo/dashboard" replace />;
     }
     return <Navigate to="/" replace />;
