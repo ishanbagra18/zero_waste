@@ -78,13 +78,18 @@ const MyProfile = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-zinc-100 p-6 sm:p-12 lg:p-16 selection:bg-emerald-500/30 font-sans">
       <Toaster position="top-right" />
       
-      {/* Inject custom animation keyframe dynamically */}
+      {/* Inject custom animation keyframes dynamically */}
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes ambientFloat {
+          0%, 100% { transform: perspective(1000px) translateY(0px) rotateX(0deg) rotateY(0deg); }
+          50% { transform: perspective(1000px) translateY(-6px) rotateX(2deg) rotateY(-2deg); }
+        }
         .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-ambient-float { animation: ambientFloat 6s ease-in-out infinite; }
       `}</style>
 
       <div className="max-w-6xl mx-auto space-y-10">
@@ -126,47 +131,8 @@ const MyProfile = () => {
         {/* Dashboard Workspace */}
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
-          {/* Left Summary Profile Widget Card */}
-          <section className="bg-white/[0.02] backdrop-blur-md border border-white/[0.08] rounded-3xl p-8 flex flex-col items-center text-center shadow-xl">
-            <div className="relative group mb-6">
-              <div className="absolute inset-0 bg-emerald-500 rounded-full blur opacity-15 group-hover:opacity-30 transition duration-500"></div>
-              <img
-                src={user.photo?.url || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
-                alt={`${user.name || 'User'}'s profile avatar`}
-                className="relative w-40 h-40 rounded-full object-cover border-2 border-emerald-500/30 p-1 bg-black shadow-2xl"
-                loading="lazy"
-              />
-            </div>
-            
-            <h2 className="text-2xl font-extrabold text-white capitalize tracking-wide max-w-full truncate px-2 mb-1">
-              {user.name}
-            </h2>
-            <p className="text-xs uppercase tracking-widest text-emerald-400 font-black mb-8 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
-              {user.role === "vendor" ? "Vendor Partner" : "NGO Partner"}
-            </p>
-
-            {/* Platform Trust Badges */}
-            <div className="space-y-3 w-full max-w-[260px]">
-              <Badge
-                icon="🏅"
-                label="System Badge"
-                value={user.badge || "No Tier Status"}
-                bgGradient="from-purple-950/50 via-purple-900/30 to-zinc-900/50"
-                textColor="text-purple-300"
-                borderColor="border-purple-500/20"
-                delay="0.1s"
-              />
-              <Badge
-                icon="⭐"
-                label="Community Rating"
-                value={user.averageRating ? `${Number(user.averageRating).toFixed(1)} / 5.0` : "Unrated"}
-                bgGradient="from-amber-950/50 via-amber-900/30 to-zinc-900/50"
-                textColor="text-amber-300"
-                borderColor="border-amber-500/20"
-                delay="0.2s"
-              />
-            </div>
-          </section>
+          {/* Left Summary Profile Widget Card with 3D Styling */}
+          <ThreeDProfileCard user={user} />
 
           {/* Right Information Dashboard Workspace */}
           <section className="lg:col-span-2 flex flex-col gap-8">
@@ -207,15 +173,173 @@ const MyProfile = () => {
   );
 };
 
-// Presentational Badge Element Component
-const Badge = ({ icon, label, value, bgGradient, textColor, borderColor, delay }) => (
+// 3D Profile Summary Card Component with Interactive Physics & Layering
+const ThreeDProfileCard = ({ user }) => {
+  const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0, scale: 1 });
+  const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const cardRef = React.useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    const xPct = (mouseX / rect.width) - 0.5;
+    const yPct = (mouseY / rect.height) - 0.5;
+    
+    // Max tilt angles (+/- 18 deg)
+    const rotateY = xPct * 24; 
+    const rotateX = -yPct * 24; 
+
+    setTransform({
+      rotateX,
+      rotateY,
+      scale: 1.04
+    });
+
+    setGlare({
+      x: (mouseX / rect.width) * 100,
+      y: (mouseY / rect.height) * 100,
+      opacity: 0.5
+    });
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setTransform({ rotateX: 0, rotateY: 0, scale: 1 });
+    setGlare({ x: 50, y: 50, opacity: 0 });
+  };
+
+  return (
+    <div className="w-full flex justify-center" style={{ perspective: "1200px" }}>
+      <section
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          transform: isHovered
+            ? `perspective(1200px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg) scale3d(${transform.scale}, ${transform.scale}, ${transform.scale})`
+            : undefined,
+          transformStyle: "preserve-3d",
+          transition: isHovered ? "transform 0.1s ease-out, box-shadow 0.2s ease-out" : "transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.6s ease-out",
+          boxShadow: isHovered
+            ? `${-transform.rotateY * 2.5}px ${transform.rotateX * 2.5 + 20}px 35px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.35)`
+            : "0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.15)"
+        }}
+        className={`relative w-full bg-gradient-to-b from-slate-900/90 via-zinc-900/95 to-black border border-emerald-500/30 rounded-3xl p-8 flex flex-col items-center text-center overflow-hidden cursor-pointer select-none group ${
+          !isHovered ? "animate-ambient-float" : ""
+        }`}
+      >
+        {/* Dynamic 3D Metallic Light Glare Overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-3xl transition-opacity duration-300"
+          style={{
+            background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255, 255, 255, 0.25) 0%, rgba(16, 185, 129, 0.12) 35%, transparent 75%)`,
+            opacity: glare.opacity,
+            zIndex: 10
+          }}
+        />
+
+        {/* 3D Volumetric Depth Backdrop Accents */}
+        <div 
+          className="absolute -top-16 -left-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"
+          style={{ transform: "translateZ(-30px)" }}
+        />
+        <div 
+          className="absolute -bottom-16 -right-16 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"
+          style={{ transform: "translateZ(-30px)" }}
+        />
+
+        {/* 3D Border Glow Frame */}
+        <div 
+          className="absolute inset-0 rounded-3xl border border-emerald-400/20 pointer-events-none group-hover:border-emerald-400/40 transition-colors duration-300"
+          style={{ transform: "translateZ(10px)" }}
+        />
+
+        {/* 3D Layer 1: Avatar with floating ring */}
+        <div 
+          className="relative group/avatar mb-6 transition-transform duration-300"
+          style={{ transform: "translateZ(50px)" }}
+        >
+          <div className="absolute inset-0 bg-emerald-500 rounded-full blur-lg opacity-30 group-hover/avatar:opacity-60 transition duration-500" />
+          <div className="relative p-1.5 rounded-full bg-gradient-to-tr from-emerald-400 via-teal-300 to-indigo-500 shadow-2xl">
+            <img
+              src={user.photo?.url || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+              alt={`${user.name || 'User'}'s profile avatar`}
+              className="w-36 h-36 sm:w-40 sm:h-40 rounded-full object-cover border-2 border-black/80 bg-black shadow-inner"
+              loading="lazy"
+            />
+          </div>
+        </div>
+        
+        {/* 3D Layer 2: User Name */}
+        <h2 
+          className="text-2xl sm:text-3xl font-black text-white capitalize tracking-wide max-w-full truncate px-2 mb-2 drop-shadow-lg"
+          style={{ transform: "translateZ(40px)" }}
+        >
+          {user.name}
+        </h2>
+
+        {/* 3D Layer 3: Role Badge */}
+        <div 
+          className="mb-8"
+          style={{ transform: "translateZ(35px)" }}
+        >
+          <p className="text-xs uppercase tracking-widest text-emerald-400 font-black px-3.5 py-1.5 bg-emerald-500/15 rounded-full border border-emerald-500/30 shadow-lg backdrop-blur-md">
+            {user.role === "vendor" ? "Vendor Partner" : "NGO Partner"}
+          </p>
+        </div>
+
+        {/* 3D Layer 4: Platform Badges with individual 3D depth */}
+        <div 
+          className="space-y-3.5 w-full max-w-[260px]"
+          style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}
+        >
+          <Badge
+            icon="🏅"
+            label="System Badge"
+            value={user.badge || "No Tier Status"}
+            bgGradient="from-purple-950/70 via-purple-900/40 to-zinc-900/70"
+            textColor="text-purple-300"
+            borderColor="border-purple-500/30"
+            delay="0.1s"
+            translateZ="15px"
+          />
+          <Badge
+            icon="⭐"
+            label="Community Rating"
+            value={user.averageRating ? `${Number(user.averageRating).toFixed(1)} / 5.0` : "Unrated"}
+            bgGradient="from-amber-950/70 via-amber-900/40 to-zinc-900/70"
+            textColor="text-amber-300"
+            borderColor="border-amber-500/30"
+            delay="0.2s"
+            translateZ="20px"
+          />
+        </div>
+      </section>
+    </div>
+  );
+};
+
+// Presentational Badge Element Component with 3D Lift
+const Badge = ({ icon, label, value, bgGradient, textColor, borderColor, delay, translateZ = "10px" }) => (
   <div
-    className={`flex items-center gap-3.5 px-4 py-2.5 rounded-2xl bg-gradient-to-br ${bgGradient} border ${borderColor} opacity-0 animate-fade-in-up shadow-inner`}
-    style={{ animationDelay: delay }}
+    className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-gradient-to-br ${bgGradient} border ${borderColor} opacity-0 animate-fade-in-up shadow-xl backdrop-blur-md transition-transform duration-300 hover:scale-[1.03]`}
+    style={{ 
+      animationDelay: delay,
+      transform: `translateZ(${translateZ})`
+    }}
   >
-    <span className="text-xl shrink-0" role="img" aria-hidden="true">{icon}</span>
+    <span className="text-2xl shrink-0 drop-shadow" role="img" aria-hidden="true">{icon}</span>
     <div className="text-left min-w-0">
-      <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-500">{label}</p>
+      <p className="text-[10px] uppercase font-black tracking-widest text-zinc-400">{label}</p>
       <p className={`text-sm font-extrabold truncate ${textColor}`}>{value}</p>
     </div>
   </div>

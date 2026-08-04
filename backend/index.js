@@ -149,18 +149,32 @@ app.get('/', (req, res) => {
 const mongo = process.env.MONGODB_URI;
 
 const startServer = async () => {
-  try {
-    await mongoose.connect(mongo);
-    console.log("✅ MongoDB connected");
+  // ✅ Start HTTP server FIRST so Render detects the port
+  server.listen(port, '0.0.0.0', () => {
+    console.log(`🚀 Server running on http://0.0.0.0:${port}`);
+  });
 
-    server.listen(port, () => {
-      console.log(`🚀 Server running on http://localhost:${port}`);
-    });
+  // ✅ Then connect to MongoDB with retry logic
+  const connectWithRetry = async (retries = 5) => {
+    for (let i = 1; i <= retries; i++) {
+      try {
+        await mongoose.connect(mongo);
+        console.log("✅ MongoDB connected");
+        return;
+      } catch (err) {
+        console.error(`❌ MongoDB connection attempt ${i}/${retries} failed:`, err.message);
+        if (i < retries) {
+          const delay = Math.min(5000 * i, 30000);
+          console.log(`⏳ Retrying in ${delay / 1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          console.error("❌ All MongoDB connection attempts failed. Server running without DB.");
+        }
+      }
+    }
+  };
 
-  } catch (err) {
-    console.error("❌ MongoDB Error:", err.message);
-    process.exit(1);
-  }
+  await connectWithRetry();
 };
 
 startServer();
