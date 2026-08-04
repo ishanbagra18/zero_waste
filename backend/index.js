@@ -164,7 +164,47 @@ app.get('/health', (req, res) => {
 });
 
 // ✅ MongoDB & Server Startup
-const mongo = process.env.MONGODB_URI;
+const mongo = (process.env.MONGODB_URI || '').trim();
+console.log(`📋 MONGODB_URI present: ${!!mongo}, length: ${mongo.length}, starts with: ${mongo.substring(0, 20)}...`);
+
+// Persistent reconnect function (accessible globally for health check)
+const connectMongo = async () => {
+  if (mongoose.connection.readyState === 1) {
+    console.log("✅ MongoDB already connected");
+    return true;
+  }
+  try {
+    console.log("🔄 Attempting MongoDB connection...");
+    await mongoose.connect(mongo, {
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+    });
+    console.log("✅ MongoDB connected successfully!");
+    return true;
+  } catch (err) {
+    console.error("❌ MongoDB connection failed:");
+    console.error("   Error name:", err.name);
+    console.error("   Error message:", err.message);
+    console.error("   Error code:", err.code);
+    if (err.reason) console.error("   Error reason:", JSON.stringify(err.reason));
+    return false;
+  }
+};
+
+// Update health endpoint to show more info and allow reconnect
+app.get('/health/reconnect', async (req, res) => {
+  const result = await connectMongo();
+  const mongoState = mongoose.connection.readyState;
+  const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+  res.json({
+    status: mongoState === 1 ? 'healthy' : 'unhealthy',
+    mongodb: states[mongoState] || 'unknown',
+    reconnectAttempted: true,
+    reconnectSuccess: result,
+    mongoUriLength: mongo.length,
+    mongoUriPrefix: mongo.substring(0, 25) + '...',
+  });
+});
 
 const startServer = async () => {
   // ✅ Start HTTP server FIRST so Render detects the port
@@ -173,26 +213,17 @@ const startServer = async () => {
   });
 
   // ✅ Then connect to MongoDB with retry logic
-  const connectWithRetry = async (retries = 5) => {
-    for (let i = 1; i <= retries; i++) {
-      try {
-        await mongoose.connect(mongo);
-        console.log("✅ MongoDB connected");
-        return;
-      } catch (err) {
-        console.error(`❌ MongoDB connection attempt ${i}/${retries} failed:`, err.message);
-        if (i < retries) {
-          const delay = Math.min(5000 * i, 30000);
-          console.log(`⏳ Retrying in ${delay / 1000}s...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else {
-          console.error("❌ All MongoDB connection attempts failed. Server running without DB.");
-        }
-      }
+  for (let i = 1; i <= 10; i++) {
+    const success = await connectMongo();
+    if (success) break;
+    if (i < 10) {
+      const delay = Math.min(5000 * i, 30000);
+      console.log(`⏳ Retry ${i}/10 in ${delay / 1000}s...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    } else {
+      console.error("❌ All 10 MongoDB connection attempts failed. Server running without DB.");
     }
-  };
-
-  await connectWithRetry();
+  }
 };
 
 startServer();
