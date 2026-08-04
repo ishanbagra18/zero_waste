@@ -31,7 +31,7 @@ const ForgotPassword = () => {
       setIsSubmitting(false);
       setIsSubmitting(true);
       
-      const res = await axios.patch('http://localhost:3002/api/users/forgot-password', {
+      const res = await axios.patch('${import.meta.env.VITE_API_BASE_URL}/api/users/forgot-password', {
         email: email.trim(),
         role,
         newPassword: password,

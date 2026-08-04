@@ -25,11 +25,11 @@ const Volunteerdashboard = () => {
 
     try {
       const [bookingRes, notificationRes] = await Promise.all([
-        axios.get("http://localhost:3002/api/book/allbooking", {
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/book/allbooking`, {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }),
-        axios.get("http://localhost:3002/api/notifications/notification", {
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/notifications/notification`, {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }),
@@ -60,7 +60,7 @@ const Volunteerdashboard = () => {
 
     try {
       await axios.patch(
-        `http://localhost:3002/api/items/${itemId.trim()}/pickup-confirmed`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/items/${itemId.trim()}/pickup-confirmed`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -80,7 +80,7 @@ const Volunteerdashboard = () => {
     }
     try {
       await axios.patch(
-        `http://localhost:3002/api/book/${bookingId}/accept`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/accept`,
         { ngoId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -100,7 +100,7 @@ const Volunteerdashboard = () => {
     }
     try {
       await axios.patch(
-        `http://localhost:3002/api/book/${bookingId}/pickup-confirmed`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/pickup-confirmed`,
         { ngoId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -120,7 +120,7 @@ const Volunteerdashboard = () => {
     }
     try {
       await axios.patch(
-        `http://localhost:3002/api/book/${bookingId}/verify-otp`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/verify-otp`,
         { otp },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -134,7 +134,7 @@ const Volunteerdashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get("http://localhost:3002/api/users/logout", {
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/logout`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });

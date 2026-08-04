@@ -12,7 +12,7 @@ const Notification = () => {
   const token = localStorage.getItem("token") || "";
   const role = localStorage.getItem("role") || "";
 
-  const NOTIFICATION_API = "http://localhost:3002/api/notifications/notification";
+  const NOTIFICATION_API = `${import.meta.env.VITE_API_BASE_URL}/api/notifications/notification`;
 
   const fetchNotifications = async () => {
     if (!token) {
@@ -35,7 +35,7 @@ const Notification = () => {
   const markAsRead = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:3002/api/notifications/notification/${id}/read`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/notifications/notification/${id}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -50,7 +50,7 @@ const Notification = () => {
   const deleteNotification = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:3002/api/notifications/notification/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/notifications/notification/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success("Notification deleted");
@@ -68,7 +68,7 @@ const Notification = () => {
     }
     try {
       await axios.patch(
-        `http://localhost:3002/api/items/${itemId}/claim-status`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/items/${itemId}/claim-status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -88,7 +88,7 @@ const Notification = () => {
 
     try {
       await axios.patch(
-        `http://localhost:3002/api/items/${itemId}/pickup-confirmed`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/items/${itemId}/pickup-confirmed`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -115,7 +115,7 @@ const Notification = () => {
 
     try {
       await axios.patch(
-        `http://localhost:3002/api/items/${itemId}/verify-otp`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/items/${itemId}/verify-otp`,
         { otp },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -141,7 +141,7 @@ const Notification = () => {
 
     try {
       await axios.patch(
-        `http://localhost:3002/api/book/${bookingId}/accept`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/accept`,
         { ngoId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -167,7 +167,7 @@ const Notification = () => {
 
     try {
       await axios.patch(
-        `http://localhost:3002/api/book/${bookingId}/pickup-confirmed`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/pickup-confirmed`,
         { ngoId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -193,7 +193,7 @@ const Notification = () => {
 
     try {
       await axios.patch(
-        `http://localhost:3002/api/book/${bookingId}/verify-otp`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/verify-otp`,
         { otp },
         { headers: { Authorization: `Bearer ${token}` } }
       );

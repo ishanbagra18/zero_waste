@@ -21,7 +21,7 @@ const Chatting = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://localhost:3002/api/message/get/${chatUserId}`,
+          `${import.meta.env.VITE_API_BASE_URL}/api/message/get/${chatUserId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setMessages(res.data);
@@ -55,7 +55,7 @@ const Chatting = () => {
 
     try {
       const res = await axios.post(
-        `http://localhost:3002/api/message/send/${chatUserId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/message/send/${chatUserId}`,
         { message: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );

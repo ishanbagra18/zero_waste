@@ -120,7 +120,7 @@ export default function UpdateProfile() {
       });
 
       await axios.put(
-        `http://localhost:3002/api/users/updateProfile/${userId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/updateProfile/${userId}`,
         formData,
         {
           headers: {

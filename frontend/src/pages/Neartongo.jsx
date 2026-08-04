@@ -30,7 +30,7 @@ const Neartongo = () => {
     const fetchProfile = async () => {
       if (!userId) return;
       try {
-        const res = await axios.get(`http://localhost:3002/api/users/myprofile/${userId}`, {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/myprofile/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data.user);
@@ -54,7 +54,7 @@ const Neartongo = () => {
           return toast.error("Can't get your coordinates.");
         }
 
-        const res = await axios.get("http://localhost:3002/api/users/allvendor", {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/allvendor`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

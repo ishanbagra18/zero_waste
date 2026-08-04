@@ -32,7 +32,7 @@ export default function Register() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3002/api/users/register",
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/register`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

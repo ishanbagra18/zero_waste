@@ -23,7 +23,7 @@ const Chatbot = () => {
       const token = localStorage.getItem("token");
 
       const response = await axios.post(
-        "http://localhost:3002/api/chat/chatbot",
+        `${import.meta.env.VITE_API_BASE_URL}/api/chat/chatbot`,
         { message: input },
         {
           headers: {

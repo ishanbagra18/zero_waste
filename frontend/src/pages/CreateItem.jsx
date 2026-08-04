@@ -98,7 +98,7 @@ export default function CreateItem() {
       });
 
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:3002/api/items/create-item", formData, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/items/create-item`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

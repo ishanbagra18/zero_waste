@@ -43,7 +43,7 @@ const NgoDashboard = () => {
 
 
 
-   const NOTIFICATION_API = "http://localhost:3002/api/notifications/notification";
+   const NOTIFICATION_API = `${import.meta.env.VITE_API_BASE_URL}/api/notifications/notification`;
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -72,7 +72,7 @@ const NgoDashboard = () => {
 
     const fetchMyClaimed = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/items/get-claimed-items", {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/items/get-claimed-items`, {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
@@ -105,7 +105,7 @@ const NgoDashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get("http://localhost:3002/api/users/logout", {
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/logout`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });

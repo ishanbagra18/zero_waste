@@ -34,7 +34,7 @@ export default function AllReviews() {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`http://localhost:3002/api/review/${id}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/review/${id}`);
       setReviews(res.data?.reviews || []);
     } catch (err) {
       console.error('API Handshake Failure:', err);

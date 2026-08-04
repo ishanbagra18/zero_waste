@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:3002/api/users/myprofile/${activeUserId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/myprofile/${activeUserId}`,
         {
           headers: { Authorization: `Bearer ${activeToken}` },
           withCredentials: true,
@@ -111,7 +111,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       if (token) {
-        await axios.get("http://localhost:3002/api/users/logout", {
+        await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/logout`, {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }).catch(() => {});

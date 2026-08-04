@@ -27,7 +27,7 @@ export const DataProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     setLoadingItems(true);
     try {
-      const res = await axios.get("http://localhost:3002/api/items/get-items", {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/items/get-items`, {
         withCredentials: true,
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         params: { limit: 100 },
@@ -53,7 +53,7 @@ export const DataProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     setLoadingVendors(true);
     try {
-      const res = await axios.get("http://localhost:3002/api/users/allvendor", {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/allvendor`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const fetched = res.data.vendors || [];
@@ -77,7 +77,7 @@ export const DataProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     setLoadingNgos(true);
     try {
-      const res = await axios.get("http://localhost:3002/api/users/allngo", {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/allngo`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const fetched = res.data.ngos || [];

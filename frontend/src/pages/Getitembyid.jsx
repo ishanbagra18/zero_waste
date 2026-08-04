@@ -34,7 +34,7 @@ const Getitembyid = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:3002/api/items/get-item/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/items/get-item/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -62,7 +62,7 @@ const Getitembyid = () => {
           onClick: async () => {
             try {
               await axios.patch(
-                `http://localhost:3002/api/items/${id}/claim`,
+                `${import.meta.env.VITE_API_BASE_URL}/api/items/${id}/claim`,
                 {},
                 {
                   headers: { Authorization: `Bearer ${token}` },

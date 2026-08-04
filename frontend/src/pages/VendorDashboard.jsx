@@ -41,7 +41,7 @@ const VendorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const NOTIFICATION_API = "http://localhost:3002/api/notifications/notification";
+  const NOTIFICATION_API = `${import.meta.env.VITE_API_BASE_URL}/api/notifications/notification`;
 
   const fetchNotifications = async () => {
     if (!token) {
@@ -65,7 +65,7 @@ const VendorDashboard = () => {
     const fetchMyItems = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("http://localhost:3002/api/items/my-items", {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/items/my-items`, {
           withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
           params: { limit: 100 },
@@ -93,7 +93,7 @@ const VendorDashboard = () => {
 
   const handleDeleteConfirmed = async () => {
     try {
-      await axios.delete(`http://localhost:3002/api/items/delete-item/${deleteItemId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/items/delete-item/${deleteItemId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setItems((prev) => prev.filter((item) => item._id !== deleteItemId));

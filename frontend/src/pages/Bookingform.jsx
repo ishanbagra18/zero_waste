@@ -34,7 +34,7 @@ export default function Bookingform() {
     try {
       setSubmitting(true);
       const res = await axios.post(
-        `http://localhost:3002/api/book/bookvolunteer/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/book/bookvolunteer/${id}`,
         { fromLocation, toLocation, notes },
         {
           headers: {

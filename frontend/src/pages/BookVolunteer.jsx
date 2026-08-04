@@ -30,7 +30,7 @@ export default function BookVolunteer() {
     setLoading(true);
     setError(null);
     axios
-      .get("http://localhost:3002/api/users/allvolunteer")
+      .get(`${import.meta.env.VITE_API_BASE_URL}/api/users/allvolunteer`)
       .then((res) => {
         setVolunteers(res.data.Volunteer || []);
         setLoading(false);

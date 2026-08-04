@@ -26,7 +26,7 @@ const Updateitem = () => {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        const res = await axios.get(`http://localhost:3002/api/items/get-item/${id}`, {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/items/get-item/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -84,7 +84,7 @@ const Updateitem = () => {
       }
 
       await axios.put(
-        `http://localhost:3002/api/items/update-item/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/items/update-item/${id}`,
         form,
         {
           headers: {
