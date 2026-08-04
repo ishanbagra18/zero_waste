@@ -145,6 +145,24 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+// ✅ Health check endpoint
+app.get('/health', (req, res) => {
+  const mongoState = mongoose.connection.readyState;
+  const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+  res.json({
+    status: mongoState === 1 ? 'healthy' : 'unhealthy',
+    mongodb: states[mongoState] || 'unknown',
+    env: {
+      MONGODB_URI: !!process.env.MONGODB_URI,
+      JWT_TOKEN: !!process.env.JWT_TOKEN,
+      CLOUD_NAME: !!process.env.CLOUD_NAME,
+      API_KEY: !!process.env.API_KEY,
+      API_SECRET: !!process.env.API_SECRET,
+      NODE_ENV: process.env.NODE_ENV || 'not set',
+    }
+  });
+});
+
 // ✅ MongoDB & Server Startup
 const mongo = process.env.MONGODB_URI;
 
