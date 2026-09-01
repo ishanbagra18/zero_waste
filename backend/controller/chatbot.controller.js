@@ -83,17 +83,40 @@ export const chatWithBot = async (req, res) => {
       return res.status(500).json({ error: "Chatbot API key not configured" });
     }
 
-    // ✅ Using official Google Generative AI SDK
+    // ✅ Using official Google Generative AI SDK with fallback models for high demand (503) or rate limits
     const genAI = new GoogleGenerativeAI(BOT_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
+    const candidateModels = [
+      "gemini-3.6-flash",
+      "gemini-3.5-flash",
+      "gemini-flash-latest"
+    ];
 
-    const result = await model.generateContent(
-      `${websiteContext}\n\nUser asked: ${message}`
-    );
+    let botResponse = null;
+    let lastError = null;
 
-    const response = result.response;
-    const botResponse = response.text() || "No response from assistant.";
-    res.status(200).json({ response: botResponse });
+    for (const modelName of candidateModels) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(
+          `${websiteContext}\n\nUser asked: ${message}`
+        );
+        const response = result.response;
+        botResponse = response.text();
+        if (botResponse) {
+          console.log(`✅ Chatbot response generated successfully using model: ${modelName}`);
+          break;
+        }
+      } catch (err) {
+        console.warn(`⚠️ Model ${modelName} failed (${err.status || err.message}). Trying fallback...`);
+        lastError = err;
+      }
+    }
+
+    if (botResponse) {
+      return res.status(200).json({ response: botResponse });
+    }
+
+    throw lastError || new Error("All Gemini model fallbacks failed");
 
   } catch (error) {
     console.error("❌ Error in chatWithBot:");
