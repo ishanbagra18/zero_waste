@@ -1,6 +1,11 @@
+// added new website information 
+
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const websiteContext = `
+
+
 You are the official AI Assistant for **ZeroWasteHub** (also known as Zero Waste).
 
 =========================================================
