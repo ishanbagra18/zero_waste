@@ -1,6 +1,7 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
 import Conversation from "../models/Conversation.model.js";
+import { enqueueNotification } from "../queues/notification.queue.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -30,13 +31,43 @@ export const sendMessage = async (req, res) => {
       message,
     });
 
-        if (newMessage) {
+    if (newMessage) {
       conversation.messages.push(newMessage._id);
     }
 
-
     // Push message to conversation.messages array
-  await Promise.all([conversation.save(), newMessage.save()]); // run parallel
+    await Promise.all([conversation.save(), newMessage.save()]); // run parallel
+
+    // Socket.IO real-time emission
+    const io = req.app.get("io");
+    const getUserSocketId = req.app.get("getUserSocketId");
+    if (io && getUserSocketId) {
+      const receiverSocketId = getUserSocketId(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("getMessage", newMessage);
+      }
+    }
+
+    // Enqueue Notification for receiver via Notification Queue/Controller System
+    try {
+      const senderUser = await User.findById(senderId).select("name email organisation");
+      const senderName = senderUser?.name || "Someone";
+      const snippet = message.length > 50 ? message.substring(0, 50) + "..." : message;
+
+      enqueueNotification({
+        userId: receiverId,
+        notificationType: "new_message",
+        actionStatus: "info",
+        message: `New message from ${senderName}: "${snippet}"`,
+        userInfo: {
+          name: senderName,
+          email: senderUser?.email || "",
+          organisation: senderUser?.organisation || "",
+        },
+      });
+    } catch (notifErr) {
+      console.error("Failed to enqueue message notification:", notifErr);
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {

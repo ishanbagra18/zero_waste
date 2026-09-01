@@ -31,7 +31,8 @@ const notificationSchema = new mongoose.Schema({
       "booking_request",
       "booking_accepted",
       "booking_pickup_confirmed",
-      "booking_delivered"
+      "booking_delivered",
+      "new_message"
     ],
     default: "claim_request",
   },

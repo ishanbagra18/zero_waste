@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 // Import non-page components eagerly
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -44,6 +45,7 @@ const AppContent = () => {
 
   return (
     <>
+      <Toaster position="top-right" />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* ====================================================== */}
@@ -57,6 +59,7 @@ const AppContent = () => {
           <Route path="/vendor/allitems" element={<Allitems />} />
           <Route path="/vendor/item/:id" element={<Getitembyid />} />
           <Route path="/Volunteer/dashboard" element={<Volunteerdashboard />} />
+          <Route path="/volunteer/dashboard" element={<Volunteerdashboard />} />
           <Route path="/myprofile" element={<MyProfile />} />
           <Route path="/bookingform/:id" element={<Bookingform />} />
 

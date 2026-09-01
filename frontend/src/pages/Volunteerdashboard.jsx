@@ -9,6 +9,14 @@ const volunteerImg = "https://images.unsplash.com/photo-1529101091764-c3526daf38
 const Volunteerdashboard = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token") || "";
+  const role = localStorage.getItem("role") || "Volunteer";
+
+  const getDashboardPath = (r) => {
+    const norm = (r || "").toLowerCase();
+    if (norm === "vendor") return "/vendor/dashboard";
+    if (norm === "volunteer") return "/volunteer/dashboard";
+    return "/ngo/dashboard";
+  };
   const [itemId, setItemId] = useState("");
   const [bookings, setBookings] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -155,6 +163,37 @@ const Volunteerdashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 text-gray-100 flex flex-col font-sans">
       <Toaster position="top-right" />
+
+      {/* Navbar Container */}
+      <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/[0.06] px-6 lg:px-12 py-4 flex items-center justify-between shadow-lg">
+        {/* Branding Block */}
+        <Link to={getDashboardPath(role)} className="flex items-center gap-2.5 group focus:outline-none">
+          <span className="text-2xl transition-transform group-hover:scale-110" role="img" aria-hidden="true">🌱</span>
+          <h1 className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 select-none">
+            ZERO WASTE
+          </h1>
+        </Link>
+
+        <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold">
+          <Link to="/myprofile" className="text-slate-300 hover:text-white px-3.5 py-2 rounded-xl hover:bg-white/5 transition">
+            Profile
+          </Link>
+          <Link to="/notifications" className="relative p-2.5 text-slate-400 hover:text-white rounded-xl hover:bg-white/5 transition">
+            Notifications
+            {unreadCount > 0 && (
+              <span className="ml-1.5 bg-rose-500 text-white font-bold text-[10px] px-1.5 py-0.5 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-3.5 py-2 rounded-xl transition text-rose-400 font-bold"
+          >
+            Logout
+          </button>
+        </div>
+      </nav>
 
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.18),_transparent_36%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.14),_transparent_30%)]" />

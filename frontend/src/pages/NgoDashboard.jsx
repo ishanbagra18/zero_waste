@@ -37,6 +37,14 @@ import {
 const NgoDashboard = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role") || "NGO";
+
+  const getDashboardPath = (r) => {
+    const norm = (r || "").toLowerCase();
+    if (norm === "vendor") return "/vendor/dashboard";
+    if (norm === "volunteer") return "/volunteer/dashboard";
+    return "/ngo/dashboard";
+  };
 
   const [claimedItems, setClaimedItems] = useState([]);
     const [notifications, setNotifications] = useState([]);
@@ -148,7 +156,7 @@ const COLORS = ["#10b981", "#6366f1", "#f43f5e"];
 <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/[0.06] px-6 lg:px-12 py-4 flex items-center justify-between shadow-lg shadow-black/20">
   
   {/* Branding Block */}
-  <Link to="/" className="flex items-center gap-2.5 group focus:outline-none">
+  <Link to={getDashboardPath(role)} className="flex items-center gap-2.5 group focus:outline-none">
     <span className="text-2xl transition-transform group-hover:scale-110" role="img" aria-hidden="true">🌱</span>
     <h1 className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 select-none">
       ZERO WASTE

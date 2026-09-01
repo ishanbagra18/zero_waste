@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { MdDelete, MdCheckCircle, MdCancel } from "react-icons/md";
+import { useSocket } from "../context/SocketContext";
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
@@ -206,14 +208,63 @@ const Notification = () => {
     }
   };
 
+  const { socket } = useSocket();
+
   useEffect(() => {
     fetchNotifications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Listen for real-time incoming notifications via Socket.IO
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleRealtimeNotification = (newNotif) => {
+      console.log("🔔 [Notifications Page] Received instant notification:", newNotif);
+      setNotifications((prevNotifications) => {
+        if (prevNotifications.some((n) => n._id === newNotif._id)) {
+          return prevNotifications;
+        }
+        return [newNotif, ...prevNotifications];
+      });
+    };
+
+    socket.on("newNotification", handleRealtimeNotification);
+
+    return () => {
+      socket.off("newNotification", handleRealtimeNotification);
+    };
+  }, [socket]);
+
+  const getDashboardPath = (r) => {
+    const norm = (r || "").toLowerCase();
+    if (norm === "vendor") return "/vendor/dashboard";
+    if (norm === "volunteer") return "/volunteer/dashboard";
+    return "/ngo/dashboard";
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <Toaster position="top-right" />
+
+      {/* Navbar Container */}
+      <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/[0.06] px-6 lg:px-12 py-4 flex items-center justify-between shadow-lg mb-8">
+        {/* Branding Block */}
+        <Link to={getDashboardPath(role)} className="flex items-center gap-2.5 group focus:outline-none">
+          <span className="text-2xl transition-transform group-hover:scale-110" role="img" aria-hidden="true">🌱</span>
+          <h1 className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 select-none">
+            ZERO WASTE
+          </h1>
+        </Link>
+
+        <div className="flex items-center gap-3 font-semibold text-sm">
+          <Link to={getDashboardPath(role)} className="text-slate-300 hover:text-white px-3.5 py-2 rounded-xl hover:bg-white/5 transition">
+            Dashboard
+          </Link>
+        </div>
+      </nav>
+
+      <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-4xl font-extrabold mb-8 text-emerald-400 select-none">
         🔔 Notifications
       </h1>
@@ -394,6 +445,7 @@ const Notification = () => {
           })}
         </ul>
       )}
+      </div>
     </div>
   );
 };

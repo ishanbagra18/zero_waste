@@ -29,6 +29,8 @@ import messageRoute from "./routes/message.route.js";
 import reviewRoute from "./routes/review.route.js";
 
 import Message from './models/message.model.js';
+import Conversation from './models/Conversation.model.js';
+import User from './models/user.model.js';
 import { notificationQueue } from './queues/notification.queue.js';
 
 dotenv.config();
@@ -56,12 +58,9 @@ const io = new Server(server, {
 // ✅ Manage online users
 let onlineUsers = new Map();
 
-// ✅ Initialize Notification Message Queue System
-notificationQueue.init({ io, onlineUsers });
-
 const addUser = (userId, socketId) => {
-  if (!onlineUsers.has(userId)) {
-    onlineUsers.set(userId, socketId);
+  if (userId) {
+    onlineUsers.set(userId.toString(), socketId);
   }
 };
 
@@ -75,30 +74,73 @@ const removeUser = (socketId) => {
 };
 
 const getUserSocketId = (userId) => {
-  return onlineUsers.get(userId);
+  return userId ? onlineUsers.get(userId.toString()) : undefined;
 };
+
+// ✅ Attach io and getUserSocketId to app for controllers to access
+app.set("io", io);
+app.set("getUserSocketId", getUserSocketId);
+
+// ✅ Initialize Notification Message Queue System
+notificationQueue.init({ io, onlineUsers });
 
 // ✅ Socket.IO connection handler
 io.on("connection", (socket) => {
   console.log(`🟢 User connected: ${socket.id}`);
 
   socket.on("addUser", (userId) => {
-    addUser(userId, socket.id);
-    io.emit("getUsers", Array.from(onlineUsers.keys()));
-    console.log("Online Users:", onlineUsers);
+    if (userId) {
+      addUser(userId, socket.id);
+      io.emit("getUsers", Array.from(onlineUsers.keys()));
+      console.log("Online Users:", Array.from(onlineUsers.keys()));
+    }
   });
 
   socket.on("sendMessage", async ({ senderId, receiverId, message }) => {
     try {
+      if (!senderId || !receiverId || !message) return;
+
+      let conversation = await Conversation.findOne({
+        participants: { $all: [senderId, receiverId] },
+      });
+
+      if (!conversation) {
+        conversation = await Conversation.create({
+          participants: [senderId, receiverId],
+        });
+      }
+
       const newMessage = new Message({ senderId, receiverId, message });
-      const savedMessage = await newMessage.save();
+      conversation.messages.push(newMessage._id);
+      await Promise.all([conversation.save(), newMessage.save()]);
 
       const receiverSocketId = getUserSocketId(receiverId);
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit("getMessage", savedMessage);
+        io.to(receiverSocketId).emit("getMessage", newMessage);
       }
 
-      socket.emit("getMessage", savedMessage); // Sender also gets their sent message
+      socket.emit("getMessage", newMessage); // Sender also gets their sent message
+
+      // Enqueue Notification for receiver via Notification Queue System
+      try {
+        const senderUser = await User.findById(senderId).select("name email organisation");
+        const senderName = senderUser?.name || "Someone";
+        const snippet = message.length > 50 ? message.substring(0, 50) + "..." : message;
+
+        notificationQueue.enqueue({
+          userId: receiverId,
+          notificationType: "new_message",
+          actionStatus: "info",
+          message: `New message from ${senderName}: "${snippet}"`,
+          userInfo: {
+            name: senderName,
+            email: senderUser?.email || "",
+            organisation: senderUser?.organisation || "",
+          },
+        });
+      } catch (notifErr) {
+        console.error("Failed to enqueue socket message notification:", notifErr);
+      }
     } catch (err) {
       console.error("Message Save Error:", err.message);
       socket.emit("messageError", { error: "Message not sent." });

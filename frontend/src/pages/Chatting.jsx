@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { Send, Paperclip } from 'lucide-react';
+import { useSocket } from '../context/SocketContext';
+import { useAuth } from '../context/AuthContext';
+import { playNotificationSound } from '../utils/notificationSound';
 
 const Chatting = () => {
   const { id: chatUserId } = useParams();
@@ -10,6 +13,8 @@ const Chatting = () => {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
   const token = localStorage.getItem("token");
+  const { socket } = useSocket();
+  const { userId } = useAuth();
 
   // Fallback receiver name (temporary)
   const receiverUsername = `User ${chatUserId?.slice(-4) || 'Unknown'}`; // e.g. "User 9a7b"
@@ -35,6 +40,39 @@ const Chatting = () => {
     fetchMessages();
   }, [chatUserId, token]);
 
+  // Real-time socket message listener
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleGetMessage = (incomingMsg) => {
+      const senderIdStr = typeof incomingMsg.senderId === 'object' ? incomingMsg.senderId?._id?.toString() : incomingMsg.senderId?.toString();
+      const receiverIdStr = typeof incomingMsg.receiverId === 'object' ? incomingMsg.receiverId?._id?.toString() : incomingMsg.receiverId?.toString();
+
+      // Check if message belongs to active chat thread
+      const isFromChatUser = senderIdStr === chatUserId;
+      const isToChatUser = receiverIdStr === chatUserId;
+
+      if (isFromChatUser || isToChatUser) {
+        if (isFromChatUser) {
+          playNotificationSound();
+        }
+        setMessages((prevMessages) => {
+          // De-duplicate in case message was added optimistically or fetched
+          if (prevMessages.some((msg) => msg._id === incomingMsg._id)) {
+            return prevMessages;
+          }
+          return [...prevMessages, incomingMsg];
+        });
+      }
+    };
+
+    socket.on("getMessage", handleGetMessage);
+
+    return () => {
+      socket.off("getMessage", handleGetMessage);
+    };
+  }, [socket, chatUserId]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -43,10 +81,12 @@ const Chatting = () => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
+    const tempId = Date.now().toString();
     const optimisticMessage = {
-      _id: Date.now().toString(),
+      _id: tempId,
       message: newMessage,
-      senderId: 'currentUser',
+      senderId: userId || 'currentUser',
+      receiverId: chatUserId,
       createdAt: new Date().toISOString(),
     };
 
@@ -61,13 +101,13 @@ const Chatting = () => {
       );
       setMessages((prevMessages) =>
         prevMessages.map((msg) =>
-          msg._id === optimisticMessage._id ? res.data : msg
+          msg._id === tempId ? res.data : msg
         )
       );
     } catch (err) {
       console.error("❌ Error sending message:", err.message);
       setMessages((prev) =>
-        prev.filter((msg) => msg._id !== optimisticMessage._id)
+        prev.filter((msg) => msg._id !== tempId)
       );
     }
   };
@@ -91,7 +131,8 @@ const Chatting = () => {
           </div>
         ) : (
           messages.map((msg) => {
-            const isMyMessage = msg.senderId !== chatUserId;
+            const senderIdStr = typeof msg.senderId === 'object' ? msg.senderId?._id?.toString() : msg.senderId?.toString();
+            const isMyMessage = senderIdStr !== chatUserId;
 
             return (
               <div key={msg._id} className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}>

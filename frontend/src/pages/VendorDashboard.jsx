@@ -33,6 +33,14 @@ import { useAuth } from "../context/AuthContext";
 
 const VendorDashboard = () => {
   const { token, logout: authLogout } = useAuth();
+  const role = localStorage.getItem("role") || "vendor";
+
+  const getDashboardPath = (r) => {
+    const norm = (r || "").toLowerCase();
+    if (norm === "vendor") return "/vendor/dashboard";
+    if (norm === "volunteer") return "/volunteer/dashboard";
+    return "/ngo/dashboard";
+  };
   const [items, setItems] = useState([]);
   const [visibleCount, setVisibleCount] = useState(5);
   const [deleteItemId, setDeleteItemId] = useState(null);
@@ -146,12 +154,13 @@ const VendorDashboard = () => {
 
       {/* Navbar Container */}
       <nav className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/[0.06] px-6 lg:px-12 py-4 flex items-center justify-between shadow-lg">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl" role="img" aria-hidden="true">🌱</span>
-          <h1 className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 select-none">
+        {/* Branding Block */}
+        <Link to={getDashboardPath(role)} className="flex items-center gap-2.5 group focus:outline-none">
+          <span className="text-2xl transition-transform group-hover:scale-110" role="img" aria-hidden="true">🌱</span>
+          <h1 className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 select-none">
             ZERO WASTE
           </h1>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold">
           <Link to="/vendor/createitem" className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-emerald-950/30">

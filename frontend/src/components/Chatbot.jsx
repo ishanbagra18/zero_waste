@@ -69,11 +69,10 @@ const Chatbot = () => {
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`text-sm p-3 rounded-xl max-w-[80%] break-words ${
-                  msg.role === "user"
+                className={`text-sm p-3 rounded-xl max-w-[80%] break-words ${msg.role === "user"
                     ? "bg-blue-500 text-white ml-auto"
                     : "bg-gray-700 text-white mr-auto"
-                }`}
+                  }`}
               >
                 {msg.text}
               </div>
