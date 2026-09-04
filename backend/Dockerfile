@@ -1,3 +1,4 @@
+# docker file for zero waste
 # Use Node 20 Alpine lightweight base image
 FROM node:20-alpine
 
