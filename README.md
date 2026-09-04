@@ -6,6 +6,7 @@
 [![Database](https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248.svg)](https://www.mongodb.com)
 [![Realtime](https://img.shields.io/badge/Realtime-Socket.io-010101.svg)](https://socket.io)
 [![AI Powered](https://img.shields.io/badge/AI-Gemini%203.6%20Flash-4285F4.svg)](https://deepmind.google/technologies/gemini)
+[![Docker](https://img.shields.io/badge/Container-Docker%20%7C%20Compose-2496ED.svg)](https://www.docker.com)
 
 **ZeroWaste** is an end-to-end, real-time surplus food and resource redistribution ecosystem designed to bridge the gap between businesses with excess food and communities in need. By seamlessly linking local food vendors (restaurants, supermarkets, bakeries) with NGOs and volunteer delivery partners, ZeroWaste optimizes food logistics, prevents food waste, and ensures secure, transparent charitable handoffs.
 
@@ -23,6 +24,7 @@
 9. [AI Integration & Rationale](#-ai-integration--rationale)
 10. [Future Roadmap (4-Week Vision)](#-future-roadmap-4-week-vision)
 11. [Getting Started & Installation](#-getting-started--installation)
+12. [Docker Setup & Deployment](#-docker-setup--deployment)
 
 ---
 
@@ -101,6 +103,7 @@ Every day, vast quantities of fresh, edible surplus food are discarded while com
 | **AI Integration** | Google Gemini API (`gemini-3.6-flash` with resilient model fallbacks) |
 | **Media Management** | Cloudinary API (Multer middleware) |
 | **Auth & Security** | JSON Web Tokens (JWT), Bcrypt password hashing, HTTP-Only Cookies |
+| **Containerization** | Docker, Docker Compose, Multi-stage Nginx builds |
 
 ---
 
@@ -313,4 +316,41 @@ Access the web application by opening [http://localhost:5173](http://localhost:5
 
 ---
 
+## 🐳 Docker Setup & Deployment
+
+You can run the entire ZeroWaste application using Docker and Docker Compose without manually installing Node.js or local dependencies.
+
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+
+### 1. Build and Run with Docker Compose
+
+Ensure your `backend/.env` file is configured, then execute:
+
+```bash
+# Build images and start all services in detached mode
+docker compose up --build -d
+```
+
+- **Frontend App:** Accessible at [http://localhost](http://localhost) (Port `80` or `5173`)
+- **Backend API:** Accessible at [http://localhost:3002](http://localhost:3002)
+- **Health Check:** Test backend connectivity at `http://localhost:3002/health`
+
+### 2. Optional: Run with Local MongoDB Container
+
+To run the app with a dedicated local MongoDB container instead of MongoDB Atlas:
+
+```bash
+docker compose --profile local-db up --build -d
+```
+
+### 3. Stop Containers
+
+```bash
+docker compose down
+```
+
+---
+
 <p align="center">Made with ❤️ for Zero Waste and Sustainable Communities</p>
+

@@ -1,0 +1,56 @@
+services:
+  # Backend Node.js Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: zerowaste-backend
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=3002
+      - NODE_ENV=production
+      - ALLOWED_ORIGINS=http://localhost,http://localhost:5173,http://localhost:80
+    restart: unless-stopped
+    networks:
+      - zerowaste-network
+
+  # Frontend React (Nginx) Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3002
+    container_name: zerowaste-frontend
+    ports:
+      - "80:80"
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - zerowaste-network
+
+  # Optional Local MongoDB Database (use command: docker compose --profile local-db up)
+  mongo:
+    image: mongo:latest
+    container_name: zerowaste-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    networks:
+      - zerowaste-network
+    profiles:
+      - local-db
+
+networks:
+  zerowaste-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
