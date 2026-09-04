@@ -30,6 +30,7 @@ const notificationSchema = new mongoose.Schema({
       "delivery_reached",
       "booking_request",
       "booking_accepted",
+      "booking_rejected",
       "booking_pickup_confirmed",
       "booking_delivered",
       "new_message"

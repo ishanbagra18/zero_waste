@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
-import Footer from "../components/Footer";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   PackageCheck,
   Handshake,
@@ -94,24 +94,33 @@ const VendorDashboard = () => {
     fetchNotifications();
   }, [token]);
 
+  const [disintegratingId, setDisintegratingId] = useState(null);
+
   const confirmDelete = (id) => {
     setDeleteItemId(id);
     setShowConfirmModal(true);
   };
 
   const handleDeleteConfirmed = async () => {
-    try {
-      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/items/delete-item/${deleteItemId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setItems((prev) => prev.filter((item) => item._id !== deleteItemId));
-      toast.success("Item deleted successfully!");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to delete item");
-    } finally {
-      setShowConfirmModal(false);
-      setDeleteItemId(null);
-    }
+    if (!deleteItemId) return;
+    const targetId = deleteItemId;
+    setShowConfirmModal(false);
+    setDisintegratingId(targetId);
+
+    setTimeout(async () => {
+      try {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/items/delete-item/${targetId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setItems((prev) => prev.filter((item) => item._id !== targetId));
+        toast.success("Item deleted successfully!");
+      } catch (error) {
+        toast.error(error.response?.data?.message || "Failed to delete item");
+      } finally {
+        setDisintegratingId(null);
+        setDeleteItemId(null);
+      }
+    }, 650);
   };
 
   const handlebutton = () => {
@@ -152,48 +161,9 @@ const VendorDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-[#0f111a] to-zinc-950 text-slate-100 font-sans antialiased selection:bg-emerald-500/30">
       <Toaster position="top-right" />
 
-      {/* Navbar Container */}
-      <nav className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/[0.06] px-6 lg:px-12 py-4 flex items-center justify-between shadow-lg">
-        {/* Branding Block */}
-        <Link to={getDashboardPath(role)} className="flex items-center gap-2.5 group focus:outline-none">
-          <span className="text-2xl transition-transform group-hover:scale-110" role="img" aria-hidden="true">🌱</span>
-          <h1 className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 select-none">
-            ZERO WASTE
-          </h1>
-        </Link>
-
-        <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold">
-          <Link to="/vendor/createitem" className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-emerald-950/30">
-            <Plus size={16} /> <span className="hidden md:inline">Create Item</span>
-          </Link>
-          <Link to="/vendor/allitems" className="text-slate-300 hover:text-white px-3 py-2 rounded-xl hover:bg-white/5 transition flex items-center gap-1.5">
-            <ClipboardList size={16} /> <span className="hidden md:inline">All Items</span>
-          </Link>
-          <Link to="/myprofile" className="text-slate-300 hover:text-white px-3 py-2 rounded-xl hover:bg-white/5 transition flex items-center gap-1.5">
-            <User size={16} /> <span className="hidden md:inline">Profile</span>
-          </Link>
-
-          <Link to="/notifications" className="relative p-2.5 text-slate-400 hover:text-white rounded-xl hover:bg-white/5 transition" aria-label="Notifications">
-            <Bell size={18} />
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 bg-rose-500 text-white font-bold text-[10px] px-1.5 py-0.5 rounded-full ring-2 ring-slate-950 animate-pulse">
-                {unreadCount}
-              </span>
-            )}
-          </Link>
-
-          <button
-            onClick={handlelogout}
-            className="inline-flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-3.5 py-2 rounded-xl transition text-rose-400 font-bold"
-          >
-            <LogOut size={14} /> <span className="hidden sm:inline">Logout</span>
-          </button>
-        </div>
-      </nav>
-
       {/* Responsive Hero Banner Space */}
       <section
-        className="relative min-h-[50vh] lg:min-h-[60vh] flex items-center bg-cover bg-center"
+        className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center bg-cover bg-center"
         style={{ backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.75), rgba(15, 17, 26, 1)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200')" }}
       >
         <div className="max-w-4xl mx-auto text-center px-6 space-y-5">
@@ -246,71 +216,136 @@ const VendorDashboard = () => {
           </div>
         ) : visibleItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-            {visibleItems.map((item) => (
-              <div
-                key={item._id}
-                className="group bg-slate-900/40 backdrop-blur-sm border border-white/[0.06] p-4 rounded-3xl shadow-xl hover:border-emerald-500/30 hover:shadow-emerald-950/20 transition-all duration-300 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="relative rounded-2xl overflow-hidden aspect-video w-full mb-4 border border-white/[0.04] bg-slate-950">
-                    <img
-                      src={item.itemImage?.url || "https://via.placeholder.com/300"}
-                      alt={item.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span className={`absolute top-2 right-2 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-lg backdrop-blur-md shadow-md ${item.status === "claimed"
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                        : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                      }`}>
-                      {item.status}
-                    </span>
-                  </div>
+            <AnimatePresence mode="popLayout">
+              {visibleItems.map((item) => (
+                <motion.div
+                  key={item._id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={
+                    disintegratingId === item._id
+                      ? {
+                          opacity: [1, 0.6, 0],
+                          scale: [1, 0.9, 0.5],
+                          filter: ["blur(0px)", "blur(12px)", "blur(24px)"],
+                          rotate: [0, -3, 3, 0],
+                        }
+                      : { opacity: 1, scale: 1, y: 0 }
+                  }
+                  transition={
+                    disintegratingId === item._id
+                      ? { duration: 0.6, ease: "easeInOut" }
+                      : { duration: 0.3 }
+                  }
+                  exit={{
+                    opacity: 0,
+                    scale: 0.5,
+                    filter: "blur(20px)",
+                    transition: { duration: 0.3 },
+                  }}
+                  className="group bg-slate-900/40 backdrop-blur-sm border border-white/[0.06] p-4 rounded-3xl shadow-xl hover:border-emerald-500/30 hover:shadow-emerald-950/20 transition-all duration-300 flex flex-col justify-between relative overflow-visible"
+                >
+                  {/* Particle Disintegration Explosion Overlay */}
+                  {disintegratingId === item._id && (
+                    <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center overflow-visible">
+                      {Array.from({ length: 42 }).map((_, pIdx) => {
+                        const angle = (pIdx / 42) * 360 + (pIdx % 5) * 15;
+                        const distance = 90 + (pIdx % 7) * 20;
+                        const x = Math.cos((angle * Math.PI) / 180) * distance;
+                        const y = Math.sin((angle * Math.PI) / 180) * distance;
+                        const colors = ["#10b981", "#2dd4bf", "#38bdf8", "#facc15", "#f43f5e", "#a855f7", "#34d399"];
+                        const particleColor = colors[pIdx % colors.length];
+                        const particleSize = 4 + (pIdx % 6) * 2;
 
-                  <div className="space-y-1.5 px-1">
-                    <h3 className="text-lg font-bold text-slate-100 truncate" title={item.name}>
-                      {item.name}
-                    </h3>
-                    <p className="text-xs text-slate-400 line-clamp-2 min-h-[2rem]" title={item.description || "No description provided"}>
-                      {item.description || "No description provided"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-white/[0.04] space-y-2 text-[11px] text-slate-300 px-1">
-                  <div className="flex items-center gap-1.5 text-slate-400 truncate">
-                    <MapPin size={12} className="shrink-0 text-emerald-400" />
-                    <span>{item.location || "Unknown Location"}</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-slate-400 bg-white/[0.01] p-2 rounded-xl border border-white/[0.02]">
-                    <div>Qty: <span className="font-bold text-slate-200">{item.quantity || 0}</span></div>
-                    <div className="truncate">Type: <span className="font-bold text-slate-200">{item.category}</span></div>
-                    <div className="col-span-2 truncate">Mode: <span className="font-bold text-slate-200">{item.mode}</span></div>
-                  </div>
-
-                  {item.claimStatus && (
-                    <div className="text-[10px] bg-slate-950/60 border border-white/[0.04] px-2 py-1 rounded-md w-fit italic text-slate-400">
-                      Pipeline Phase: {item.claimStatus}
+                        return (
+                          <motion.span
+                            key={pIdx}
+                            initial={{ x: 0, y: 0, opacity: 1, scale: 1.2, rotate: 0 }}
+                            animate={{
+                              x: x,
+                              y: y,
+                              opacity: 0,
+                              scale: 0,
+                              rotate: (pIdx % 2 === 0 ? 1 : -1) * 360,
+                            }}
+                            transition={{
+                              duration: 0.65,
+                              ease: [0.22, 1, 0.36, 1],
+                            }}
+                            style={{
+                              position: "absolute",
+                              width: `${particleSize}px`,
+                              height: `${particleSize}px`,
+                              backgroundColor: particleColor,
+                              borderRadius: pIdx % 2 === 0 ? "50%" : "3px",
+                              boxShadow: `0 0 12px ${particleColor}`,
+                            }}
+                          />
+                        );
+                      })}
                     </div>
                   )}
+                  <div>
+                    <div className="relative rounded-2xl overflow-hidden aspect-video w-full mb-4 border border-white/[0.04] bg-slate-950">
+                      <img
+                        src={item.itemImage?.url || "https://via.placeholder.com/300"}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <span className={`absolute top-2 right-2 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-lg backdrop-blur-md shadow-md ${item.status === "claimed"
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                        : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                        }`}>
+                        {item.status}
+                      </span>
+                    </div>
 
-                  <div className="mt-4 pt-2 flex gap-2">
-                    <Link
-                      to={`/vendor/updateitem/${item._id}`}
-                      className="flex-1 inline-flex items-center justify-center gap-1 bg-white/[0.04] hover:bg-emerald-600 border border-white/[0.08] hover:border-emerald-500 text-slate-200 hover:text-white text-xs font-semibold py-2 rounded-xl transition"
-                    >
-                      <Edit3 size={12} /> Edit
-                    </Link>
-                    <button
-                      onClick={() => confirmDelete(item._id)}
-                      className="flex-1 inline-flex items-center justify-center gap-1 bg-white/[0.02] hover:bg-rose-950/40 border border-white/[0.06] hover:border-rose-500/40 text-slate-400 hover:text-rose-400 text-xs font-semibold py-2 rounded-xl transition"
-                    >
-                      <Trash2 size={12} /> Delete
-                    </button>
+                    <div className="space-y-1.5 px-1">
+                      <h3 className="text-lg font-bold text-slate-100 truncate" title={item.name}>
+                        {item.name}
+                      </h3>
+                      <p className="text-xs text-slate-400 line-clamp-2 min-h-[2rem]" title={item.description || "No description provided"}>
+                        {item.description || "No description provided"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+
+                  <div className="mt-4 pt-3 border-t border-white/[0.04] space-y-2 text-[11px] text-slate-300 px-1">
+                    <div className="flex items-center gap-1.5 text-slate-400 truncate">
+                      <MapPin size={12} className="shrink-0 text-emerald-400" />
+                      <span>{item.location || "Unknown Location"}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-slate-400 bg-white/[0.01] p-2 rounded-xl border border-white/[0.02]">
+                      <div>Qty: <span className="font-bold text-slate-200">{item.quantity || 0}</span></div>
+                      <div className="truncate">Type: <span className="font-bold text-slate-200">{item.category}</span></div>
+                      <div className="col-span-2 truncate">Mode: <span className="font-bold text-slate-200">{item.mode}</span></div>
+                    </div>
+
+                    {item.claimStatus && (
+                      <div className="text-[10px] bg-slate-950/60 border border-white/[0.04] px-2 py-1 rounded-md w-fit italic text-slate-400">
+                        Pipeline Phase: {item.claimStatus}
+                      </div>
+                    )}
+
+                    <div className="mt-4 pt-2 flex gap-2">
+                      <Link
+                        to={`/vendor/updateitem/${item._id}`}
+                        className="flex-1 inline-flex items-center justify-center gap-1 bg-white/[0.04] hover:bg-emerald-600 border border-white/[0.08] hover:border-emerald-500 text-slate-200 hover:text-white text-xs font-semibold py-2 rounded-xl transition"
+                      >
+                        <Edit3 size={12} /> Edit
+                      </Link>
+                      <button
+                        onClick={() => confirmDelete(item._id)}
+                        className="flex-1 inline-flex items-center justify-center gap-1 bg-white/[0.02] hover:bg-rose-950/40 border border-white/[0.06] hover:border-rose-500/40 text-slate-400 hover:text-rose-400 text-xs font-semibold py-2 rounded-xl transition"
+                      >
+                        <Trash2 size={12} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         ) : (
           <div className="text-center py-16 bg-slate-900/20 border border-white/[0.04] border-dashed rounded-3xl space-y-3">
@@ -446,8 +481,6 @@ const VendorDashboard = () => {
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 };

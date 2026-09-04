@@ -130,9 +130,16 @@ const Notification = () => {
     }
   };
 
+  const extractId = (id) => {
+    if (!id) return "";
+    if (typeof id === "object") return id._id || id.id || String(id);
+    return String(id);
+  };
+
   const acceptBookingRequest = async (bookingId, notificationId) => {
+    const cleanBookingId = extractId(bookingId);
     const ngoId = (ngoIdInputs[notificationId] || "").trim();
-    if (!bookingId) {
+    if (!cleanBookingId) {
       toast.error("Booking ID is missing.");
       return;
     }
@@ -143,7 +150,7 @@ const Notification = () => {
 
     try {
       await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/accept`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/book/${cleanBookingId}/accept`,
         { ngoId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -153,6 +160,26 @@ const Notification = () => {
     } catch (error) {
       console.error("Error accepting booking:", error);
       toast.error(error.response?.data?.message || "Failed to accept booking.");
+    }
+  };
+
+  const declineBookingRequest = async (bookingId) => {
+    const cleanBookingId = extractId(bookingId);
+    if (!cleanBookingId) {
+      toast.error("Booking ID is missing.");
+      return;
+    }
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/book/${cleanBookingId}/decline`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Booking request declined.");
+      fetchNotifications();
+    } catch (error) {
+      console.error("Error declining booking:", error);
+      toast.error(error.response?.data?.message || "Failed to decline booking.");
     }
   };
 
@@ -247,204 +274,193 @@ const Notification = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <Toaster position="top-right" />
 
-      {/* Navbar Container */}
-      <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/[0.06] px-6 lg:px-12 py-4 flex items-center justify-between shadow-lg mb-8">
-        {/* Branding Block */}
-        <Link to={getDashboardPath(role)} className="flex items-center gap-2.5 group focus:outline-none">
-          <span className="text-2xl transition-transform group-hover:scale-110" role="img" aria-hidden="true">🌱</span>
-          <h1 className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 select-none">
-            ZERO WASTE
-          </h1>
-        </Link>
-
-        <div className="flex items-center gap-3 font-semibold text-sm">
-          <Link to={getDashboardPath(role)} className="text-slate-300 hover:text-white px-3.5 py-2 rounded-xl hover:bg-white/5 transition">
-            Dashboard
-          </Link>
-        </div>
-      </nav>
-
       <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-4xl font-extrabold mb-8 text-emerald-400 select-none">
-        🔔 Notifications
-      </h1>
+        <h1 className="text-4xl font-extrabold mb-8 text-emerald-400 select-none">
+          🔔 Notifications
+        </h1>
 
-      {notifications.length === 0 ? (
-        <p className="text-gray-400 text-center mt-20 text-lg select-none">
-          No notifications found.
-        </p>
-      ) : (
-        <ul className="space-y-6 max-w-4xl mx-auto">
-          {notifications.map((note) => {
-            const isUnread = !note.isRead;
-            const canActOnClaim = role === "vendor" && note.itemId && note.notificationType === "claim_request" && note.actionStatus === "pending";
-            const canVerifyOtp = role === "NGO" && note.itemId && note.notificationType === "pickup_confirmed" && note.actionStatus === "pending";
-            const canConfirmPickup = role === "Volunteer" && note.itemId && note.notificationType === "claim_approved" && note.actionStatus === "approved";
+        {notifications.length === 0 ? (
+          <p className="text-gray-400 text-center mt-20 text-lg select-none">
+            No notifications found.
+          </p>
+        ) : (
+          <ul className="space-y-6 max-w-4xl mx-auto">
+            {notifications.map((note) => {
+              const isUnread = !note.isRead;
+              const canActOnClaim = role === "vendor" && note.itemId && note.notificationType === "claim_request" && note.actionStatus === "pending";
+              const canVerifyOtp = role === "NGO" && note.itemId && note.notificationType === "pickup_confirmed" && note.actionStatus === "pending";
+              const canConfirmPickup = role === "Volunteer" && note.itemId && note.notificationType === "claim_approved" && note.actionStatus === "approved";
 
-            const isVolunteer = role === "Volunteer";
-            const isNgo = role === "NGO";
-            const canAcceptBooking = isVolunteer && note.bookingId && note.notificationType === "booking_request" && note.actionStatus === "pending";
-            const canVerifyBookingOtp = (isNgo || isVolunteer) && note.bookingId && note.notificationType === "booking_pickup_confirmed" && note.actionStatus === "pending";
-            return (
-              <li
-                key={note._id}
-                className={`bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 transition-transform hover:scale-[1.02] ${
-                  isUnread ? "border-l-8 border-emerald-400" : "border-l-4 border-gray-700"
-                }`}
-                aria-live={isUnread ? "polite" : "off"}
-              >
-                <div className="flex-1">
-                  <p
-                    className={`text-lg font-semibold ${
-                      isUnread ? "text-white" : "text-gray-300"
+              const isVolunteer = role === "Volunteer";
+              const isNgo = role === "NGO";
+              const canAcceptBooking = isVolunteer && note.bookingId && note.notificationType === "booking_request" && note.actionStatus === "pending";
+              const canVerifyBookingOtp = isVolunteer && note.bookingId && note.notificationType === "booking_pickup_confirmed" && note.actionStatus === "pending";
+              return (
+                <li
+                  key={note._id}
+                  className={`bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 transition-transform hover:scale-[1.02] ${isUnread ? "border-l-8 border-emerald-400" : "border-l-4 border-gray-700"
                     }`}
-                  >
-                    {note.message}
-                  </p>
-                  <p className="text-sm text-gray-400 mt-1 select-none">
-                    {new Date(note.createdAt).toLocaleString()}
-                  </p>
-                  {isUnread && (
-                    <button
-                      onClick={() => markAsRead(note._id)}
-                      className="inline-block mt-3 rounded-md bg-emerald-500 px-4 py-1 text-sm font-medium text-white shadow hover:bg-emerald-600 transition"
-                      aria-label="Mark notification as read"
+                  aria-live={isUnread ? "polite" : "off"}
+                >
+                  <div className="flex-1">
+                    <p
+                      className={`text-lg font-semibold ${isUnread ? "text-white" : "text-gray-300"
+                        }`}
                     >
-                      Mark as Read
-                    </button>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-3 mt-4 md:mt-0">
-                  {/* Claim request actions for vendors */}
-                  {canActOnClaim && (
-                    <>
+                      {note.message}
+                    </p>
+                    <p className="text-sm text-gray-400 mt-1 select-none">
+                      {new Date(note.createdAt).toLocaleString()}
+                    </p>
+                    {isUnread && (
                       <button
-                        onClick={() => updateClaimStatus(note.itemId, "approved")}
-                        className="flex items-center gap-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                        aria-label="Approve claim"
-                        title="Approve"
+                        onClick={() => markAsRead(note._id)}
+                        className="inline-block mt-3 rounded-md bg-emerald-500 px-4 py-1 text-sm font-medium text-white shadow hover:bg-emerald-600 transition"
+                        aria-label="Mark notification as read"
                       >
-                        <MdCheckCircle size={20} /> Approve
+                        Mark as Read
                       </button>
+                    )}
+                  </div>
 
+                  <div className="flex flex-wrap gap-3 mt-4 md:mt-0">
+                    {/* Claim request actions for vendors */}
+                    {canActOnClaim && (
+                      <>
+                        <button
+                          onClick={() => updateClaimStatus(note.itemId, "approved")}
+                          className="flex items-center gap-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
+                          aria-label="Approve claim"
+                          title="Approve"
+                        >
+                          <MdCheckCircle size={20} /> Approve
+                        </button>
+
+                        <button
+                          onClick={() => updateClaimStatus(note.itemId, "rejected")}
+                          className="flex items-center gap-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
+                          aria-label="Reject claim"
+                          title="Reject"
+                        >
+                          <MdCancel size={20} /> Reject
+                        </button>
+                      </>
+                    )}
+
+                    {/* Volunteer pickup confirmation */}
+                    {canConfirmPickup && (
                       <button
-                        onClick={() => updateClaimStatus(note.itemId, "rejected")}
-                        className="flex items-center gap-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                        aria-label="Reject claim"
-                        title="Reject"
+                        onClick={() => confirmPickup(note.itemId)}
+                        className="flex items-center gap-1 bg-cyan-600 hover:bg-cyan-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
+                        aria-label="Confirm pickup"
+                        title="Confirm Pickup"
                       >
-                        <MdCancel size={20} /> Reject
+                        <MdCheckCircle size={20} /> Pickup Confirmed
                       </button>
-                    </>
-                  )}
+                    )}
 
-                  {/* Volunteer pickup confirmation */}
-                  {canConfirmPickup && (
+                    {/* OTP verification for NGOs */}
+                    {canVerifyOtp && (
+                      <div className="flex flex-col gap-2 w-full md:w-auto">
+                        <input
+                          type="text"
+                          value={otpInputs[note._id] || ""}
+                          onChange={(e) =>
+                            setOtpInputs((prev) => ({
+                              ...prev,
+                              [note._id]: e.target.value,
+                            }))
+                          }
+                          placeholder={note.otpCode ? `OTP: ${note.otpCode}` : "Enter OTP"}
+                          className="rounded-md bg-gray-900 border border-gray-600 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400"
+                        />
+                        <button
+                          onClick={() => verifyDeliveryOtp(note.itemId, note._id)}
+                          className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
+                          aria-label="Verify OTP"
+                          title="Verify OTP"
+                        >
+                          <MdCheckCircle size={20} /> Verify OTP
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Booking Acceptance action */}
+                    {canAcceptBooking && (
+                      <div className="flex flex-col gap-2 w-full md:w-auto">
+                        <input
+                          type="text"
+                          value={ngoIdInputs[note._id] || ""}
+                          onChange={(e) =>
+                            setNgoIdInputs((prev) => ({
+                              ...prev,
+                              [note._id]: e.target.value,
+                            }))
+                          }
+                          placeholder="Enter NGO ID to accept"
+                          className="rounded-md bg-gray-900 border border-gray-600 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400 text-sm"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => acceptBookingRequest(note.bookingId, note._id)}
+                            className="flex-1 flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md shadow text-white font-semibold transition text-sm"
+                          >
+                            <MdCheckCircle size={18} /> Approve
+                          </button>
+                          <button
+                            onClick={() => declineBookingRequest(note.bookingId)}
+                            className="flex-1 flex items-center justify-center gap-1 bg-gray-700 hover:bg-rose-900/50 hover:text-rose-300 px-4 py-2 rounded-md shadow text-slate-300 font-semibold transition text-sm"
+                          >
+                            <MdCancel size={18} /> Decline
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Booking OTP verification action */}
+                    {canVerifyBookingOtp && (
+                      <div className="flex flex-col gap-2 w-full md:w-auto">
+                        <input
+                          type="text"
+                          value={otpInputs[note._id] || ""}
+                          onChange={(e) =>
+                            setOtpInputs((prev) => ({
+                              ...prev,
+                              [note._id]: e.target.value,
+                            }))
+                          }
+                          placeholder="Enter OTP code"
+                          className="rounded-md bg-gray-900 border border-gray-600 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400 text-sm"
+                        />
+                        <button
+                          onClick={() => verifyBookingOtpAction(note.bookingId, note._id)}
+                          className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md shadow text-white font-semibold transition text-sm"
+                        >
+                          <MdCheckCircle size={20} /> Verify OTP
+                        </button>
+                      </div>
+                    )}
+
+                    {role === "NGO" && note.otpCode && (note.notificationType === "booking_pickup_confirmed" || note.notificationType === "claim_approved") && (
+                      <div className="w-full md:w-auto rounded-md border border-cyan-500/40 bg-cyan-500/10 px-4 py-2 text-cyan-100 text-sm">
+                        Delivery OTP: <span className="font-semibold">{note.otpCode}</span>
+                      </div>
+                    )}
+
+                    {/* Delete button */}
                     <button
-                      onClick={() => confirmPickup(note.itemId)}
-                      className="flex items-center gap-1 bg-cyan-600 hover:bg-cyan-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                      aria-label="Confirm pickup"
-                      title="Confirm Pickup"
+                      onClick={() => deleteNotification(note._id)}
+                      className="flex items-center gap-1 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md shadow text-white font-semibold transition"
+                      aria-label="Delete notification"
                     >
-                      <MdCheckCircle size={20} /> Pickup Confirmed
+                      <MdDelete size={20} /> Delete
                     </button>
-                  )}
-
-                  {/* OTP verification for NGOs */}
-                  {canVerifyOtp && (
-                    <div className="flex flex-col gap-2 w-full md:w-auto">
-                      <input
-                        type="text"
-                        value={otpInputs[note._id] || ""}
-                        onChange={(e) =>
-                          setOtpInputs((prev) => ({
-                            ...prev,
-                            [note._id]: e.target.value,
-                          }))
-                        }
-                        placeholder={note.otpCode ? `OTP: ${note.otpCode}` : "Enter OTP"}
-                        className="rounded-md bg-gray-900 border border-gray-600 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400"
-                      />
-                      <button
-                        onClick={() => verifyDeliveryOtp(note.itemId, note._id)}
-                        className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                        aria-label="Verify OTP"
-                        title="Verify OTP"
-                      >
-                        <MdCheckCircle size={20} /> Verify OTP
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Booking Acceptance action */}
-                  {canAcceptBooking && (
-                    <div className="flex flex-col gap-2 w-full md:w-auto">
-                      <input
-                        type="text"
-                        value={ngoIdInputs[note._id] || ""}
-                        onChange={(e) =>
-                          setNgoIdInputs((prev) => ({
-                            ...prev,
-                            [note._id]: e.target.value,
-                          }))
-                        }
-                        placeholder="Enter NGO ID to accept"
-                        className="rounded-md bg-gray-900 border border-gray-600 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400 text-sm"
-                      />
-                      <button
-                        onClick={() => acceptBookingRequest(note.bookingId, note._id)}
-                        className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md shadow text-white font-semibold transition text-sm"
-                      >
-                        <MdCheckCircle size={20} /> Accept Booking
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Booking OTP verification action */}
-                  {canVerifyBookingOtp && (
-                    <div className="flex flex-col gap-2 w-full md:w-auto">
-                      <input
-                        type="text"
-                        value={otpInputs[note._id] || ""}
-                        onChange={(e) =>
-                          setOtpInputs((prev) => ({
-                            ...prev,
-                            [note._id]: e.target.value,
-                          }))
-                        }
-                        placeholder="Enter OTP code"
-                        className="rounded-md bg-gray-900 border border-gray-600 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400 text-sm"
-                      />
-                      <button
-                        onClick={() => verifyBookingOtpAction(note.bookingId, note._id)}
-                        className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md shadow text-white font-semibold transition text-sm"
-                      >
-                        <MdCheckCircle size={20} /> Verify OTP
-                      </button>
-                    </div>
-                  )}
-
-                  {role === "NGO" && note.otpCode && (note.notificationType === "booking_pickup_confirmed" || note.notificationType === "claim_approved") && (
-                    <div className="w-full md:w-auto rounded-md border border-cyan-500/40 bg-cyan-500/10 px-4 py-2 text-cyan-100 text-sm">
-                      Delivery OTP: <span className="font-semibold">{note.otpCode}</span>
-                    </div>
-                  )}
-
-                  {/* Delete button */}
-                  <button
-                    onClick={() => deleteNotification(note._id)}
-                    className="flex items-center gap-1 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                    aria-label="Delete notification"
-                  >
-                    <MdDelete size={20} /> Delete
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );

@@ -2,27 +2,35 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
-import { MdCheckCircle, MdNotifications, MdEventNote, MdOutlineMarkEmailUnread } from "react-icons/md";
+import { motion } from "framer-motion";
+import {
+  Truck,
+  CheckCircle2,
+  Bell,
+  Calendar,
+  User,
+  LogOut,
+  ShieldCheck,
+  Sparkles,
+  MapPin,
+  Clock,
+  ChevronRight,
+  TrendingUp,
+  Activity,
+  ArrowUpRight,
+  Navigation,
+  Compass,
+  Heart,
+  Package,
+} from "lucide-react";
 
-const volunteerImg = "https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=800&q=80";
-
-const Volunteerdashboard = () => {
+export default function Volunteerdashboard() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token") || "";
-  const role = localStorage.getItem("role") || "Volunteer";
 
-  const getDashboardPath = (r) => {
-    const norm = (r || "").toLowerCase();
-    if (norm === "vendor") return "/vendor/dashboard";
-    if (norm === "volunteer") return "/volunteer/dashboard";
-    return "/ngo/dashboard";
-  };
-  const [itemId, setItemId] = useState("");
   const [bookings, setBookings] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [bookingNgoIdInputs, setBookingNgoIdInputs] = useState({});
-  const [bookingOtpInputs, setBookingOtpInputs] = useState({});
 
   const fetchDashboardData = async () => {
     if (!token) {
@@ -47,7 +55,7 @@ const Volunteerdashboard = () => {
       setNotifications(notificationRes.data.notifications || []);
     } catch (error) {
       console.error("❌ Error loading volunteer dashboard:", error);
-      toast.error("Failed to load dashboard data");
+      toast.error("Failed to load dashboard metrics.");
     } finally {
       setLoading(false);
     }
@@ -55,90 +63,7 @@ const Volunteerdashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
-
-  const sendPickupConfirmation = async (event) => {
-    event.preventDefault();
-
-    if (!itemId.trim()) {
-      toast.error("Enter an item ID first.");
-      return;
-    }
-
-    try {
-      await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/items/${itemId.trim()}/pickup-confirmed`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Pickup confirmation sent to the NGO.");
-      setItemId("");
-      fetchDashboardData();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to confirm pickup.");
-    }
-  };
-
-  const acceptBookingAction = async (bookingId) => {
-    const ngoId = (bookingNgoIdInputs[bookingId] || "").trim();
-    if (!ngoId) {
-      toast.error("Please enter the NGO ID to accept the booking.");
-      return;
-    }
-    try {
-      await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/accept`,
-        { ngoId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Booking accepted successfully!");
-      setBookingNgoIdInputs((prev) => ({ ...prev, [bookingId]: "" }));
-      fetchDashboardData();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to accept booking.");
-    }
-  };
-
-  const confirmBookingPickupAction = async (bookingId) => {
-    const ngoId = (bookingNgoIdInputs[bookingId] || "").trim();
-    if (!ngoId) {
-      toast.error("Please enter the NGO ID to confirm pickup.");
-      return;
-    }
-    try {
-      await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/pickup-confirmed`,
-        { ngoId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Pickup confirmed successfully!");
-      setBookingNgoIdInputs((prev) => ({ ...prev, [bookingId]: "" }));
-      fetchDashboardData();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to confirm pickup.");
-    }
-  };
-
-  const verifyBookingOtpAction = async (bookingId) => {
-    const otp = (bookingOtpInputs[bookingId] || "").trim();
-    if (!otp) {
-      toast.error("Please enter the OTP to verify delivery.");
-      return;
-    }
-    try {
-      await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/book/${bookingId}/verify-otp`,
-        { otp },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Booking delivery verified successfully!");
-      setBookingOtpInputs((prev) => ({ ...prev, [bookingId]: "" }));
-      fetchDashboardData();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to verify OTP.");
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -147,272 +72,268 @@ const Volunteerdashboard = () => {
         withCredentials: true,
       });
       localStorage.clear();
-      toast.success("Logout successfully");
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
+      toast.success("Signed out successfully.");
+      navigate("/");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Logout failed");
+      toast.error("Logout failed.");
     }
   };
 
-  const unreadCount = notifications.filter((note) => !note.isRead).length;
-  const bookingCount = bookings.length;
-  const pendingBookings = bookings.filter((booking) => booking.status === "pending").length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const totalBookings = bookings.length;
+  const pendingBookings = bookings.filter((b) => b.status === "pending").length;
+  const activeTransits = bookings.filter((b) => b.status === "accepted" || b.status === "pickup_confirmed").length;
+  const completedDeliveries = bookings.filter((b) => b.status === "completed" || b.status === "delivered").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 text-gray-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24 relative">
       <Toaster position="top-right" />
 
-      {/* Navbar Container */}
-      <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/[0.06] px-6 lg:px-12 py-4 flex items-center justify-between shadow-lg">
-        {/* Branding Block */}
-        <Link to={getDashboardPath(role)} className="flex items-center gap-2.5 group focus:outline-none">
-          <span className="text-2xl transition-transform group-hover:scale-110" role="img" aria-hidden="true">🌱</span>
-          <h1 className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 select-none">
-            ZERO WASTE
-          </h1>
-        </Link>
+      {/* Hero Header Section */}
+      <section className="relative pt-16 pb-12 flex items-center justify-center overflow-hidden">
+        {/* Vignette Gradients for Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-slate-950/90 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/60 pointer-events-none" />
 
-        <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold">
-          <Link to="/myprofile" className="text-slate-300 hover:text-white px-3.5 py-2 rounded-xl hover:bg-white/5 transition">
-            Profile
-          </Link>
-          <Link to="/notifications" className="relative p-2.5 text-slate-400 hover:text-white rounded-xl hover:bg-white/5 transition">
-            Notifications
-            {unreadCount > 0 && (
-              <span className="ml-1.5 bg-rose-500 text-white font-bold text-[10px] px-1.5 py-0.5 rounded-full">
-                {unreadCount}
-              </span>
-            )}
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-3.5 py-2 rounded-xl transition text-rose-400 font-bold"
+        {/* Ambient Light Orbs */}
+        <div className="absolute top-1/4 left-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-8 py-16 text-center space-y-8">
+          {/* Status Kicker Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-lg backdrop-blur-md"
           >
-            Logout
-          </button>
-        </div>
-      </nav>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+            <span>🟢 Live Logistics Network • Volunteer Hub</span>
+          </motion.div>
 
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.18),_transparent_36%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.14),_transparent_30%)]" />
-        <div className="relative max-w-7xl mx-auto px-6 py-16 md:py-20 grid gap-10 md:grid-cols-[1.15fr_0.85fr] items-center">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-cyan-200 text-sm font-semibold">
-              <MdNotifications /> Live Volunteer Dashboard
-            </div>
-            <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-emerald-300 to-indigo-300 text-transparent bg-clip-text drop-shadow-lg">
-              Manage pickups, bookings, and delivery signals
+          {/* Hero Headings */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="space-y-4 max-w-4xl mx-auto"
+          >
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-tight">
+              Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400">Hero Volunteer!</span>
             </h1>
-            <p className="text-lg text-gray-300 leading-relaxed max-w-2xl">
-              This dashboard now shows your bookings and notification feed in one place, so pickup confirmation and OTP-driven delivery can happen without hunting through separate screens.
+
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-200 tracking-tight">
+              Driven by Purpose, Powered by Community
+            </h2>
+
+            <p className="text-slate-300 text-sm sm:text-base lg:text-lg leading-relaxed max-w-3xl mx-auto font-normal">
+              Your dedication ensures surplus food moves swiftly from vendors to NGOs. Manage regional food recovery dispatches, accept NGO transport requests, and validate completed deliveries.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                to="/myprofile"
-                className="px-6 py-3 rounded-2xl bg-cyan-500 text-slate-950 font-bold hover:bg-cyan-400 transition"
-              >
-                My Profile
-              </Link>
-              <Link
-                to="/notifications"
-                className="px-6 py-3 rounded-2xl border border-white/15 bg-white/5 font-semibold hover:bg-white/10 transition"
-              >
-                Open Notifications
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="px-6 py-3 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold transition shadow-lg hover:shadow-red-600/40"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
+          </motion.div>
 
-          <div className="rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-white/5 backdrop-blur-xl">
-            <img
-              src={volunteerImg}
-              alt="Volunteering teamwork"
-              className="w-full h-full object-cover min-h-[320px]"
-              loading="lazy"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="max-w-7xl mx-auto w-full px-6 py-12 grid gap-6 md:grid-cols-3">
-        <StatCard icon={<MdNotifications />} label="Unread Notifications" value={unreadCount} accent="from-cyan-500 to-blue-500" />
-        <StatCard icon={<MdEventNote />} label="Total Bookings" value={bookingCount} accent="from-emerald-500 to-green-500" />
-        <StatCard icon={<MdOutlineMarkEmailUnread />} label="Pending Bookings" value={pendingBookings} accent="from-fuchsia-500 to-pink-500" />
-      </section>
-
-      <section className="max-w-7xl mx-auto w-full px-6 pb-12 grid gap-8 lg:grid-cols-[1fr_1.15fr] items-start">
-        <div className="rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-gray-900 to-slate-950 p-8 shadow-2xl">
-          <h2 className="text-3xl font-bold mb-3 text-emerald-300">Pickup Confirmation</h2>
-          <p className="text-gray-300 mb-6 max-w-2xl">
-            After you pick up the item, enter the item ID to notify the NGO. They will verify delivery with the OTP shown in their notification feed.
-          </p>
-
-          <form onSubmit={sendPickupConfirmation} className="flex flex-col md:flex-row gap-4">
-            <input
-              type="text"
-              value={itemId}
-              onChange={(e) => setItemId(e.target.value)}
-              placeholder="Paste item ID here"
-              className="flex-1 rounded-2xl bg-slate-950/80 border border-slate-700 px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-emerald-400"
-              aria-label="Item ID"
-            />
-            <button
-              type="submit"
-              className="rounded-2xl bg-emerald-500 px-6 py-3 font-semibold text-slate-950 hover:bg-emerald-400 transition inline-flex items-center justify-center gap-2"
+          {/* Hero Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-wrap items-center justify-center gap-3 pt-2"
+          >
+            <Link
+              to="/volunteer/recent-bookings"
+              className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
             >
-              <MdCheckCircle size={20} /> Confirm Pickup
+              <Navigation className="w-4 h-4 text-slate-950" /> Freight Bookings Console ({totalBookings})
+            </Link>
+
+            <Link
+              to="/notifications"
+              className="px-5 py-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 text-slate-200 font-bold text-sm backdrop-blur-xl transition-all transform hover:-translate-y-0.5 flex items-center gap-2 relative"
+            >
+              <Bell className="w-4 h-4 text-emerald-400" /> Notifications
+              {unreadCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              to="/myprofile"
+              className="px-4 py-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white font-semibold text-sm backdrop-blur-md transition flex items-center gap-1.5"
+            >
+              <User className="w-4 h-4 text-teal-400" /> Profile
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="px-4 py-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/40 text-rose-400 hover:text-rose-300 font-semibold text-sm backdrop-blur-md transition flex items-center gap-1.5"
+            >
+              <LogOut className="w-4 h-4" /> Sign Out
             </button>
-          </form>
-
-          <div className="mt-6 space-y-3 text-sm text-gray-300">
-            <p className="flex items-center gap-2"><MdCheckCircle className="text-emerald-400" /> Booking accepted by NGO</p>
-            <p className="flex items-center gap-2"><MdCheckCircle className="text-emerald-400" /> Pickup confirmation sent by volunteer</p>
-            <p className="flex items-center gap-2"><MdCheckCircle className="text-emerald-400" /> NGO verifies OTP to complete delivery</p>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-xl">
-            <h2 className="text-2xl font-bold mb-4 text-white">Recent Bookings</h2>
-            {loading ? (
-              <p className="text-gray-400">Loading bookings...</p>
-            ) : bookings.length === 0 ? (
-              <p className="text-gray-400">No bookings available yet.</p>
-            ) : (
-              <div className="space-y-3 max-h-[400px] overflow-auto pr-1">
-                {bookings.map((booking) => (
-                  <div key={booking._id} className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-semibold text-white">{booking.ngo?.name || "NGO"}</p>
-                      <span className="text-xs rounded-full px-3 py-1 bg-cyan-500/15 text-cyan-200 border border-cyan-500/20 capitalize">
-                        {booking.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-300 mt-2">From: {booking.fromLocation} → To: {booking.toLocation}</p>
-                    {booking.notes && <p className="text-xs text-gray-400 mt-1">Notes: {booking.notes}</p>}
-                    <p className="text-xs text-gray-500 mt-1">{new Date(booking.createdAt).toLocaleString()}</p>
-
-                    {/* Pending Status Input & Action */}
-                    {booking.status === "pending" && (
-                      <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                        <input
-                          type="text"
-                          value={bookingNgoIdInputs[booking._id] || ""}
-                          onChange={(e) =>
-                            setBookingNgoIdInputs((prev) => ({ ...prev, [booking._id]: e.target.value }))
-                          }
-                          placeholder="Enter NGO ID to Accept"
-                          className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-cyan-400"
-                        />
-                        <button
-                          onClick={() => acceptBookingAction(booking._id)}
-                          className="rounded-xl bg-cyan-500 text-slate-950 px-3 py-1.5 text-xs font-bold hover:bg-cyan-400 transition"
-                        >
-                          Accept
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Accepted Status Input & Action */}
-                    {booking.status === "accepted" && (
-                      <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                        <input
-                          type="text"
-                          value={bookingNgoIdInputs[booking._id] || ""}
-                          onChange={(e) =>
-                            setBookingNgoIdInputs((prev) => ({ ...prev, [booking._id]: e.target.value }))
-                          }
-                          placeholder="Enter NGO ID for Transport Confirmation"
-                          className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-400"
-                        />
-                        <button
-                          onClick={() => confirmBookingPickupAction(booking._id)}
-                          className="rounded-xl bg-emerald-500 text-slate-950 px-3 py-1.5 text-xs font-bold hover:bg-emerald-400 transition"
-                        >
-                          Confirm Transport
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Pickup Confirmed Status Input & Action */}
-                    {booking.status === "pickup_confirmed" && (
-                      <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                        <input
-                          type="text"
-                          value={bookingOtpInputs[booking._id] || ""}
-                          onChange={(e) =>
-                            setBookingOtpInputs((prev) => ({ ...prev, [booking._id]: e.target.value }))
-                          }
-                          placeholder="Enter OTP to Confirm Delivery"
-                          className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-fuchsia-400"
-                        />
-                        <button
-                          onClick={() => verifyBookingOtpAction(booking._id)}
-                          className="rounded-xl bg-fuchsia-500 text-white px-3 py-1.5 text-xs font-bold hover:bg-fuchsia-400 transition"
-                        >
-                          Verify OTP
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>)}
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-xl">
-            <h2 className="text-2xl font-bold mb-4 text-white">Notifications</h2>
-            {loading ? (
-              <p className="text-gray-400">Loading notifications...</p>
-            ) : notifications.length === 0 ? (
-              <p className="text-gray-400">No notifications yet.</p>
-            ) : (
-              <div className="space-y-3 max-h-[360px] overflow-auto pr-1">
-                {notifications.slice(0, 8).map((note) => (
-                  <div key={note._id} className={`rounded-2xl border p-4 ${note.isRead ? "border-white/10 bg-slate-950/50" : "border-cyan-400/20 bg-cyan-500/10"}`}>
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-semibold text-white">{note.notificationType || "notification"}</p>
-                      <span className="text-[11px] uppercase tracking-wider text-gray-400">
-                        {note.isRead ? "Read" : "Unread"}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-200 mt-2">{note.message}</p>
-                    <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-400">
-                      {note.itemId && <span className="rounded-full border border-white/10 px-2 py-1">Item: {note.itemId}</span>}
-                      {note.bookingId && <span className="rounded-full border border-white/10 px-2 py-1">Booking: {note.bookingId}</span>}
-                      {note.otpCode && <span className="rounded-full border border-emerald-400/20 px-2 py-1 text-emerald-200">OTP attached</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <footer className="text-center py-8 border-t border-gray-700 text-gray-500 text-sm backdrop-blur-sm bg-gray-900/60">
-        © 2025 VolunteerHub. Crafted with care and purpose.
-      </footer>
+      {/* Main Content Dashboard Workspace */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 relative z-20 space-y-10">
+        {/* Real-time KPI Overview Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <StatCard
+            icon={Bell}
+            value={unreadCount}
+            label="Unread Alerts"
+            subtext="Live Socket Feed"
+            accent="text-emerald-400"
+            border="hover:border-emerald-500/40"
+          />
+          <StatCard
+            icon={Calendar}
+            value={totalBookings}
+            label="Total Freight Jobs"
+            subtext={`${pendingBookings} awaiting approval`}
+            accent="text-teal-300"
+            border="hover:border-teal-500/40"
+          />
+          <StatCard
+            icon={Activity}
+            value={activeTransits}
+            label="Active Transits"
+            subtext="In-progress transport"
+            accent="text-emerald-300"
+            border="hover:border-emerald-500/40"
+          />
+          <StatCard
+            icon={ShieldCheck}
+            value={completedDeliveries}
+            label="Verified Deliveries"
+            subtext="OTP validated"
+            accent="text-teal-400"
+            border="hover:border-teal-500/40"
+          />
+        </div>
+
+        {/* Primary Logistics Workstation Card */}
+        <div className="space-y-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-black text-white flex items-center gap-2.5">
+              <Sparkles className="w-5 h-5 text-emerald-400" /> Primary Logistics Workstation
+            </h2>
+            <span className="text-xs font-semibold text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+              Station #01 Active
+            </span>
+          </div>
+
+          <div>
+            <Link
+              to="/volunteer/recent-bookings"
+              className="group p-8 sm:p-10 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/60 backdrop-blur-2xl shadow-2xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between"
+            >
+              <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition duration-500" />
+              <div className="space-y-4 relative z-10">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10 group-hover:scale-110 transition-transform">
+                  <Truck className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-2xl sm:text-3xl font-black text-white group-hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    Logistics Freight Bookings Console <ArrowUpRight className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-400" />
+                  </h3>
+                  <p className="text-sm text-slate-400 mt-2.5 leading-relaxed font-medium max-w-3xl">
+                    Access your complete operational queue. Expand any booking to view full waybill details, approve/decline pending requests, confirm transport pickup, and verify 6-digit delivery OTP codes upon destination arrival.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400 relative z-10">
+                <span className="text-sm">Launch Freight Console ({totalBookings} Total Jobs) &rarr;</span>
+                <span className="text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-emerald-300">Operational Hub</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Live Freight Activity Stream */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-2xl space-y-6 shadow-xl">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Clock className="w-5 h-5 text-emerald-400" /> Live Freight Activity Stream
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">Real-time status updates on incoming NGO bookings.</p>
+            </div>
+            <Link
+              to="/notifications"
+              className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1.5 bg-emerald-500/10 px-3.5 py-2 rounded-xl border border-emerald-500/20"
+            >
+              <Bell className="w-3.5 h-3.5" /> Notifications ({unreadCount})
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-16 rounded-2xl bg-slate-950/60 border border-slate-800/80 animate-pulse" />
+              ))}
+            </div>
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-10 space-y-2">
+              <Truck className="w-8 h-8 text-slate-600 mx-auto" />
+              <p className="text-xs text-slate-400 italic">No bookings logged in your queue yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {bookings.slice(0, 5).map((b) => (
+                <motion.div
+                  key={b._id}
+                  whileHover={{ x: 4 }}
+                  className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 hover:border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all"
+                >
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-white flex items-center gap-2">
+                      {b.ngo?.name || "Partner NGO Request"}
+                    </p>
+                    <p className="text-xs text-slate-400 flex items-center gap-2">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span>{b.fromLocation}</span>
+                      <span className="text-slate-600">&rarr;</span>
+                      <span className="text-slate-300">{b.toLocation}</span>
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-bold capitalize">
+                      {b.status}
+                    </span>
+                    <Link
+                      to="/volunteer/recent-bookings"
+                      className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-emerald-500/40 transition"
+                      title="View Details"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
-};
+}
 
-const StatCard = ({ icon, label, value, accent }) => (
-  <div className={`rounded-3xl p-[1px] bg-gradient-to-r ${accent} shadow-xl`}>
-    <div className="rounded-3xl bg-slate-950/90 backdrop-blur-xl p-6 text-center border border-white/5">
-      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-3xl text-white">
-        {icon}
-      </div>
-      <p className="text-gray-400 text-sm uppercase tracking-[0.3em]">{label}</p>
-      <p className="mt-2 text-4xl font-extrabold text-white">{value}</p>
+const StatCard = ({ icon: Icon, value, label, subtext, accent, border }) => (
+  <motion.div
+    whileHover={{ y: -3 }}
+    className={`p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl shadow-xl space-y-3 transition-all ${border}`}
+  >
+    <div className="w-10 h-10 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center shadow-inner">
+      <Icon className={`w-5 h-5 ${accent}`} />
     </div>
-  </div>
+    <div>
+      <span className={`text-2xl sm:text-3xl font-black ${accent}`}>{value}</span>
+      <p className="text-xs font-bold text-slate-200 mt-1">{label}</p>
+      <p className="text-[10px] font-medium text-slate-400 mt-0.5">{subtext}</p>
+    </div>
+  </motion.div>
 );
-
-export default Volunteerdashboard;

@@ -1,47 +1,25 @@
-// SendReview.jsx
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import { Toaster, toast } from "react-hot-toast";
+import { Star, MessageSquare, ArrowLeft, Send } from "lucide-react";
+import ParallaxHero from "../components/ParallaxHero";
 
-// Star component for the rating system
-const Star = ({ filled, onClick, onMouseEnter, onMouseLeave }) => (
-  <svg
-    onMouseEnter={onMouseEnter}
-    onMouseLeave={onMouseLeave}
-    onClick={onClick}
-    className={`w-8 h-8 cursor-pointer transition-colors duration-200 ${
-      filled ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-300'
-    }`}
-    fill="currentColor"
-    viewBox="0 0 20 20"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    <path
-      clipRule="evenodd"
-      fillRule="evenodd"
-      d="M10 14.248l-5.292 2.782.992-5.83-4.25-4.148 5.854-.85L10 1l2.7 5.202 5.853.85-4.25 4.148.992 5.83L10 14.248z"
-    />
-  </svg>
-);
-
-const SendReview = () => {
+export default function SendReview() {
   const { id: reviewedUserId } = useParams();
   const navigate = useNavigate();
 
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (rating === 0) {
-      setError('Please select a rating before submitting.');
+      toast.error("Please select a star rating before submitting.");
       return;
     }
-    setError(null);
     setIsSubmitting(true);
 
     try {
@@ -51,78 +29,106 @@ const SendReview = () => {
         { rating, comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Review submitted successfully!");
-      navigate(-1); // Go back to the previous page after submission
+      toast.success("Review submitted successfully!");
+      setTimeout(() => navigate(-1), 1200);
     } catch (err) {
       console.error("Failed to submit review:", err);
-      setError(err.response?.data?.message || "An unexpected error occurred. Please try again.");
-      alert("Failed to submit review. " + (err.response?.data?.message || ""));
+      toast.error(err.response?.data?.message || "Failed to submit review.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-gray-900 min-h-screen flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24">
+      <Toaster position="top-right" />
+
+      {/* Hero Header */}
+      <ParallaxHero
+        badgeText="Community Feedback System"
+        title={
+          <>
+            Leave a <span className="text-emerald-400">User Review</span>
+          </>
+        }
+        subtitle="Rate your interaction experience with this partner vendor or NGO on the ZeroWaste exchange ledger."
+        actionButtons={
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-slate-300 font-semibold text-sm transition"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-400" /> Return Back
+          </button>
+        }
+      />
+
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
         <form
           onSubmit={handleSubmit}
-          className="bg-gray-800 p-8 shadow-2xl rounded-2xl border border-gray-700"
-          noValidate
+          className="p-8 sm:p-10 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl backdrop-blur-2xl space-y-6"
         >
-          <h2 className="text-3xl font-bold text-white mb-2 text-center">
-            Leave a Review
-          </h2>
-          <p className="text-gray-400 mb-6 text-center">
-            How was your experience?
-          </p>
-
-          {/* Star Rating Input */}
-          <div className="flex justify-center items-center mb-6 space-x-2">
-            {[1, 2, 3, 4, 5].map((starIndex) => (
-              <Star
-                key={starIndex}
-                filled={(hoverRating || rating) >= starIndex}
-                onMouseEnter={() => setHoverRating(starIndex)}
-                onMouseLeave={() => setHoverRating(0)}
-                onClick={() => setRating(starIndex)}
-              />
-            ))}
+          {/* Star Selection Row */}
+          <div className="space-y-2 text-center">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+              Select Rating Score
+            </span>
+            <div className="flex justify-center items-center gap-2 pt-2">
+              {[1, 2, 3, 4, 5].map((starIndex) => {
+                const isFilled = (hoverRating || rating) >= starIndex;
+                return (
+                  <Star
+                    key={starIndex}
+                    onMouseEnter={() => setHoverRating(starIndex)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    onClick={() => setRating(starIndex)}
+                    className={`w-9 h-9 cursor-pointer transition-all ${
+                      isFilled
+                        ? "text-amber-400 fill-amber-400 scale-110"
+                        : "text-slate-700 hover:text-amber-300"
+                    }`}
+                  />
+                );
+              })}
+            </div>
+            {rating > 0 && (
+              <p className="text-xs font-bold text-amber-400 pt-1">
+                {rating} / 5 Stars Selected
+              </p>
+            )}
           </div>
 
-          {/* Comment Textarea */}
-          <div className="mb-6">
-            <label htmlFor="comment" className="sr-only">
-              Your Review
+          {/* Comment Field */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+              Feedback Notes / Comments
             </label>
             <textarea
-              id="comment"
-              placeholder="Tell us more about your experience..."
+              placeholder="Describe your collaboration, food quality, punctuality..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="w-full h-32 p-4 bg-gray-900 text-gray-200 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 placeholder-gray-500"
+              rows={4}
+              className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-white text-sm placeholder-slate-500 outline-none focus:border-emerald-500 transition resize-none"
             />
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-900/50 text-red-300 border border-red-700 p-3 rounded-lg mb-4 text-center">
-              {error}
-            </div>
-          )}
-
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-blue-600 text-white font-bold px-4 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed"
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-base shadow-xl shadow-emerald-500/20 transition flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {isSubmitting ? 'Submitting...' : 'Submit Review'}
+            {isSubmitting ? (
+              <>
+                <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                Submitting Feedback...
+              </>
+            ) : (
+              <>
+                <Send className="w-5 h-5 text-slate-950" /> Submit Review Entry
+              </>
+            )}
           </button>
         </form>
       </div>
     </div>
   );
-};
-
-export default SendReview;
+}

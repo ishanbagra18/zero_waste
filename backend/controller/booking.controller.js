@@ -131,7 +131,7 @@ export const acceptBooking = async (req, res) => {
     });
 
     enqueueNotification({
-      userId: booking.ngo,
+      userId: booking.ngo.toString(),
       bookingId: booking._id,
       notificationType: "booking_accepted",
       actionStatus: "approved",
@@ -141,7 +141,7 @@ export const acceptBooking = async (req, res) => {
         organisation: req.user.organisation,
         location: req.user.location,
       },
-      message: `✅ Volunteer ${req.user.name} has accepted your booking request for transport.`,
+      message: `✅ Volunteer ${req.user.name} has approved your booking request for transport. (NGO ID: ${booking.ngo})`,
     });
 
     return res.status(200).json({
@@ -151,6 +151,73 @@ export const acceptBooking = async (req, res) => {
   } catch (error) {
     console.error("❌ Error accepting booking request:", error);
     return res.status(500).json({ message: "Server error while accepting booking." });
+  }
+};
+
+export const declineBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+
+    if (!bookingId) {
+      return res.status(400).json({ message: "Booking ID is required." });
+    }
+
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found." });
+    }
+
+    if (booking.volunteer.toString() !== req.user.userId.toString()) {
+      return res.status(403).json({ message: "Only the assigned volunteer can decline the booking request." });
+    }
+
+    if (booking.status !== "pending") {
+      return res.status(400).json({ message: `Booking status is already '${booking.status}'.` });
+    }
+
+    booking.status = "rejected";
+    await booking.save();
+
+    enqueueNotification({
+      type: "updateMany",
+      updateQuery: {
+        bookingId: booking._id,
+        notificationType: "booking_request",
+        userId: req.user.userId,
+      },
+      updateFields: {
+        $set: {
+          actionStatus: "rejected",
+          isRead: true,
+        },
+      },
+    });
+
+    // Create rejection notification for NGO directly
+    await Notification.create({
+      userId: booking.ngo,
+      bookingId: booking._id,
+      notificationType: "booking_rejected",
+      actionStatus: "rejected",
+      userInfo: {
+        name: req.user.name,
+        email: req.user.email,
+        organisation: req.user.organisation,
+        location: req.user.location,
+      },
+      message: `❌ Volunteer ${req.user.name} has declined your booking request for transport.`,
+      isRead: false,
+    });
+
+    console.log(`✅ [declineBooking] Rejection notification sent to NGO: ${booking.ngo}`);
+
+    return res.status(200).json({
+      message: "Booking request declined successfully.",
+      booking,
+    });
+  } catch (error) {
+    console.error("❌ Error declining booking request:", error);
+    return res.status(500).json({ message: "Server error while declining booking." });
   }
 };
 
@@ -231,6 +298,12 @@ export const confirmBookingPickup = async (req, res) => {
       message: `Pickup confirmed for booking ${booking._id}. Ask the NGO for the OTP when you arrive to verify delivery.`,
     });
 
+    await booking.populate([
+      { path: "item", select: "name category quantity itemImage location" },
+      { path: "ngo", select: "name email organisation location" },
+      { path: "volunteer", select: "name email location" },
+    ]);
+
     return res.status(200).json({
       message: "Pickup confirmed successfully.",
       booking,
@@ -256,11 +329,10 @@ export const verifyBookingOtp = async (req, res) => {
       return res.status(404).json({ message: "Booking not found." });
     }
 
-    // Allow either NGO or Volunteer to verify OTP
-    const isNgo = booking.ngo.toString() === req.user.userId.toString();
+    // ONLY the assigned volunteer can verify the delivery OTP
     const isVolunteer = booking.volunteer.toString() === req.user.userId.toString();
-    if (!isNgo && !isVolunteer) {
-      return res.status(403).json({ message: "Only the booking NGO or the assigned volunteer can verify the OTP." });
+    if (!isVolunteer) {
+      return res.status(403).json({ message: "Only the assigned volunteer can verify the delivery OTP. Please share the OTP with the volunteer upon delivery arrival." });
     }
 
     if (booking.status !== "pickup_confirmed") {
@@ -354,6 +426,12 @@ export const verifyBookingOtp = async (req, res) => {
       },
       message: `Booking ${booking._id} delivery has been verified by OTP and completed.`,
     });
+
+    await booking.populate([
+      { path: "item", select: "name category quantity itemImage location" },
+      { path: "ngo", select: "name email organisation location" },
+      { path: "volunteer", select: "name email location" },
+    ]);
 
     return res.status(200).json({
       message: "OTP verified successfully.",

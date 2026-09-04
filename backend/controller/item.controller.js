@@ -31,9 +31,18 @@ export const createItem = async (req, res) => {
       });
     }
 
-    const { name, description, quantity, category, price, mode, location, status } = req.body;
+    let { name, description, quantity, category, price, mode, location, status } = req.body;
 
-    if (!name || !description || !quantity || !category || !price || !mode || !location || !status) {
+    // Default donation mode price to 0 if not provided or 0
+    if (mode === "donation" || price === undefined || price === null || price === "") {
+      if (mode === "donation") {
+        price = 0;
+      }
+    }
+
+    const isPriceValid = price !== undefined && price !== null && price !== "" && !isNaN(Number(price));
+
+    if (!name || !description || !quantity || !category || !isPriceValid || !mode || !location || !status) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
@@ -235,10 +244,14 @@ export const updateItem = async (req, res) => {
 
     const updates = {};
     allowedFields.forEach((field) => {
-      if (req.body[field]) {
+      if (req.body[field] !== undefined && req.body[field] !== null && req.body[field] !== "") {
         updates[field] = req.body[field];
       }
     });
+
+    if (req.body.mode === "donation") {
+      updates.price = 0;
+    }
 
     // Check and handle image upload
     if (req.files && req.files.itemImage) {
@@ -610,22 +623,37 @@ export const getClaimedItems = async (req, res) => {
 
         await item.save();
 
-        enqueueNotification({
-          type: "updateMany",
-          updateQuery: {
+        // Update vendor's claim_request notification status
+        await Notification.updateMany(
+          {
             itemId: item._id,
             notificationType: "claim_request",
-            userId: item.claimedBy,
           },
-          updateFields: {
+          {
             $set: {
-              notificationType: "claim_approved",
               actionStatus: "approved",
-              otpCode: deliveryOtp,
-              message: `Your claim for item "${item.name}" has been approved. Delivery OTP: ${deliveryOtp}`,
             },
+          }
+        );
+
+        // Create new approval notification directly for the NGO
+        await Notification.create({
+          userId: item.claimedBy,
+          itemId: item._id,
+          notificationType: "claim_approved",
+          actionStatus: "approved",
+          otpCode: deliveryOtp,
+          userInfo: {
+            name: req.user.name,
+            email: req.user.email,
+            organisation: req.user.organisation,
+            location: req.user.location,
           },
+          message: `🎉 Your claim for item "${item.name}" has been approved by the vendor! Delivery OTP: ${deliveryOtp}`,
+          isRead: false,
         });
+
+        console.log(`✅ [updateClaimStatus] Approval notification sent to NGO (userId: ${item.claimedBy})`);
       }
 
       if (status === "collected") {

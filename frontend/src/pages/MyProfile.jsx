@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Toaster, toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { 
-  MdEdit, 
-  MdLockReset, 
-  MdRateReview, 
-  MdEmail, 
-  MdPhone, 
-  MdBusiness, 
-  MdLocationOn, 
+import {
+  MdEdit,
+  MdLockReset,
+  MdRateReview,
+  MdEmail,
+  MdPhone,
+  MdBusiness,
+  MdLocationOn,
   MdAccountCircle,
   MdRefresh
 } from "react-icons/md";
@@ -57,13 +57,13 @@ const MyProfile = () => {
           {error || "We couldn't retrieve your profile profile information."}
         </p>
         <div className="flex gap-4">
-          <button 
+          <button
             onClick={fetchProfile}
             className="inline-flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 px-5 py-2.5 rounded-xl transition font-medium border border-zinc-700 shadow-md"
           >
             <MdRefresh size={18} /> Retry Sync
           </button>
-          <button 
+          <button
             onClick={() => navigate("/login")}
             className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl transition font-medium shadow-md"
           >
@@ -77,7 +77,7 @@ const MyProfile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-zinc-100 p-6 sm:p-12 lg:p-16 selection:bg-emerald-500/30 font-sans">
       <Toaster position="top-right" />
-      
+
       {/* Inject custom animation keyframes dynamically */}
       <style>{`
         @keyframes fadeInUp {
@@ -93,7 +93,7 @@ const MyProfile = () => {
       `}</style>
 
       <div className="max-w-6xl mx-auto space-y-10">
-        
+
         {/* Top Header Section */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/[0.06] pb-8">
           <div>
@@ -130,19 +130,19 @@ const MyProfile = () => {
 
         {/* Dashboard Workspace */}
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          
+
           {/* Left Summary Profile Widget Card with 3D Styling */}
           <ThreeDProfileCard user={user} />
 
           {/* Right Information Dashboard Workspace */}
           <section className="lg:col-span-2 flex flex-col gap-8">
-            
+
             {/* Core Registration Properties Metadata Sheet */}
             <div className="bg-white/[0.02] backdrop-blur-md border border-white/[0.08] rounded-3xl p-8 sm:p-10 shadow-xl">
               <h3 className="text-xl font-bold text-emerald-400 mb-6 border-b border-white/[0.06] pb-4 select-none">
                 Account Directory Details
               </h3>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm tracking-wide">
                 <InfoItem label="Email Address" value={user.email} icon={<MdEmail />} />
                 <InfoItem label="Phone Line" value={user.phone} icon={<MdPhone />} />
@@ -160,7 +160,7 @@ const MyProfile = () => {
               <div className="space-y-1">
                 <h4 className="text-lg font-bold text-white tracking-wide">Making a Sustainable Impact</h4>
                 <p className="text-sm leading-relaxed text-zinc-400 max-w-xl">
-                  You’ve taken a proactive step toward systemic environmental changes by joining <strong>Zero Waste</strong>. 
+                  You’ve taken a proactive step toward systemic environmental changes by joining <strong>Zero Waste</strong>.
                   Keep minimizing surplus disposal pipelines, reinforcing partner NGOs, and scaling green micro-alternatives.
                 </p>
               </div>
@@ -185,13 +185,13 @@ const ThreeDProfileCard = ({ user }) => {
     const rect = cardRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-    
+
     const xPct = (mouseX / rect.width) - 0.5;
     const yPct = (mouseY / rect.height) - 0.5;
-    
+
     // Max tilt angles (+/- 18 deg)
-    const rotateY = xPct * 24; 
-    const rotateX = -yPct * 24; 
+    const rotateY = xPct * 24;
+    const rotateX = -yPct * 24;
 
     setTransform({
       rotateX,
@@ -233,9 +233,8 @@ const ThreeDProfileCard = ({ user }) => {
             ? `${-transform.rotateY * 2.5}px ${transform.rotateX * 2.5 + 20}px 35px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.35)`
             : "0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.15)"
         }}
-        className={`relative w-full bg-gradient-to-b from-slate-900/90 via-zinc-900/95 to-black border border-emerald-500/30 rounded-3xl p-8 flex flex-col items-center text-center overflow-hidden cursor-pointer select-none group ${
-          !isHovered ? "animate-ambient-float" : ""
-        }`}
+        className={`relative w-full bg-gradient-to-b from-slate-900/90 via-zinc-900/95 to-black border border-emerald-500/30 rounded-3xl p-8 flex flex-col items-center text-center overflow-hidden cursor-pointer select-none group ${!isHovered ? "animate-ambient-float" : ""
+          }`}
       >
         {/* Dynamic 3D Metallic Light Glare Overlay */}
         <div
@@ -248,23 +247,23 @@ const ThreeDProfileCard = ({ user }) => {
         />
 
         {/* 3D Volumetric Depth Backdrop Accents */}
-        <div 
+        <div
           className="absolute -top-16 -left-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"
           style={{ transform: "translateZ(-30px)" }}
         />
-        <div 
+        <div
           className="absolute -bottom-16 -right-16 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"
           style={{ transform: "translateZ(-30px)" }}
         />
 
         {/* 3D Border Glow Frame */}
-        <div 
+        <div
           className="absolute inset-0 rounded-3xl border border-emerald-400/20 pointer-events-none group-hover:border-emerald-400/40 transition-colors duration-300"
           style={{ transform: "translateZ(10px)" }}
         />
 
         {/* 3D Layer 1: Avatar with floating ring */}
-        <div 
+        <div
           className="relative group/avatar mb-6 transition-transform duration-300"
           style={{ transform: "translateZ(50px)" }}
         >
@@ -278,9 +277,9 @@ const ThreeDProfileCard = ({ user }) => {
             />
           </div>
         </div>
-        
+
         {/* 3D Layer 2: User Name */}
-        <h2 
+        <h2
           className="text-2xl sm:text-3xl font-black text-white capitalize tracking-wide max-w-full truncate px-2 mb-2 drop-shadow-lg"
           style={{ transform: "translateZ(40px)" }}
         >
@@ -288,17 +287,23 @@ const ThreeDProfileCard = ({ user }) => {
         </h2>
 
         {/* 3D Layer 3: Role Badge */}
-        <div 
+        <div
           className="mb-8"
           style={{ transform: "translateZ(35px)" }}
         >
           <p className="text-xs uppercase tracking-widest text-emerald-400 font-black px-3.5 py-1.5 bg-emerald-500/15 rounded-full border border-emerald-500/30 shadow-lg backdrop-blur-md">
-            {user.role === "vendor" ? "Vendor Partner" : "NGO Partner"}
+            {(() => {
+              const r = (user.role || "").toLowerCase();
+              if (r === "vendor") return "Vendor Partner";
+              if (r === "volunteer") return "Logistics Volunteer";
+              if (r === "ngo") return "NGO Partner";
+              return user.role || "Community Partner";
+            })()}
           </p>
         </div>
 
         {/* 3D Layer 4: Platform Badges with individual 3D depth */}
-        <div 
+        <div
           className="space-y-3.5 w-full max-w-[260px]"
           style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}
         >
@@ -332,7 +337,7 @@ const ThreeDProfileCard = ({ user }) => {
 const Badge = ({ icon, label, value, bgGradient, textColor, borderColor, delay, translateZ = "10px" }) => (
   <div
     className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-gradient-to-br ${bgGradient} border ${borderColor} opacity-0 animate-fade-in-up shadow-xl backdrop-blur-md transition-transform duration-300 hover:scale-[1.03]`}
-    style={{ 
+    style={{
       animationDelay: delay,
       transform: `translateZ(${translateZ})`
     }}

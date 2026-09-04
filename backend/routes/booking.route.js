@@ -4,6 +4,7 @@ import {
   bookVolunteer,
   getAllBookings,
   acceptBooking,
+  declineBooking,
   confirmBookingPickup,
   verifyBookingOtp
 } from '../controller/booking.controller.js';
@@ -13,6 +14,7 @@ const router = express.Router();
 router.get("/allbooking", isAuthenticated, getAllBookings);
 router.post("/bookvolunteer/:volunteerId", isAuthenticated, isVendor("NGO"), bookVolunteer);
 router.patch("/:id/accept", isAuthenticated, acceptBooking);
+router.patch("/:id/decline", isAuthenticated, declineBooking);
 router.patch("/:id/pickup-confirmed", isAuthenticated, confirmBookingPickup);
 router.patch("/:id/verify-otp", isAuthenticated, verifyBookingOtp);
 

@@ -1,18 +1,17 @@
-// src/pages/AllReviews.jsx
-import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
-import { MdStar, MdStarBorder, MdMessage, MdErrorOutline, MdArrowBack, MdRefresh } from 'react-icons/md';
+import React, { useEffect, useState, useCallback } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import { Star, MessageSquare, ArrowLeft, RefreshCw, Clock, User } from "lucide-react";
+import ParallaxHero from "../components/ParallaxHero";
 
-// Pure pure functional utility to map target string initial indicators
-const getInitials = (name = '') => {
+const getInitials = (name = "") => {
   const cleanName = name.trim();
-  if (!cleanName) return 'A';
+  if (!cleanName) return "U";
   return cleanName
     .split(/\s+/)
     .map((n) => n[0])
     .slice(0, 2)
-    .join('')
+    .join("")
     .toUpperCase();
 };
 
@@ -23,10 +22,9 @@ export default function AllReviews() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Extracted to a stable callback reference to support retry triggers
   const fetchReviews = useCallback(async () => {
     if (!id) {
-      setError('User identification token is missing from destination route.');
+      setError("User identification token is missing.");
       setLoading(false);
       return;
     }
@@ -37,8 +35,8 @@ export default function AllReviews() {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/review/${id}`);
       setReviews(res.data?.reviews || []);
     } catch (err) {
-      console.error('API Handshake Failure:', err);
-      setError(err.response?.data?.message || 'Failed to sync with review logs directory.');
+      console.error("API Failure:", err);
+      setError(err.response?.data?.message || "Failed to load review history.");
     } finally {
       setLoading(false);
     }
@@ -49,151 +47,94 @@ export default function AllReviews() {
   }, [fetchReviews]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-950 text-white font-sans antialiased selection:bg-indigo-500/30">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-        
-        {/* Component Navigation Header Bar */}
-        <header className="space-y-4 border-b border-white/[0.06] pb-6">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24">
+      {/* Hero Header */}
+      <ParallaxHero
+        badgeText="Community Review Ledger"
+        title={
+          <>
+            User Feedback & <span className="text-emerald-400">Reviews</span>
+          </>
+        }
+        subtitle="Verified ratings, feedback logs, and partner evaluations from the ZeroWaste exchange ledger."
+        actionButtons={
           <button
             onClick={() => navigate(-1)}
-            className="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-indigo-400 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-slate-300 font-semibold text-sm transition shadow-lg"
           >
-            <MdArrowBack className="text-sm group-hover:-translate-x-0.5 transition-transform" />
-            Back to profile
+            <ArrowLeft className="w-4 h-4 text-emerald-400" /> Return Back
           </button>
-          
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">
-                User Feedback Ledger
-              </h1>
-              <p className="mt-1.5 text-sm sm:text-base text-slate-400">
-                Verified logs of historical ecosystem engagement ratings and evaluations.
-              </p>
-            </div>
-            {!loading && !error && reviews.length > 0 && (
-              <div className="bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-2xl shrink-0 self-start sm:self-center">
-                <span className="text-xs font-medium text-slate-400">Total Entries: </span>
-                <span className="text-sm font-bold text-indigo-400">{reviews.length}</span>
-              </div>
-            )}
+        }
+      />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 space-y-6">
+        {loading ? (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-32 rounded-3xl bg-slate-900/60 border border-slate-800 animate-pulse" />
+            ))}
           </div>
-        </header>
+        ) : error ? (
+          <div className="p-8 text-center rounded-3xl bg-slate-900/60 border border-slate-800 max-w-md mx-auto space-y-3">
+            <p className="text-sm font-semibold text-rose-400">{error}</p>
+            <button
+              onClick={fetchReviews}
+              className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-white hover:bg-slate-700 transition inline-flex items-center gap-2"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-emerald-400" /> Retry Loading Reviews
+            </button>
+          </div>
+        ) : reviews.length === 0 ? (
+          <div className="p-12 text-center rounded-3xl bg-slate-900/40 border border-slate-800 text-slate-400 text-sm italic space-y-2">
+            <MessageSquare className="w-10 h-10 text-slate-600 mx-auto" />
+            <p>No review entries logged for this profile yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {reviews.map((review) => {
+              const reviewerName = review.reviewer?.name || "Partner Member";
+              const ratingScore = review.rating ?? 0;
 
-        {/* Master Render Pipeline Switchboard */}
-        <main>
-          {loading ? (
-            <div className="space-y-4" aria-busy="true" aria-live="polite">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-slate-900/40 p-6 rounded-2xl border border-white/[0.05] space-y-4 animate-pulse">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="h-11 w-11 rounded-full bg-slate-800" />
-                      <div className="space-y-2">
-                        <div className="h-4 w-32 bg-slate-800 rounded" />
-                        <div className="h-3 w-24 bg-slate-800 rounded" />
+              return (
+                <div
+                  key={review._id}
+                  className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl shadow-xl space-y-3"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black text-sm flex items-center justify-center">
+                        {getInitials(reviewerName)}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">{reviewerName}</h3>
+                        <p className="text-[11px] text-slate-400 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-slate-500" />
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
-                    <div className="h-7 w-14 bg-slate-800 rounded-full" />
+
+                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 w-fit">
+                      {[...Array(5)].map((_, index) => (
+                        <Star
+                          key={index}
+                          className={`w-3.5 h-3.5 ${
+                            index < ratingScore ? "fill-amber-400 text-amber-400" : "text-slate-700"
+                          }`}
+                        />
+                      ))}
+                      <span className="text-xs font-black ml-1">{ratingScore.toFixed(1)}</span>
+                    </div>
                   </div>
-                  <div className="space-y-2 pt-2">
-                    <div className="h-3.5 bg-slate-800 rounded w-full" />
-                    <div className="h-3.5 bg-slate-800 rounded w-5/6" />
-                  </div>
+
+                  <p className="text-xs text-slate-300 leading-relaxed italic">
+                    "{review.comment || "Verified transaction review."}"
+                  </p>
                 </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="text-center py-12 px-4 bg-red-500/[0.02] border border-red-500/20 rounded-2xl space-y-4 max-w-xl mx-auto">
-              <MdErrorOutline className="mx-auto h-12 w-12 text-red-400" />
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold text-slate-200">Data Synchronisation Fault</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{error}</p>
-              </div>
-              <button
-                onClick={fetchReviews}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl text-xs font-semibold transition duration-150"
-              >
-                <MdRefresh className="text-sm" /> Force Sync Retry
-              </button>
-            </div>
-          ) : reviews.length === 0 ? (
-            <div className="text-center py-16 px-4 bg-slate-900/20 border border-white/[0.04] rounded-2xl space-y-3 max-w-md mx-auto">
-              <MdMessage className="mx-auto h-12 w-12 text-slate-600" />
-              <h3 className="text-lg font-bold text-slate-300">No Review Footprint</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                This node hasn't received public evaluations or tier endorsements on the ledger yet.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {reviews.map((review) => {
-                const reviewerName = review.reviewer?.name || 'Anonymous Partner';
-                const ratingScore = review.rating ?? 0;
-                
-                return (
-                  <article 
-                    key={review._id} 
-                    className="group bg-white/[0.01] hover:bg-white/[0.03] p-6 rounded-2xl border border-white/[0.05] hover:border-white/20 transition-all duration-200 shadow-xl"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                      
-                      {/* Identity Column */}
-                      <div className="flex items-center space-x-3.5">
-                        <div className="flex-shrink-0 h-11 w-11 flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 text-white font-extrabold text-sm shadow-md">
-                          {getInitials(reviewerName)}
-                        </div>
-                        <div>
-                          <h3 className="text-base font-bold text-slate-100 tracking-wide group-hover:text-indigo-400 transition-colors">
-                            {reviewerName}
-                          </h3>
-                          <time 
-                            dateTime={review.createdAt}
-                            className="text-xs font-medium text-slate-500 block mt-0.5"
-                          >
-                            {new Date(review.createdAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
-                          </time>
-                        </div>
-                      </div>
-
-                      {/* Explicit Interactive Stars Block */}
-                      <div 
-                        className="flex items-center gap-0.5 self-start px-2.5 py-1 rounded-xl bg-amber-500/[0.06] border border-amber-500/20 text-amber-400"
-                        aria-label={`Rated ${ratingScore} out of 5 stars`}
-                      >
-                        <div className="flex text-sm mr-1.5" aria-hidden="true">
-                          {[...Array(5)].map((_, index) => {
-                            const starLevel = index + 1;
-                            return starLevel <= ratingScore ? (
-                              <MdStar key={index} className="shrink-0" />
-                            ) : (
-                              <MdStarBorder key={index} className="text-amber-500/30 shrink-0" />
-                            );
-                          })}
-                        </div>
-                        <span className="font-extrabold text-xs tracking-wider">
-                          {ratingScore.toFixed(1)}
-                        </span>
-                      </div>
-
-                    </div>
-
-                    {/* Review Body Comment Payload */}
-                    <p className="mt-4 text-sm text-slate-300 leading-relaxed font-normal whitespace-pre-wrap pl-[1px]">
-                      {review.comment || <span className="italic text-slate-600">Verification complete without added written notes.</span>}
-                    </p>
-
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </main>
-
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
