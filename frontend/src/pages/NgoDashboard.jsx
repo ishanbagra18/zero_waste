@@ -1,3 +1,6 @@
+// added new navbar and a charchter called captain zerowaste
+
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
