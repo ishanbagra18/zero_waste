@@ -1,261 +1,316 @@
 # ZeroWaste ♻️
 
-ZeroWaste is a professional surplus food and resource redistribution platform designed to bridge the gap between businesses with excess food and communities in need. By connecting local food vendors (restaurants, grocery stores) with NGOs and local volunteers, ZeroWaste streamlines the donation, tracking, and logistics process to minimize food waste and optimize charitable giving.
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express-339933.svg)](https://nodejs.org)
+[![Frontend](https://img.shields.io/badge/Frontend-React%2018%20%7C%20Vite%20%7C%20Tailwind-61DAFB.svg)](https://reactjs.org)
+[![Database](https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248.svg)](https://www.mongodb.com)
+[![Realtime](https://img.shields.io/badge/Realtime-Socket.io-010101.svg)](https://socket.io)
+[![AI Powered](https://img.shields.io/badge/AI-Gemini%203.6%20Flash-4285F4.svg)](https://deepmind.google/technologies/gemini)
+
+**ZeroWaste** is an end-to-end, real-time surplus food and resource redistribution ecosystem designed to bridge the gap between businesses with excess food and communities in need. By seamlessly linking local food vendors (restaurants, supermarkets, bakeries) with NGOs and volunteer delivery partners, ZeroWaste optimizes food logistics, prevents food waste, and ensures secure, transparent charitable handoffs.
 
 ---
 
 ## 📋 Table of Contents
-1. [What It Does](#-what-it-does)
-2. [Features](#-features)
-3. [API & Page Routes](#-api--page-routes)
-4. [Why I Built This](#-why-i-built-this)
-5. [Architecture Decisions](#%EF%B8%8F-architecture-decisions)
-6. [What I Used AI For](#%EF%B8%8F-what-i-used-ai-for)
-7. [What I Would Change with 4 More Weeks](#-what-i-would-change-with-4-more-weeks)
-8. [How to Run It](#%EF%B8%8F-how-to-run-it)
-   - [Prerequisites](#prerequisites)
-   - [Backend Configuration](#backend-setup)
-   - [Frontend Configuration](#frontend-setup)
-   - [Starting the Application](#starting-the-application)
+1. [Overview & Impact](#-overview--impact)
+2. [Ecosystem Architecture & Flow](#-ecosystem-architecture--flow)
+3. [Key Features by User Role](#-key-features-by-user-role)
+4. [Tech Stack](#-tech-stack)
+5. [API & Page Routes](#-api--page-routes)
+6. [Security & Verification System](#-security--verification-system)
+7. [Why I Built This](#-why-i-built-this)
+8. [Architecture & Design Decisions](#-architecture--design-decisions)
+9. [AI Integration & Rationale](#-ai-integration--rationale)
+10. [Future Roadmap (4-Week Vision)](#-future-roadmap-4-week-vision)
+11. [Getting Started & Installation](#-getting-started--installation)
 
 ---
 
-## 🌟 What It Does
-ZeroWaste solves the logistics and synchronization gap in food donation by linking surplus food donors (Vendors) directly with charities (NGOs) and delivery partners (Volunteers) in real-time. Vendors post details and pictures of edible surplus food, which NGOs can view and claim based on location. Volunteers accept delivery tasks, and the handoff is secured through a robust, OTP-based verification flow to ensure that food reaches its intended beneficiaries safely and accountably.
+## 🌟 Overview & Impact
+
+Every day, vast quantities of fresh, edible surplus food are discarded while community shelters and non-profit organizations face resource shortages. Traditional donation methods rely on informal phone calls or manual coordination, leading to delays, food spoilage, and lack of accountability.
+
+**ZeroWaste** replaces fragmented communication with a synchronized digital platform:
+- **Vendors** list surplus food items with expiration limits, quantity, and images.
+- **NGOs** browse nearby donations, claim items instantly, and request volunteer delivery.
+- **Volunteers** receive delivery assignments and execute stateful runs using secure verification codes.
+- **Gemini AI & Socket.io** provide intelligent food safety advice and instant peer-to-peer messaging.
 
 ---
 
-## 🚀 Features
+## 🏗️ Ecosystem Architecture & Flow
 
-ZeroWaste is structured around three key user roles to create a seamless end-to-end surplus redistribution ecosystem:
+```
+                 +-------------------+
+                 |   Food Vendors    |
+                 | (Post Surplus Food|
+                 +---------+---------+
+                           |
+                           v
+            +--------------+--------------+
+            |      ZeroWaste Platform     |
+            | (Express + MongoDB + Socket)|
+            +-------+--------------+------+
+                    |              |
+                    v              v
+      +-------------+--+      +----+---------------+
+      |  NGO Claim Feed|      |  Volunteers (Run)  |
+      |  & OTP Handoff |      |  Pickup & Delivery |
+      +----------------+      +--------------------+
+```
 
-### 1. 🏢 Food Vendors (Restaurants, Cafes, Grocers)
-* **Surplus Listings Management:** Post food donations with details (food type, quantity, expiration timestamp, pickup instructions).
-* **Cloudinary Integration:** Upload high-quality pictures of the food directly to listing forms.
-* **Dynamic Analytics Dashboard:** Track overall contributions, completed pickups, active donations, and reviews.
-* **NGO Directory:** Browse all registered local NGOs.
+---
 
-### 2. 🤝 NGOs (Charity Organizations, Shelters)
-* **Surplus Claiming Feed:** Browse and search all active food listings and claim them instantly.
-* **Volunteer Logistics Booking:** Request and match with local Volunteers to transport food donations safely.
-* **Secure OTP Handoff:** Access unique, securely generated pickup/dropoff OTP codes to ensure delivery authenticity.
-* **Claims Manager:** Track claimed donations through different delivery states (claimed, in-transit, delivered).
+## 🚀 Key Features by User Role
 
-### 3. 🚴 Volunteers (Delivery Partners)
-* **Transporter Dashboard:** View incoming booking requests from local NGOs and accept delivery tasks.
-* **Stateful Run Manager:** Manage delivery lifecycle states (accept, confirm pickup from vendor, confirm delivery to NGO).
-* **Ratings & Profile Info:** Build reputation through ratings and feedback from vendors and NGOs.
+### 1. 🏢 Food Vendors (Restaurants, Supermarkets, Cafes)
+- **Surplus Food Publishing:** Create listings complete with category, quantity, expiration timers, and pickup coordinates.
+- **Cloudinary Image Hosting:** Direct image upload & preview for high-resolution item verification.
+- **Vendor Analytics Dashboard:** Visual metrics tracking active food listings, completed donations, and community feedback.
+- **NGO Directory & Reviews:** Explore verified local NGOs and read reviews before donating.
 
-### 🌐 Platform-wide Features
-* **Secure Role-Based Authentication:** Cookie and header-backed JWT login/registration with role guards.
-* **Real-time Instant Messaging (Socket.io):** Direct chat channels between Vendors, NGOs, and Volunteers to coordinate coordinates and pickup details.
-* **Waste Management AI Assistant (Gemini 2.0):** An inline AI chatbot that suggests food storage, shelf-life, and ecological practices.
-* **Real-time Push Notifications:** Live updates for new claims, volunteer bookings, messaging, and delivery status changes.
-* **Reviews & Trust System:** Post-delivery rating and reviews system for accountability.
+### 2. 🤝 NGO Organizations (Charities, Shelters, Community Kitchens)
+- **Real-Time Surplus Feed:** Filter, search, and claim available food donations instantly.
+- **Volunteer Logistics Booking:** Dispatch nearby registered volunteers for pickup and delivery runs.
+- **Dual-Phase OTP Verification:** Generate and verify unique OTP codes at vendor pickup and final delivery to guarantee chain of custody.
+- **Claims Management Hub:** Monitor claimed items across states (`Claimed`, `In-Transit`, `Delivered`).
+
+### 3. 🚴 Volunteers (Delivery Transporters)
+- **Volunteer Portal:** Access delivery dispatch requests, review pickup details, and accept delivery runs.
+- **Stateful Delivery Manager:** Guided UI step-by-step state machine (`Accept Run` ➔ `Confirm Pickup` ➔ `Verify Delivery OTP`).
+- **Recent Bookings & Activity Log:** Track past delivery assignments, total items transported, and user reviews.
+
+### 🌐 Platform-Wide Features
+- **Role-Based Authentication & Authorization:** Cookie and JWT-based authentication with strict client and server-side route guards.
+- **Real-Time Direct Messaging (Socket.io):** Instant chat channels between Vendors, NGOs, and Volunteers with persistent message history.
+- **Eco-Mascot & Gemini AI Assistant:** Powered by `gemini-3.6-flash` to offer real-time advice on food preservation, shelf-life calculation, and zero-waste storage tips.
+- **Real-Time Notifications:** Live status alerts for listing claims, volunteer dispatching, and OTP confirmations.
+- **User Ratings & Trust System:** Post-delivery review system to build community trust and accountability.
+
+---
+
+## 💻 Tech Stack
+
+| Domain | Technology / Library |
+| :--- | :--- |
+| **Frontend Framework** | React 18 (Vite), React Router DOM v6 |
+| **Styling & UI** | Vanilla CSS Design Tokens, Glassmorphic UI Utilities, Lucide React Icons |
+| **Backend Runtime** | Node.js, Express.js |
+| **Database** | MongoDB Atlas, Mongoose ODM |
+| **Realtime Messaging** | Socket.io (WebSockets) |
+| **AI Integration** | Google Gemini API (`gemini-3.6-flash` with resilient model fallbacks) |
+| **Media Management** | Cloudinary API (Multer middleware) |
+| **Auth & Security** | JSON Web Tokens (JWT), Bcrypt password hashing, HTTP-Only Cookies |
 
 ---
 
 ## 🛣️ API & Page Routes
 
 ### 🖥️ Frontend Page Routes (`react-router-dom`)
-All routes are protected by role-based auth guards to prevent access hijacking.
 
-| Path | Element / Component | Allowed Roles | Purpose |
+| Path | Component | Allowed Roles | Description |
 | :--- | :--- | :--- | :--- |
-| `/` | `Login.jsx` | Public | User authentication login |
-| `/register` | `Register.jsx` | Public | Account creation (selects Vendor, NGO, or Volunteer) |
-| `/forgotpassword` | `ForgotPassword.jsx` | Public | Reset password request page |
-| `/myprofile` | `MyProfile.jsx` | Public / All | View detailed profile page |
-| `/updateprofile` | `UpdateProfile.jsx` | All | Edit profile info, contact details, coordinates |
-| `/chatting/:id` | `Chatting.jsx` | All | Private chat screen powered by Socket.io |
-| `/notifications` | `Notifications.jsx` | All | Event notifications inbox |
-| `/allvendors` | `Allvendors.jsx` | All | Browse list of registered Vendors |
-| `/near` | `Neartongo.jsx` | All | View nearby profiles and map listings |
-| `/bookingform/:id` | `Bookingform.jsx` | All | Register or check details of delivery bookings |
-| `/vendor/dashboard` | `VendorDashboard.jsx` | `vendor` | Vendor's main landing page and listing analytics |
-| `/vendor/createitem` | `CreateItem.jsx` | `vendor` | Form to upload new surplus food item |
-| `/vendor/updateitem/:id` | `Updateitem.jsx` | `vendor` | Edit existing surplus food item |
-| `/vendor/allitems` | `Allitems.jsx` | Public / All | Browse all active listings |
-| `/vendor/item/:id` | `Getitembyid.jsx` | Public / All | Comprehensive single item details page |
-| `/allngos` | `Allngos.jsx` | `vendor` | Browse list of registered NGOs |
-| `/readmore` | `Readmore.jsx` | `vendor` | Sustainability and food donation guidelines |
-| `/ngo/dashboard` | `NgoDashboard.jsx` | `NGO` | NGO's main page listing available food posts |
-| `/ngo/myclaimed` | `MyClaimed.jsx` | `NGO` | Manage current claimed foods and OTPs |
-| `/ngo/bookvolunteer` | `BookVolunteer.jsx` | `NGO` | Request list of volunteers to pick up claims |
-| `/Volunteer/dashboard` | `Volunteerdashboard.jsx` | `Volunteer` | Volunteer's portal to accept and track deliveries |
-| `/review/:id` | `SendReview.jsx` | Public / All | Form to write review for a user |
-| `/allreview/:id` | `AllReviews.jsx` | Public / All | View all reviews left for a user |
+| `/` | `Login.jsx` | Public | User authentication login screen |
+| `/register` | `Register.jsx` | Public | Account registration (Vendor, NGO, Volunteer) |
+| `/forgotpassword` | `ForgotPassword.jsx` | Public | Password recovery flow |
+| `/myprofile` | `MyProfile.jsx` | All | Account profile and user details |
+| `/updateprofile` | `UpdateProfile.jsx` | Protected | Edit contact details and location parameters |
+| `/chatting/:id` | `Chatting.jsx` | Protected | Private real-time chat interface |
+| `/notifications` | `Notifications.jsx` | Protected | User notifications inbox |
+| `/allvendors` | `Allvendors.jsx` | Protected | Directory of registered vendor accounts |
+| `/near` | `Neartongo.jsx` | Protected | Interactive map view of nearby NGOs & listings |
+| `/bookingform/:id` | `Bookingform.jsx` | Protected | Detailed volunteer booking summary |
+| `/vendor/dashboard` | `VendorDashboard.jsx` | `vendor` | Vendor control panel & listing statistics |
+| `/vendor/createitem` | `CreateItem.jsx` | `vendor` | Form to publish new surplus item |
+| `/vendor/updateitem/:id` | `Updateitem.jsx` | `vendor` | Edit active item details |
+| `/vendor/allitems` | `Allitems.jsx` | Public / All | Public marketplace of surplus listings |
+| `/vendor/item/:id` | `Getitembyid.jsx` | Public / All | Individual food listing details & claim prompt |
+| `/allngos` | `Allngos.jsx` | `vendor` | Directory of verified NGO accounts |
+| `/readmore` | `Readmore.jsx` | `vendor` | Food safety guidelines & donation regulations |
+| `/ngo/dashboard` | `NgoDashboard.jsx` | `NGO` | NGO main dashboard & active food claim feed |
+| `/ngo/myclaimed` | `MyClaimed.jsx` | `NGO` | NGO claims manager & OTP release portal |
+| `/ngo/bookvolunteer` | `BookVolunteer.jsx` | `NGO` | Dispatch volunteer delivery for claimed food |
+| `/volunteer/dashboard` | `Volunteerdashboard.jsx` | `Volunteer` | Volunteer delivery portal & run acceptance |
+| `/volunteer/recent-bookings`| `VolunteerBookings.jsx` | `Volunteer` | Past volunteer runs & delivery records |
+| `/review/:id` | `SendReview.jsx` | Public / All | Leave feedback and star ratings for users |
+| `/allreview/:id` | `AllReviews.jsx` | Public / All | View ratings and reviews for a user profile |
 
 ---
 
 ### ⚙️ Backend API Endpoints (`/api/...`)
 
-#### 🔑 User Endpoints (`/api/users`)
-* **`POST /register`** - Register new profile (Vendor, NGO, Volunteer).
-* **`POST /login`** - Login user and issue JWT cookie.
-* **`PATCH /forgot-password`** - Trigger password update.
-* **`GET /logout`** - Clear cookies and log out user.
-* **`PUT /updateProfile/:id`** - Update user account details.
-* **`GET /myprofile/:id`** - Retrieve specific profile data.
-* **`GET /allngo`** - List all registered NGOs.
-* **`GET /allvendor`** - List all registered Vendors.
-* **`GET /allvolunteer`** - List all registered Volunteers.
+#### 🔑 Authentication & Profiles (`/api/users`)
+- `POST /api/users/register` - Create new profile (Vendor, NGO, Volunteer).
+- `POST /api/users/login` - Authenticate user & set JWT cookie.
+- `PATCH /api/users/forgot-password` - Reset account password.
+- `GET /api/users/logout` - Invalidate session cookies.
+- `PUT /api/users/updateProfile/:id` - Update user location and contact info.
+- `GET /api/users/myprofile/:id` - Retrieve profile data.
+- `GET /api/users/allngo` | `allvendor` | `allvolunteer` - Fetch entity lists.
 
-#### 📦 Item Listings (`/api/items`)
-* **`POST /create-item`** - Publish new food post *(Vendor only)*.
-* **`GET /get-items`** - Retrieve all active food listings.
-* **`GET /my-items`** - Retrieve listings created by the caller *(Vendor only)*.
-* **`DELETE /delete-item/:id`** - Delete food post *(Vendor only)*.
-* **`GET /get-item/:id`** - View single food post details.
-* **`PUT /update-item/:id`** - Modify food post details *(Vendor only)*.
-* **`PATCH /:id/claim`** - Claim active food listing *(NGO only)*.
-* **`GET /get-claimed-items`** - View claims list *(NGO only)*.
-* **`PATCH /:id/claim-status`** - Update status of a claim.
-* **`PATCH /:id/delivery-reached`** - Mark delivery location reached *(Volunteer only)*.
-* **`PATCH /:id/pickup-confirmed`** - Confirm pickup from vendor *(Volunteer only)*.
-* **`PATCH /:id/verify-otp`** - Verify final dropoff OTP code *(NGO only)*.
+#### 📦 Surplus Items Management (`/api/items`)
+- `POST /api/items/create-item` - Publish new food listing *(Vendor)*.
+- `GET /api/items/get-items` - List active food postings.
+- `GET /api/items/my-items` - List postings created by caller *(Vendor)*.
+- `DELETE /api/items/delete-item/:id` - Remove listing *(Vendor)*.
+- `GET /api/items/get-item/:id` - Fetch item details.
+- `PUT /api/items/update-item/:id` - Edit listing details *(Vendor)*.
+- `PATCH /api/items/:id/claim` - Claim food listing *(NGO)*.
+- `GET /api/items/get-claimed-items` - List claimed items *(NGO)*.
+- `PATCH /api/items/:id/pickup-confirmed` - Confirm pickup from vendor *(Volunteer)*.
+- `PATCH /api/items/:id/verify-otp` - Verify dropoff OTP code *(NGO/Volunteer)*.
 
-#### 🚴 Volunteer Delivery Bookings (`/api/book`)
-* **`GET /allbooking`** - List all volunteer delivery bookings.
-* **`POST /bookvolunteer/:volunteerId`** - Assign a volunteer to a claimed food item *(NGO only)*.
-* **`PATCH /:id/accept`** - Accept delivery booking *(Volunteer only)*.
-* **`PATCH /:id/pickup-confirmed`** - Confirm pickup from vendor *(Volunteer only)*.
-* **`PATCH /:id/verify-otp`** - Verify dropoff OTP code at delivery.
+#### 🚴 Volunteer Delivery Logistics (`/api/book`)
+- `GET /api/book/allbooking` - List all delivery dispatch requests.
+- `POST /api/book/bookvolunteer/:volunteerId` - Assign volunteer to claimed donation *(NGO)*.
+- `PATCH /api/book/:id/accept` - Accept delivery booking *(Volunteer)*.
+- `PATCH /api/book/:id/pickup-confirmed` - Confirm vendor pickup *(Volunteer)*.
+- `PATCH /api/book/:id/verify-otp` - Complete delivery with OTP verification.
 
-#### 🤖 AI Chatbot (`/api/chat`)
-* **`POST /chatbot`** - Chat query to Gemini AI assistant.
+#### 🤖 AI Assistant (`/api/chat`)
+- `POST /api/chat/chatbot` - Interact with Gemini AI assistant for storage & eco guidance.
 
-#### ✉️ Direct Messaging (`/api/message`)
-* **`POST /send/:id`** - Send a message to a specific user.
-* **`GET /get/:id`** - Get message history of a chat room.
+#### ✉️ Peer Messaging (`/api/message`)
+- `POST /api/message/send/:id` - Transmit direct message.
+- `GET /api/message/get/:id` - Load conversation message history.
 
-#### 🔔 Notification Center (`/api/notifications`)
-* **`GET /notification`** - Retrieve user notifications feed.
-* **`PATCH /notification/:id/read`** - Mark a notification as read.
-* **`DELETE /notification/:id`** - Clear/delete a notification.
+#### 🔔 Notifications & Reviews (`/api/notifications`, `/api/review`)
+- `GET /api/notifications/notification` - Retrieve notification stream.
+- `PATCH /api/notifications/notification/:id/read` - Mark notification as read.
+- `POST /api/review/:id` - Post review & star rating for a user.
+- `GET /api/review/:id` - Fetch user feedback history.
 
-#### ⭐ Reviews & Trust (`/api/review`)
-* **`POST /:id`** - Create review & rating for a user.
-* **`GET /:id`** - Get reviews and ratings list for a user.
+---
+
+## 🔒 Security & Verification System
+
+To prevent food theft, misdirection, and unauthorized claims, ZeroWaste utilizes an in-app **Dual-Phase OTP State Machine**:
+
+```
+[Listing Created] ➔ [NGO Claims Listing] ➔ [OTP Generated for Handoff]
+                                                   │
+                                                   ▼
+[Volunteer Reaches NGO/Vendor] ◄── [Volunteer Accepts Run & Pickup]
+               │
+               ▼
+[OTP Verified on Dropoff] ➔ [Status Updated to Delivered]
+```
+
+1. **Pickup Phase:** Volunteer arrives at the donor vendor's location and confirms pickup state in-app.
+2. **Delivery Handoff:** The receiving NGO displays an in-app unique OTP code.
+3. **Verification:** The Volunteer keys in the OTP, releasing the claim status to `Delivered` in MongoDB atomically.
 
 ---
 
 ## 💡 Why I Built This
-Food insecurity and massive food waste exist side-by-side in almost every urban area—restaurants throw away perfectly edible surplus at closing time while nearby shelters struggle to secure ingredients. Traditional donation pipelines are slow, chaotic, and lack transparency, forcing donors to manually call around or risk health-code issues. I built ZeroWaste to replace this fragmented system with a synchronized, tech-first platform that uses real-time alerts, location tracking, and secure verification to make surplus redistribution as fast and reliable as a modern commercial delivery service.
+
+In urban areas, food waste and community hunger exist side by side. Supermarkets and restaurants regularly dispose of high-quality edible inventory simply because of inventory rotation or near-term expiration dates.
+
+Traditional food bank models suffer from scheduling friction and high transport costs. ZeroWaste solves this by turning surplus redistribution into an agile, on-demand network—combining real-time geolocation matching, crowdsourced volunteer transport, and automated chain-of-custody verification.
 
 ---
 
-## 🛠️ Architecture Decisions
+## 🛠️ Architecture & Design Decisions
 
-### 1. Unified Express/Node.js Backend Monolith with Role-Based Routing
-* **Decision:** We opted for a structured monolithic Express API instead of separate microservices for routing, messaging, and inventory.
-* **Why:** A monolithic structure simplifies authentication (JWT cookies and headers) and maintains state consistency across users, items, and bookings. By utilizing clean modular routers under `/routes` and controllers under `/controller`, we keep the codebase maintainable and fast to scale, without incurring the network latency and DevOps complexity of microservices.
+### 1. Unified Modular Express Architecture
+- **Decision:** Built a clean modular monolith architecture rather than fragmented microservices.
+- **Rationale:** Keeps authentication, Socket.io websockets, and MongoDB transaction logic in single-hop sync, reducing network overhead and deployment complexity.
 
-### 2. Socket.io for Bidirectional Real-time Communication
-* **Decision:** Socket.io is integrated on top of our HTTP server to handle user messages, claim updates, and pickup notifications.
-* **Why:** Standard HTTP polling increases database read load and causes lag in coordination. Real-time updates are critical when handling perishable food. Websockets allow volunteers to accept bookings instantly and enable vendors and NGOs to chat in real-time regarding coordinate points.
+### 2. Socket.io WebSockets for Real-Time State & Messaging
+- **Decision:** Integrated Socket.io for live chat, notification delivery, and status propagation.
+- **Rationale:** Perishable food requires immediate action. WebSockets eliminate latency inherent in polling, allowing NGOs and volunteers to react instantly.
 
-### 3. Native OTP-based Handoff State Machine
-* **Decision:** We built an internal verification state machine that generates unique OTPs when an item is claimed or a volunteer booking is initiated. 
-* **Why:** In food distribution, accountability is vital to prevent theft and safety issues. Instead of expensive scanner hardware or third-party SMS-based services, the creator generates a code in-app, which must be keyed in by the handler at the pickup and delivery locations to advance the order state. 
-
-### 4. Gemini-2.0-Flash Integration for Waste Management Assistance
-* **Decision:** We connected Google's Gemini-2.0-flash model directly on the backend to power our built-in help desk.
-* **Why:** Rather than maintaining a rigid FAQ matching script or a heavy custom NLP model, the Gemini API allows the platform to provide context-aware, immediate advice to donors on food safety standards, shelf-life estimation, and sustainable packaging.
+### 3. Gemini 3.6 Flash Integration
+- **Decision:** Backend integration with Google Gemini 3.6 Flash with fallback mechanisms.
+- **Rationale:** Delivers intelligent, instant answers to complex user questions regarding food safety compliance, storage temperatures, and expiration estimation.
 
 ---
 
-## 🤖 What I Used AI For
+## 🤖 AI Integration & Rationale
 
-### 📦 Generated Parts
-* **Styling Templates:** Generated modern, glassmorphic styling utilities using Tailwind CSS classes for dashboard layouts.
-* **Boilerplate Scripts:** Generated baseline configuration wrappers for Cloudinary image uploads and standard Mongoose schema frameworks.
-* **Component Outlines:** Generated initial configurations for charting libraries (Recharts) and interactive maps (Leaflet).
-
-### ✍️ Hand-written & Custom Logic
-* **State Machine for OTP Verification:** Written from scratch to strictly validate states before updating mongo documents (e.g., preventing a volunteer from marking an item as delivered without the corresponding NGO inputting the OTP).
-* **JWT Cookie & Authentication Guards:** Custom middleware created to intercept requests, decode custom payloads, and map vendor/NGO roles securely.
-* **Real-time Event Synchronization:** Handcrafted the specific namespaces and connection event mappings (`addUser`, `sendMessage`, `getMessage`) inside `index.js`.
-
-### 🔄 Overridden AI Suggestions & Rationale
-* **WebRTC for Chat:** The AI initially recommended using WebRTC for peer-to-peer messaging. We rejected this because peer-to-peer setups do not persist messages out-of-the-box. We opted for a Socket.io backend-persistent chat architecture so that conversation histories are stored in MongoDB for transparency and resolution of donation disputes.
-* **Third-Party Auth Services:** The AI suggested Auth0 for user profiles. We overrode this in favor of a native Express/bcrypt login flow to keep user profile data, roles (Vendor, NGO, Volunteer), and local geographic locations unified in a single database.
+- **Generative Design Assistance:** Used AI for initial UI layout structuring, CSS theme variables, and sample schema design.
+- **Custom-Engineered Core Logic:** 
+  - Dual-phase OTP validation state transitions created manually to prevent race conditions.
+  - Custom JWT cookie middleware and role authorization guards engineered from scratch.
+  - Custom Socket.io connection and room lifecycle event handlers written explicitly for database persistence.
+- **Architectural Overrides:**
+  - Rejected WebRTC peer-to-peer chat suggestions in favor of Socket.io + MongoDB to retain message history for dispute resolution.
+  - Overrode third-party identity provider suggestions (e.g. Auth0) to maintain direct control over user role models and location coordinates.
 
 ---
 
-## 🚀 What I Would Change with 4 More Weeks
+## 🚀 Future Roadmap (4-Week Vision)
 
-If preparing to ship ZeroWaste to thousands of real-world users, we would prioritize the following:
-
-1. **Live GPS Routing & Geofencing:** Integrate the Leaflet maps with real-time GPS tracking for active volunteer runs. We would use geofencing to auto-confirm when a volunteer enters a 50-meter radius of the vendor/NGO location, simplifying the check-in process.
-2. **Offline Mode & PWA Support:** Turn the frontend into a Progressive Web App (PWA) using Service Workers. Volunteers picking up food in basements or restaurant loading bays frequently experience low connectivity; offline sync would cache item states and queue actions until network availability is restored.
-3. **SMS & WhatsApp Verification Gateways:** Integrate a communications API (like Twilio) to text OTP codes and status alerts directly to NGO coordinators and volunteers, removing the requirement to keep the web app open at all times.
-4. **AI-powered Freshness/Spoilage Classifier:** Integrate a camera-based visual assessment API in the item upload form. Vendors could take a picture of the food, and the model would evaluate visual freshness, predicting the remaining safe-consumption window before allowing it to be posted.
+1. **GPS Live Tracking & Geofencing:** Integrate Leaflet live routing to auto-detect when a volunteer enters a 50m radius of vendor/NGO coordinates.
+2. **Offline PWA Support:** Implement Service Workers and IndexedDB to allow volunteers to update delivery statuses in low-connectivity areas (e.g., basements or loading bays).
+3. **Twilio SMS & WhatsApp Gateway:** Send instant OTP and status alerts via SMS so coordinators without active data connections can verify handoffs.
+4. **Visual Spoilage Assessment AI:** Enable camera uploads in the listing form to automatically predict food shelf-life before posting.
 
 ---
 
-## ⚙️ How to Run It
+## ⚙️ Getting Started & Installation
 
 ### Prerequisites
-* **Node.js** (v16+ recommended)
-* **npm** (v8+ recommended)
-* **MongoDB Atlas** account or local MongoDB instance
+- **Node.js** (v18+ recommended)
+- **npm** (v9+ recommended)
+- **MongoDB Atlas** database URI
 
 ---
 
-### Backend Setup
+### 1. Backend Setup
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Install the backend dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file in the `backend/` folder and supply the following variables:
-   ```env
-   PORT=3002
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_TOKEN=your_jwt_secret_key
-   CLOUD_NAME=your_cloudinary_cloud_name
-   API_KEY=your_cloudinary_api_key
-   API_SECRET=your_cloudinary_api_secret
-   BOT_API_KEY=your_google_gemini_api_key
-   BOT_API_ENDPOINT=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
-   ```
+```bash
+# Navigate to backend directory
+cd backend
+
+# Install dependencies
+npm install
+
+# Create a .env file with the following variables
+PORT=3002
+MONGODB_URI=your_mongodb_connection_string
+JWT_TOKEN=your_jwt_secret_key
+CLOUD_NAME=your_cloudinary_cloud_name
+API_KEY=your_cloudinary_api_key
+API_SECRET=your_cloudinary_api_secret
+BOT_API_KEY=your_google_gemini_api_key
+BOT_API_ENDPOINT=https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent
+```
 
 ---
 
-### Frontend Setup
+### 2. Frontend Setup
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd ../frontend
-   ```
-2. Install the frontend dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+# Navigate to frontend directory
+cd ../frontend
+
+# Install dependencies
+npm install
+```
 
 ---
 
-### Starting the Application
+### 3. Running the Application
 
-You need to run both the backend and frontend simultaneously.
+Open two terminal sessions to launch both servers simultaneously:
 
-* **Start the Backend Server:**
-  ```bash
-  cd backend
-  npm run dev
-  ```
-  *The backend will run on* [http://localhost:3002](http://localhost:3002)
+**Terminal 1 (Backend):**
+```bash
+cd backend
+npm run dev
+```
+*Backend runs on:* `http://localhost:3002`
 
-* **Start the Frontend Dev Server:**
-  ```bash
-  cd frontend
-  npm run dev
-  ```
-  *The frontend will run on* [http://localhost:5173](http://localhost:5173)
+**Terminal 2 (Frontend):**
+```bash
+cd frontend
+npm run dev
+```
+*Frontend runs on:* `http://localhost:5173`
 
-Open [http://localhost:5173](http://localhost:5173) in your browser to interact with the platform.
+Access the web application by opening [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+<p align="center">Made with ❤️ for Zero Waste and Sustainable Communities</p>
