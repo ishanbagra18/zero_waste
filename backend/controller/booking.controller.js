@@ -1,3 +1,5 @@
+//update workflow of the booking system 
+
 import Booking from "../models/booking.model.js";
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
