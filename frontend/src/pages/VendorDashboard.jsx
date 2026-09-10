@@ -22,7 +22,9 @@ import {
   ChevronDown,
   Building2,
   PieChart as ChartIcon,
-  AlertTriangle
+  AlertTriangle,
+  Clock,
+  Zap,
 } from "lucide-react";
 import {
   PieChart,
@@ -295,6 +297,11 @@ const VendorDashboard = () => {
                         alt={item.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
+                      {(item.isUrgent || (item.expiryDate && (new Date(item.expiryDate).getTime() - Date.now() <= 12 * 60 * 60 * 1000))) && (
+                        <span className="absolute top-2 left-2 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 shadow-md flex items-center gap-1 animate-pulse">
+                          <Zap size={10} className="fill-slate-950" /> URGENT
+                        </span>
+                      )}
                       <span className={`absolute top-2 right-2 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-lg backdrop-blur-md shadow-md ${item.status === "claimed"
                         ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                         : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
@@ -318,6 +325,13 @@ const VendorDashboard = () => {
                       <MapPin size={12} className="shrink-0 text-emerald-400" />
                       <span>{item.location || "Unknown Location"}</span>
                     </div>
+
+                    {item.expiryDate && (
+                      <div className="flex items-center gap-1.5 text-amber-400 font-medium text-[10px]">
+                        <Clock size={11} className="shrink-0" />
+                        <span>Expires: {new Date(item.expiryDate).toLocaleDateString()} {new Date(item.expiryDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-2 text-slate-400 bg-white/[0.01] p-2 rounded-xl border border-white/[0.02]">
                       <div>Qty: <span className="font-bold text-slate-200">{item.quantity || 0}</span></div>

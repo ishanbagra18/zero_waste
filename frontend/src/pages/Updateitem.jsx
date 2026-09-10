@@ -12,6 +12,8 @@ import {
   Tag,
   IndianRupee,
   RefreshCw,
+  Clock,
+  Zap,
 } from "lucide-react";
 import ParallaxHero from "../components/ParallaxHero";
 
@@ -29,6 +31,8 @@ export default function Updateitem() {
     category: "",
     status: "available",
     mode: "donation",
+    expiryDate: "",
+    isUrgent: false,
   });
 
   const [oldImageUrl, setOldImageUrl] = useState("");
@@ -54,6 +58,8 @@ export default function Updateitem() {
           category: item.category || "",
           status: item.status || "available",
           mode: item.mode || "donation",
+          expiryDate: item.expiryDate ? new Date(item.expiryDate).toISOString().slice(0, 16) : "",
+          isUrgent: !!item.isUrgent,
         });
 
         setOldImageUrl(item.itemImage?.url || "");
@@ -67,9 +73,10 @@ export default function Updateitem() {
   }, [id, token]);
 
   const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -266,6 +273,39 @@ export default function Updateitem() {
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-700 text-white text-sm outline-none focus:border-emerald-500 transition"
               />
+            </div>
+
+            {/* Expiry Date / Time Input */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-amber-400" /> Expiry Date & Time
+              </label>
+              <input
+                type="datetime-local"
+                name="expiryDate"
+                value={formData.expiryDate}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-700 text-white text-sm outline-none focus:border-emerald-500 transition cursor-pointer"
+              />
+            </div>
+
+            {/* Urgent Pickup Tag Toggle */}
+            <div className="space-y-1.5 sm:col-span-2">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-rose-400" /> Priority Status Tag
+              </label>
+              <label className="flex items-center gap-3 p-3 rounded-2xl bg-slate-950 border border-slate-700 cursor-pointer hover:border-amber-500/50 transition">
+                <input
+                  type="checkbox"
+                  name="isUrgent"
+                  checked={formData.isUrgent}
+                  onChange={handleInputChange}
+                  className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                />
+                <span className="text-xs font-bold text-amber-300 flex items-center gap-1">
+                  ⚡ Mark as Urgent (Expiring within hours)
+                </span>
+              </label>
             </div>
           </div>
 

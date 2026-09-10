@@ -13,6 +13,10 @@ import {
   Filter,
   Search,
   ArrowRight,
+  Clock,
+  Zap,
+  Heart,
+  Sparkles,
 } from "lucide-react";
 import { useData } from "../context/DataContext";
 import ParallaxHero from "../components/ParallaxHero";
@@ -25,13 +29,75 @@ export default function Allitems() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showUrgentOnly, setShowUrgentOnly] = useState(false);
+  const [showFreeOnly, setShowFreeOnly] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [favorites, setFavorites] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const navigate = useNavigate();
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     fetchItems();
-  }, [fetchItems]);
+    if (token) {
+      axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/favorites`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(res => {
+        if (res.data?.favorites) {
+          setFavorites(res.data.favorites.map(f => typeof f === 'object' ? f._id : f));
+        }
+      }).catch(err => console.warn("Failed to load favorites", err.message));
+    }
+  }, [fetchItems, token]);
+
+  const toggleFavorite = async (e, itemId) => {
+    e.stopPropagation();
+    if (!token) {
+      toast.error("Please login to bookmark items.");
+      return;
+    }
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/toggle-favorite/${itemId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (res.data?.isFavorited) {
+        setFavorites(prev => [...prev, itemId]);
+        toast.success("Added to bookmarks ❤️");
+      } else {
+        setFavorites(prev => prev.filter(id => id !== itemId));
+        toast("Removed from bookmarks 💔");
+      }
+    } catch (err) {
+      toast.error("Could not update bookmark");
+    }
+  };
+
+  const isItemUrgent = (item) => {
+    if (item.isUrgent) return true;
+    if (item.expiryDate) {
+      const diffMs = new Date(item.expiryDate).getTime() - Date.now();
+      const diffHours = diffMs / (1000 * 60 * 60);
+      if (diffHours > 0 && diffHours <= 12) return true;
+    }
+    return false;
+  };
+
+  const getLiveCountdownText = (expiryDate) => {
+    if (!expiryDate) return null;
+    const diff = new Date(expiryDate).getTime() - Date.now();
+    if (diff <= 0) return "Expired";
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    if (hours > 24) {
+      const days = Math.floor(hours / 24);
+      return `${days}d ${hours % 24}h left`;
+    }
+    return `${hours}h ${mins}m left`;
+  };
 
   useEffect(() => {
     if (Array.isArray(items)) {
@@ -48,6 +114,15 @@ export default function Allitems() {
     if (selectedLocation) {
       filtered = filtered.filter((item) => item.location === selectedLocation);
     }
+    if (showUrgentOnly) {
+      filtered = filtered.filter((item) => isItemUrgent(item));
+    }
+    if (showFreeOnly) {
+      filtered = filtered.filter((item) => !item.price || Number(item.price) === 0 || item.mode === "donation");
+    }
+    if (showFavoritesOnly) {
+      filtered = filtered.filter((item) => favorites.includes(item._id));
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -59,7 +134,7 @@ export default function Allitems() {
     }
     setFilteredItems(filtered);
     setCurrentPage(1);
-  }, [selectedCategory, selectedLocation, searchQuery, items]);
+  }, [selectedCategory, selectedLocation, showUrgentOnly, showFreeOnly, showFavoritesOnly, favorites, searchQuery, items]);
 
   const totalPages = Math.max(Math.ceil(filteredItems.length / itemsPerPage), 1);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -119,46 +194,83 @@ export default function Allitems() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 space-y-8">
         {/* Filter Bar */}
-        <div className="p-4 sm:p-5 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-2xl grid grid-cols-1 sm:grid-cols-3 gap-4 shadow-xl">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search surplus items..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-500 transition"
-            />
+        <div className="p-4 sm:p-5 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-2xl space-y-4 shadow-xl">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search surplus items..."
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-500 transition"
+              />
+            </div>
+
+            <div className="relative">
+              <select
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                value={selectedCategory}
+                className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-xs px-4 py-2.5 rounded-xl outline-none focus:border-emerald-500 transition cursor-pointer"
+              >
+                <option value="">All Categories</option>
+                {categories.map((cat, idx) => (
+                  <option key={idx} value={cat}>
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative">
+              <select
+                onChange={(e) => setSelectedLocation(e.target.value)}
+                value={selectedLocation}
+                className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-xs px-4 py-2.5 rounded-xl outline-none focus:border-emerald-500 transition cursor-pointer"
+              >
+                <option value="">All Locations</option>
+                {locations.map((loc, idx) => (
+                  <option key={idx} value={loc}>
+                    {loc.charAt(0).toUpperCase() + loc.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="relative">
-            <select
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              value={selectedCategory}
-              className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-xs px-4 py-2.5 rounded-xl outline-none focus:border-emerald-500 transition cursor-pointer"
+          {/* Quick Preset Filter Pills */}
+          <div className="flex items-center gap-2 pt-2 border-t border-slate-800/80 overflow-x-auto">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider shrink-0">Quick Filters:</span>
+            
+            <button
+              onClick={() => setShowUrgentOnly(prev => !prev)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+                showUrgentOnly ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-amber-500/40"
+              }`}
             >
-              <option value="">All Categories</option>
-              {categories.map((cat, idx) => (
-                <option key={idx} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
+              <Zap size={12} className={showUrgentOnly ? "fill-slate-950" : "text-amber-400"} />
+              <span>⚡ Urgent Pickups Only</span>
+            </button>
 
-          <div className="relative">
-            <select
-              onChange={(e) => setSelectedLocation(e.target.value)}
-              value={selectedLocation}
-              className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-xs px-4 py-2.5 rounded-xl outline-none focus:border-emerald-500 transition cursor-pointer"
+            <button
+              onClick={() => setShowFreeOnly(prev => !prev)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+                showFreeOnly ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-emerald-500/40"
+              }`}
             >
-              <option value="">All Locations</option>
-              {locations.map((loc, idx) => (
-                <option key={idx} value={loc}>
-                  {loc.charAt(0).toUpperCase() + loc.slice(1)}
-                </option>
-              ))}
-            </select>
+              <Sparkles size={12} className={showFreeOnly ? "fill-slate-950" : "text-emerald-400"} />
+              <span>💚 Free Donations</span>
+            </button>
+
+            <button
+              onClick={() => setShowFavoritesOnly(prev => !prev)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+                showFavoritesOnly ? "bg-rose-500 text-white shadow-md shadow-rose-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-rose-500/40"
+              }`}
+            >
+              <Heart size={12} className={showFavoritesOnly ? "fill-white" : "text-rose-400"} />
+              <span>❤️ Saved Wishlist ({favorites.length})</span>
+            </button>
           </div>
         </div>
 
@@ -173,11 +285,17 @@ export default function Allitems() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {paginatedItems.map((item) => {
                 const badge = getStatusBadgeConfig(item.status);
+                const urgent = isItemUrgent(item);
+                const countdownText = getLiveCountdownText(item.expiryDate);
+                const isFavorited = favorites.includes(item._id);
+
                 return (
                   <div
                     key={item._id}
                     onClick={() => navigate(`/vendor/item/${item._id}`)}
-                    className="group flex flex-col justify-between cursor-pointer bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 rounded-3xl overflow-hidden backdrop-blur-xl transition-all duration-300 shadow-xl hover:-translate-y-1"
+                    className={`group flex flex-col justify-between cursor-pointer bg-slate-900/80 border ${
+                      urgent ? "border-amber-500/80 shadow-amber-500/10" : "border-slate-800"
+                    } hover:border-emerald-500/50 rounded-3xl overflow-hidden backdrop-blur-xl transition-all duration-300 shadow-xl hover:-translate-y-1 relative`}
                   >
                     <div className="space-y-4">
                       {/* Image Box */}
@@ -193,8 +311,27 @@ export default function Allitems() {
                           }}
                         />
 
+                        {/* URGENT / Expiring Soon Badge */}
+                        {urgent && (
+                          <div className="absolute top-3 left-3 z-10">
+                            <span className="text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-amber-500 text-slate-950 shadow-lg flex items-center gap-1 animate-pulse">
+                              <Zap className="w-3 h-3 fill-slate-950" /> URGENT
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Bookmark Favorite Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => toggleFavorite(e, item._id)}
+                          className="absolute bottom-3 left-3 z-10 p-2 rounded-full bg-slate-950/80 hover:bg-slate-900 border border-slate-700/80 text-white backdrop-blur-xs transition-colors"
+                          title={isFavorited ? "Remove Bookmark" : "Save Item"}
+                        >
+                          <Heart size={14} className={isFavorited ? "fill-rose-500 text-rose-500" : "text-slate-300"} />
+                        </button>
+
                         {/* Distinct High-Contrast Status Tag */}
-                        <div className="absolute top-3 right-3">
+                        <div className="absolute top-3 right-3 z-10">
                           <span
                             className={`text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full border backdrop-blur-md flex items-center gap-1.5 ${badge.color}`}
                           >
@@ -206,8 +343,8 @@ export default function Allitems() {
 
                       {/* Description Details */}
                       <div className="px-5 space-y-2">
-                        <h3 className="text-base font-extrabold text-white group-hover:text-emerald-400 transition-colors line-clamp-1">
-                          {item.name}
+                        <h3 className="text-base font-extrabold text-white group-hover:text-emerald-400 transition-colors line-clamp-1 flex items-center gap-2">
+                          <span>{item.name}</span>
                         </h3>
                         <p className="text-xs text-slate-400 line-clamp-2 h-8 leading-relaxed">
                           {item.description || "Fresh surplus inventory ready for community distribution."}
@@ -232,6 +369,19 @@ export default function Allitems() {
                             <span>{item.price ? `₹${item.price}` : "Free"}</span>
                           </span>
                         </div>
+
+                        {/* Expiry Countdown Timer Pill */}
+                        {countdownText && (
+                          <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
+                            <span className="flex items-center gap-1 text-amber-400 font-semibold">
+                              <Clock className="w-3.5 h-3.5 shrink-0 animate-spin-slow" />
+                              <span>{countdownText}</span>
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              {new Date(item.expiryDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
 

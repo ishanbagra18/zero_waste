@@ -431,9 +431,8 @@ const NgoDashboard = () => {
           <div className="pt-2">
             <button
               onClick={handleRedirect}
-              className="w-full sm:w-auto inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold text-sm px-8 py-3.5 rounded-xl shadow-lg shadow-blue-950/40 border border-blue-400/20 transition-all duration-150 group/btn"
-              type="button"
-            >
+              className="w-full sm:w-auto inline-flex items-center justify-center bg-green-700 hover:bg-green-800 active:scale-[0.98] text-white font-bold text-sm px-8 py-3.5 rounded-xl shadow-lg shadow-blue-950/40 border border-blue-400/20 transition-all duration-150 group/btn"
+              type="button">
               <span>View All Vendors</span>
               <span className="text-xs tracking-normal opacity-80 group-hover/btn:translate-x-1 transition-transform duration-150">&rarr;</span>
             </button>

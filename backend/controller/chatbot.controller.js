@@ -1,12 +1,10 @@
-// added new website information 
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
+import { HumanMessage, AIMessage } from "@langchain/core/messages";
+import { Item } from "../models/item.model.js";
 
-
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const websiteContext = `
-
-
-You are the official AI Assistant for **ZeroWasteHub** (also known as Zero Waste).
+const websiteBaseContext = `
+You are the official AI Assistant for **ZeroWasteHub** (also known as Zero Waste), powered by LangChain JS.
 
 =========================================================
 🌱 ABOUT ZEROWASTEHUB:
@@ -57,12 +55,13 @@ It connects three primary user roles:
 🧭 ASSISTANT RULES:
 - Always answer helpful, polite, and accurate questions about ZeroWasteHub.
 - Guide users on how to navigate the platform, perform actions (like creating items, claiming items, booking volunteers, resetting passwords), and understand their role features.
+- If asked about available surplus food/items, refer to the LIVE SURPLUS FOOD/ITEMS LIST below.
 - If asked anything completely unrelated to ZeroWasteHub, politely reply:
-  "I can only answer questions related to ZeroWasteHub."
+  "I can only answer questions related to ZeroWasteHub and sustainability."
 `;
 
 export const chatWithBot = async (req, res) => {
-  const { message } = req.body;
+  const { message, history } = req.body;
 
   if (!message) {
     return res.status(400).json({ error: "Message is required" });
@@ -88,12 +87,53 @@ export const chatWithBot = async (req, res) => {
       return res.status(500).json({ error: "Chatbot API key not configured" });
     }
 
-    // ✅ Using official Google Generative AI SDK with fallback models for high demand (503) or rate limits
-    const genAI = new GoogleGenerativeAI(BOT_API_KEY);
+    // 📦 Retrieve live active surplus items from MongoDB
+    let liveItemsContext = "No active surplus items available in the database at this moment.";
+    try {
+      const activeItems = await Item.find({ status: "available" })
+        .select("name description category quantity mode location price expiryDate isUrgent")
+        .limit(10)
+        .lean();
+
+      if (activeItems && activeItems.length > 0) {
+        liveItemsContext = activeItems
+          .map(
+            (item, idx) =>
+              `${idx + 1}. **${item.name}** [Category: ${item.category}] - ${item.quantity} units | Location: ${item.location} | Mode: ${item.mode} | Price: ₹${item.price}${item.isUrgent ? " | ⚡ URGENT PICKUP REQUIRED" : ""}${item.expiryDate ? ` | Expiry: ${new Date(item.expiryDate).toLocaleString()}` : ""}`
+          )
+          .join("\n");
+      }
+    } catch (dbErr) {
+      console.warn("⚠️ Could not fetch active items for LangChain context:", dbErr.message);
+    }
+
+    // 🔗 Format conversation history for LangChain MessagesPlaceholder
+    const formattedHistory = [];
+    if (Array.isArray(history)) {
+      for (const msg of history.slice(-6)) {
+        if (msg.role === "user" && msg.text) {
+          formattedHistory.push(new HumanMessage(msg.text));
+        } else if (msg.role === "bot" && msg.text) {
+          formattedHistory.push(new AIMessage(msg.text));
+        }
+      }
+    }
+
+    // 🦜 Construct LangChain ChatPromptTemplate
+    const fullSystemPrompt = `${websiteBaseContext}\n\n=========================================================\n📦 LIVE SURPLUS ITEMS IN DATABASE RIGHT NOW:\n${liveItemsContext}`;
+
+    const prompt = ChatPromptTemplate.fromMessages([
+      ["system", fullSystemPrompt],
+      new MessagesPlaceholder("chat_history"),
+      ["human", "{input}"]
+    ]);
+
+    // 🤖 Candidate model fallbacks
     const candidateModels = [
       "gemini-3.6-flash",
       "gemini-3.5-flash",
-      "gemini-flash-latest"
+      "gemini-flash-latest",
+      "gemini-1.5-flash"
     ];
 
     let botResponse = null;
@@ -101,18 +141,31 @@ export const chatWithBot = async (req, res) => {
 
     for (const modelName of candidateModels) {
       try {
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent(
-          `${websiteContext}\n\nUser asked: ${message}`
-        );
-        const response = result.response;
-        botResponse = response.text();
-        if (botResponse) {
-          console.log(`✅ Chatbot response generated successfully using model: ${modelName}`);
+        const llm = new ChatGoogleGenerativeAI({
+          model: modelName,
+          apiKey: BOT_API_KEY,
+          temperature: 0.7,
+        });
+
+        const chain = prompt.pipe(llm);
+        const result = await chain.invoke({
+          chat_history: formattedHistory,
+          input: message,
+        });
+
+        const outputText = typeof result.content === "string" 
+          ? result.content 
+          : Array.isArray(result.content) 
+            ? result.content.map(c => c.text || JSON.stringify(c)).join("")
+            : JSON.stringify(result.content);
+
+        if (outputText) {
+          botResponse = outputText;
+          console.log(`✅ LangChain chatbot response generated successfully using model: ${modelName}`);
           break;
         }
       } catch (err) {
-        console.warn(`⚠️ Model ${modelName} failed (${err.status || err.message}). Trying fallback...`);
+        console.warn(`⚠️ LangChain model ${modelName} failed (${err.status || err.message}). Trying fallback...`);
         lastError = err;
       }
     }
@@ -121,19 +174,18 @@ export const chatWithBot = async (req, res) => {
       return res.status(200).json({ response: botResponse });
     }
 
-    throw lastError || new Error("All Gemini model fallbacks failed");
+    throw lastError || new Error("All Gemini model fallbacks failed in LangChain");
 
   } catch (error) {
-    console.error("❌ Error in chatWithBot:");
+    console.error("❌ Error in LangChain chatWithBot:");
     console.error("  Message:", error.message);
     console.error("  Status:", error.status || error.response?.status);
-    console.error("  Details:", JSON.stringify(error.response?.data || error.errorDetails || {}, null, 2));
     
-    // Return more specific error message
     const errorMessage = error.message || "Internal server error";
     res.status(500).json({ 
-      error: `Chatbot error: ${errorMessage}` 
+      error: `LangChain Chatbot error: ${errorMessage}` 
     });
   }
 };
+
 

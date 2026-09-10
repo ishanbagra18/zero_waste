@@ -31,7 +31,7 @@ export const createItem = async (req, res) => {
       });
     }
 
-    let { name, description, quantity, category, price, mode, location, status } = req.body;
+    let { name, description, quantity, category, price, mode, location, status, expiryDate, isUrgent } = req.body;
 
     // Default donation mode price to 0 if not provided or 0
     if (mode === "donation" || price === undefined || price === null || price === "") {
@@ -62,6 +62,8 @@ export const createItem = async (req, res) => {
       mode,
       location,
       status,
+      expiryDate: expiryDate ? new Date(expiryDate) : null,
+      isUrgent: isUrgent === "true" || isUrgent === true,
       vendor: req.user.userId,
       itemImage: {
         public_id: cloudinaryResponse.public_id,
@@ -240,12 +242,20 @@ export const updateItem = async (req, res) => {
       "category",
       "status",
       "mode",
+      "expiryDate",
+      "isUrgent",
     ];
 
     const updates = {};
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined && req.body[field] !== null && req.body[field] !== "") {
-        updates[field] = req.body[field];
+        if (field === "isUrgent") {
+          updates[field] = req.body[field] === "true" || req.body[field] === true;
+        } else if (field === "expiryDate") {
+          updates[field] = req.body[field] ? new Date(req.body[field]) : null;
+        } else {
+          updates[field] = req.body[field];
+        }
       }
     });
 

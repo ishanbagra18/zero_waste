@@ -91,8 +91,11 @@ Every day, vast quantities of fresh, edible surplus food are discarded while com
 
 ### 🌐 Platform-Wide Features
 - **Role-Based Authentication & Authorization:** Cookie and JWT-based authentication with strict client and server-side route guards.
-- **Real-Time Direct Messaging (Socket.io):** Instant chat channels between Vendors, NGOs, and Volunteers with persistent message history.
-- **Eco-Mascot & Gemini AI Assistant:** Powered by `gemini-3.6-flash` to offer real-time advice on food preservation, shelf-life calculation, and zero-waste storage tips.
+- **Real-Time Direct Messaging (Socket.io):** Instant chat channels between Vendors, NGOs, and Volunteers with persistent message history and delete confirmation.
+- **Eco-Mascot & LangChain AI Assistant:** Powered by **LangChain JS (`@langchain/google-genai` & `@langchain/core`)** and Google Gemini (`gemini-3.6-flash`). Features multi-turn conversation memory, live MongoDB surplus item RAG context, and real-time guidance on food preservation and platform logistics.
+- **Expiry Live Countdown & Urgent Quick-Filters:** Real-time live countdown badges (e.g. `Expires in 2h 45m`) and preset catalog quick-filters for `⚡ Urgent Pickups`, `💚 Free Donations`, and `❤️ Wishlist`.
+- **Item Bookmarks & Wishlist:** Bookmark favorite surplus food items with one-click heart toggles for quick claim access.
+- **Automated Backend Expiry Sweeper:** Background worker (`expirySweeper.js`) that automatically monitors expiration timestamps and transitions past items to `expired` status.
 - **Real-Time Notifications:** Live status alerts for listing claims, volunteer dispatching, and OTP confirmations.
 - **User Ratings & Trust System:** Post-delivery review system to build community trust and accountability.
 
@@ -103,11 +106,11 @@ Every day, vast quantities of fresh, edible surplus food are discarded while com
 | Domain | Technology / Library |
 | :--- | :--- |
 | **Frontend Framework** | React 18 (Vite), React Router DOM v6 |
-| **Styling & UI** | Vanilla CSS Design Tokens, Glassmorphic UI Utilities, Lucide React Icons |
+| **Styling & UI** | Vanilla CSS Design Tokens, Eco-Green Emerald Palette, Glassmorphic UI Utilities, Lucide & FontAwesome React Icons |
 | **Backend Runtime** | Node.js, Express.js |
 | **Database** | MongoDB Atlas, Mongoose ODM |
 | **Realtime Messaging** | Socket.io (WebSockets) |
-| **AI Integration** | Google Gemini API (`gemini-3.6-flash` with resilient model fallbacks) |
+| **AI Integration & Orchestration** | **LangChain JS (`@langchain/google-genai`, `@langchain/core`)**, Google Gemini API (`gemini-3.6-flash`, `gemini-3.5-flash` fallbacks) |
 | **Media Management** | Cloudinary API (Multer middleware) |
 | **Auth & Security** | JSON Web Tokens (JWT), Bcrypt password hashing, HTTP-Only Cookies |
 | **Containerization** | Docker, Docker Compose, Multi-stage Nginx builds |
@@ -281,14 +284,19 @@ Traditional food bank models suffer from scheduling friction and high transport 
 - **Decision:** Integrated Socket.io for live chat, notification delivery, and status propagation.
 - **Rationale:** Perishable food requires immediate action. WebSockets eliminate latency inherent in polling, allowing NGOs and volunteers to react instantly.
 
-### 3. Gemini 3.6 Flash Integration
-- **Decision:** Backend integration with Google Gemini 3.6 Flash with fallback mechanisms.
-- **Rationale:** Delivers intelligent, instant answers to complex user questions regarding food safety compliance, storage temperatures, and expiration estimation.
+### 3. LangChain JS & Gemini 3.6 Flash Integration
+- **Decision:** Integrated **LangChain JS (`@langchain/google-genai` and `@langchain/core`)** for AI assistant prompt orchestration, multi-turn memory, and RAG surplus database context.
+- **Rationale:** Standard direct LLM API calls lack session memory and live database context. LangChain's `ChatPromptTemplate`, `MessagesPlaceholder`, and MongoDB context injection allow the assistant to retain conversation history across turns and answer user questions regarding currently available surplus items in real time.
 
 ---
 
 ## 🤖 AI Integration & Rationale
 
+- **LangChain JS Architecture:**
+  - **Prompt Templating:** Refactored static text prompts into structured `ChatPromptTemplate` instances with system roles and user placeholders.
+  - **Multi-Turn Session Memory:** Converts user and bot message histories into LangChain `HumanMessage` and `AIMessage` objects for contextual multi-turn conversation.
+  - **Live Database RAG Context:** Dynamically fetches active food/item listings (`status: "available"`) from MongoDB and feeds them into the system prompt context.
+  - **Resilient Fallback Chains:** Wraps model execution in a fallback pipeline across `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-flash-latest`, and `gemini-1.5-flash`.
 - **Generative Design Assistance:** Used AI for initial UI layout structuring, CSS theme variables, and sample schema design.
 - **Custom-Engineered Core Logic:** 
   - Dual-phase OTP validation state transitions created manually to prevent race conditions.

@@ -64,6 +64,16 @@ const itemSchema = new mongoose.Schema({
         },
     },
 
+    expiryDate: {
+        type: Date,
+        default: null,
+    },
+
+    isUrgent: {
+        type: Boolean,
+        default: false,
+    },
+
     // New fields for claims
     claimedBy: {
         type: mongoose.Schema.Types.ObjectId,

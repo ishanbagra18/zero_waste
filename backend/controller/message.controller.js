@@ -121,5 +121,54 @@ export const getMessages = async (req, res) => {
   }
 };
 
+export const deleteMessage = async (req, res) => {
+  try {
+    const { id: messageId } = req.params;
+    const userId = req.user?.userId;
+
+    if (!messageId || !userId) {
+      return res.status(400).json({ error: "Message ID and authentication required" });
+    }
+
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    // Verify caller is the sender of the message
+    if (message.senderId.toString() !== userId.toString()) {
+      return res.status(403).json({ error: "You can only delete your own messages" });
+    }
+
+    const receiverId = message.receiverId.toString();
+
+    // Delete message document
+    await Message.findByIdAndDelete(messageId);
+
+    // Remove reference from Conversation
+    await Conversation.updateMany(
+      { messages: messageId },
+      { $pull: { messages: messageId } }
+    );
+
+    // Socket.IO real-time emission to receiver
+    const io = req.app.get("io");
+    const getUserSocketId = req.app.get("getUserSocketId");
+    if (io && getUserSocketId) {
+      const receiverSocketId = getUserSocketId(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("deleteMessage", { messageId });
+      }
+    }
+
+    res.status(200).json({ message: "Message deleted successfully", messageId });
+  } catch (error) {
+    console.error("Error in deleteMessage:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
 
 

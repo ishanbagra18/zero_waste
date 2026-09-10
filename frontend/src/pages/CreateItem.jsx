@@ -13,6 +13,8 @@ import {
   IndianRupee,
   FileText,
   XCircle,
+  Clock,
+  Zap,
 } from "lucide-react";
 import ParallaxHero from "../components/ParallaxHero";
 
@@ -31,6 +33,8 @@ export default function CreateItem() {
     mode: "donation",
     location: "",
     status: "available",
+    expiryDate: "",
+    isUrgent: false,
     itemImage: null,
   });
 
@@ -41,7 +45,7 @@ export default function CreateItem() {
   }, [imagePreview]);
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value, type, checked, files } = e.target;
 
     if (name === "itemImage" && files && files[0]) {
       const file = files[0];
@@ -54,6 +58,8 @@ export default function CreateItem() {
         mode: value,
         price: value === "donation" ? "0" : (prev.price === "0" ? "" : prev.price),
       }));
+    } else if (type === "checkbox") {
+      setForm((prev) => ({ ...prev, [name]: checked }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -274,6 +280,39 @@ export default function CreateItem() {
                 required
                 className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-700 text-white text-sm placeholder-slate-500 outline-none focus:border-emerald-500 transition"
               />
+            </div>
+
+            {/* Expiry Date / Time Input */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-amber-400" /> Expiry Date & Time (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                name="expiryDate"
+                value={form.expiryDate}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-700 text-white text-sm placeholder-slate-500 outline-none focus:border-emerald-500 transition cursor-pointer"
+              />
+            </div>
+
+            {/* Urgent Pickup Tag Toggle */}
+            <div className="space-y-1.5 flex flex-col justify-center">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-rose-400" /> Priority Status Tag
+              </label>
+              <label className="flex items-center gap-3 p-3 rounded-2xl bg-slate-950 border border-slate-700 cursor-pointer hover:border-amber-500/50 transition">
+                <input
+                  type="checkbox"
+                  name="isUrgent"
+                  checked={form.isUrgent}
+                  onChange={handleChange}
+                  className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                />
+                <span className="text-xs font-bold text-amber-300 flex items-center gap-1">
+                  ⚡ Mark as Urgent (Expiring within hours)
+                </span>
+              </label>
             </div>
           </div>
 

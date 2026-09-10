@@ -49,7 +49,9 @@ const PageLoader = () => (
 const AppContent = () => {
   const location = useLocation();
   const { role } = useAuth();
-  const hideChatbot = location.pathname.startsWith("/chatting/");
+  const isChattingPage = location.pathname.startsWith("/chatting/");
+  const hideChatbot = isChattingPage;
+  const hideFooter = isChattingPage;
 
   const isAuthPage =
     location.pathname === "/" ||
@@ -59,16 +61,16 @@ const AppContent = () => {
     (role || "").toLowerCase() === "volunteer" ||
     location.pathname.toLowerCase().includes("/volunteer");
 
-  const hasNavbar = !isAuthPage && !isVolunteerRole;
+  const hasNavbar = !isAuthPage && !isVolunteerRole && !isChattingPage;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative selection:bg-emerald-500 selection:text-white">
+    <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col relative selection:bg-emerald-500 selection:text-white ${isChattingPage ? 'h-screen overflow-hidden' : ''}`}>
       <Toaster position="top-right" />
-      <Navbar />
+      {hasNavbar && <Navbar />}
       
-      <main className={`flex-1 w-full ${hasNavbar ? "pt-16" : ""}`}>
+      <main className={`flex-1 w-full ${hasNavbar ? "pt-16" : "pt-0"} ${isChattingPage ? 'h-full overflow-hidden' : ''}`}>
         <Suspense fallback={<PageLoader />}>
-          <PageWrapper key={location.pathname}>
+          <PageWrapper key={location.pathname} className={isChattingPage ? 'min-h-full h-full overflow-hidden' : ''}>
             <Routes>
               {/* ====================================================== */}
               {/* Public Routes (Accessible to everyone) */}
@@ -121,7 +123,7 @@ const AppContent = () => {
         </Suspense>
       </main>
 
-      {hasNavbar && <Footer />}
+      {hasNavbar && !hideFooter && <Footer />}
       {!hideChatbot && <Chatbot />}
     </div>
   );

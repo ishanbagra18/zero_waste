@@ -32,6 +32,7 @@ import Message from './models/message.model.js';
 import Conversation from './models/Conversation.model.js';
 import User from './models/user.model.js';
 import { notificationQueue } from './queues/notification.queue.js';
+import { runExpirySweeper } from './utils/expirySweeper.js';
 
 dotenv.config();
 const app = express();
@@ -159,9 +160,9 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: "/tmp",
@@ -257,7 +258,11 @@ const startServer = async () => {
   // ✅ Then connect to MongoDB with retry logic
   for (let i = 1; i <= 10; i++) {
     const success = await connectMongo();
-    if (success) break;
+    if (success) {
+      runExpirySweeper();
+      setInterval(runExpirySweeper, 5 * 60 * 1000); // Sweeps every 5 minutes
+      break;
+    }
     if (i < 10) {
       const delay = Math.min(5000 * i, 30000);
       console.log(`⏳ Retry ${i}/10 in ${delay / 1000}s...`);

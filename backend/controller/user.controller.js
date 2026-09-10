@@ -443,4 +443,68 @@ export const getAllVolunteer = async (req,res)=>
         console.error("Error fetching Volunteer:", error);
     return res.status(500).json({ message: "Server error" });
   }
-}
+};
+
+export const toggleFavorite = async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const userId = req.user?.userId;
+
+    if (!userId || !itemId) {
+      return res.status(400).json({ message: "User ID and Item ID are required." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const index = user.favorites.indexOf(itemId);
+    let isFavorited = false;
+
+    if (index > -1) {
+      user.favorites.splice(index, 1);
+      isFavorited = false;
+    } else {
+      user.favorites.push(itemId);
+      isFavorited = true;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: isFavorited ? "Added to favorites" : "Removed from favorites",
+      isFavorited,
+      favorites: user.favorites,
+    });
+  } catch (error) {
+    console.error("Toggle favorite error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getFavorites = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required." });
+    }
+
+    const user = await User.findById(userId).populate({
+      path: "favorites",
+      populate: { path: "vendor", select: "name organisation location" }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json({
+      message: "Favorites fetched successfully",
+      favorites: user.favorites || [],
+    });
+  } catch (error) {
+    console.error("Get favorites error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
