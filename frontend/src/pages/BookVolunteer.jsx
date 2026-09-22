@@ -18,6 +18,10 @@ import ParallaxHero from "../components/ParallaxHero";
 
 export default function BookVolunteer() {
   const navigate = useNavigate();
+  const role = (localStorage.getItem("role") || "").toLowerCase();
+  const dashboardPath = role === "vendor" ? "/vendor/dashboard" : "/ngo/dashboard";
+  const dashboardLabel = role === "vendor" ? "Back to Vendor Dashboard" : "Back to NGO Dashboard";
+
   const [volunteers, setVolunteers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,10 +67,10 @@ export default function BookVolunteer() {
         subtitle="Connect with dedicated regional volunteers for food pickup, freight transportation, and community distribution support."
         actionButtons={
           <button
-            onClick={() => navigate("/ngo/dashboard")}
+            onClick={() => navigate(dashboardPath)}
             className="px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-slate-300 font-semibold text-sm transition shadow-lg"
           >
-            Back to NGO Dashboard
+            {dashboardLabel}
           </button>
         }
       />

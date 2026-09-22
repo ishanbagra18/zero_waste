@@ -17,7 +17,9 @@ import {
   HandHeart,
   ChevronDown,
   Sparkles,
-  Store,
+  BookOpen,
+  Boxes,
+  Truck,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -54,11 +56,8 @@ export default function Navbar() {
     location.pathname === "/" ||
     location.pathname === "/register" ||
     location.pathname === "/forgotpassword";
-  const isVolunteerRole =
-    (role || "").toLowerCase() === "volunteer" ||
-    location.pathname.toLowerCase().includes("/volunteer");
 
-  if (isAuthPage || isVolunteerRole) {
+  if (isAuthPage) {
     return null;
   }
 
@@ -75,6 +74,7 @@ export default function Navbar() {
     if (currentRole === "vendor") {
       return [
         { label: "Dashboard", path: "/vendor/dashboard", icon: LayoutDashboard },
+        { label: "My Listed Items", path: "/vendor/my-items", icon: Boxes },
         { label: "Add Item", path: "/vendor/createitem", icon: PlusCircle },
         { label: "All Items", path: "/vendor/allitems", icon: Package },
       ];
@@ -84,6 +84,12 @@ export default function Navbar() {
         { label: "My Claimed", path: "/ngo/myclaimed", icon: Heart },
         { label: "Book Volunteer", path: "/ngo/bookvolunteer", icon: HandHeart },
         { label: "All Items", path: "/vendor/allitems", icon: Package },
+      ];
+    } else if (currentRole === "volunteer") {
+      return [
+        { label: "Dashboard", path: "/volunteer/dashboard", icon: LayoutDashboard },
+        { label: "Freight Bookings", path: "/volunteer/recent-bookings", icon: Truck },
+        { label: "Notifications", path: "/notifications", icon: Bell },
       ];
     }
 
@@ -114,6 +120,13 @@ export default function Navbar() {
   const roleBadge = getRoleBadge();
   const userInitials = user?.name ? user.name.substring(0, 2).toUpperCase() : "ZW";
 
+  const getDashboardPath = () => {
+    const r = (role || "").toLowerCase();
+    if (r === "vendor") return "/vendor/dashboard";
+    if (r === "volunteer") return "/volunteer/dashboard";
+    return "/ngo/dashboard";
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       <nav
@@ -125,7 +138,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* Logo & Brand */}
-            <Link to={isAuthenticated ? (role === "vendor" ? "/vendor/dashboard" : role === "NGO" ? "/ngo/dashboard" : "/volunteer/dashboard") : "/"} className="flex items-center gap-2.5 group">
+            <Link to={isAuthenticated ? getDashboardPath() : "/"} className="flex items-center gap-2.5 group">
               <motion.div
                 whileHover={{ rotate: 180, scale: 1.1 }}
                 transition={{ duration: 0.5 }}

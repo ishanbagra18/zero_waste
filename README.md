@@ -72,6 +72,7 @@ Every day, vast quantities of fresh, edible surplus food are discarded while com
 - **Surplus Food Publishing:** Create listings complete with category, quantity, expiration timers, and pickup coordinates.
 - **Cloudinary Image Hosting:** Direct image upload & preview for high-resolution item verification.
 - **Vendor Analytics Dashboard:** Visual metrics tracking active food listings, completed donations, and community feedback.
+- **My Listed Items Console:** Dedicated inventory manager (`MyVendorItems.jsx`) with live search, status filtering (All, Active, Claimed), and instant item removal.
 - **NGO Directory & Reviews:** Explore verified local NGOs and read reviews before donating.
 
 ### 2. 🤝 NGO Organizations (Charities, Shelters, Community Kitchens)
@@ -80,23 +81,25 @@ Every day, vast quantities of fresh, edible surplus food are discarded while com
 - **Real-Time Surplus Feed:** Filter, search, and claim available food donations instantly.
 - **Volunteer Logistics Booking:** Dispatch nearby registered volunteers for pickup and delivery runs.
 - **Dual-Phase OTP Verification:** Generate and verify unique OTP codes at vendor pickup and final delivery to guarantee chain of custody.
-- **Claims Management Hub:** Monitor claimed items across states (`Claimed`, `In-Transit`, `Delivered`).
+- **Claims Management Hub:** Monitor claimed items across states (`Claimed`, `In-Transit`, `Delivered`) with clean empty-state handling.
 
 ### 3. 🚴 Volunteers (Delivery Transporters)
 ![Volunteer Logistics Network Hub](screenshots/volunteer-dashboard.png)
 
-- **Volunteer Portal:** Access delivery dispatch requests, review pickup details, and accept delivery runs.
+- **Volunteer Command Center:** Access delivery dispatch requests, review pickup details, and accept delivery runs.
+- **Waybill Search & 4-Step Logistics Protocol:** Filter freight jobs by NGO/location in real-time with step-by-step dispatch pipeline visualization (*Job Logged* ➔ *Volunteer Match* ➔ *OTP Handover* ➔ *Delivered & Verified*).
 - **Stateful Delivery Manager:** Guided UI step-by-step state machine (`Accept Run` ➔ `Confirm Pickup` ➔ `Verify Delivery OTP`).
 - **Recent Bookings & Activity Log:** Track past delivery assignments, total items transported, and user reviews.
 
 ### 🌐 Platform-Wide Features
-- **Role-Based Authentication & Authorization:** Cookie and JWT-based authentication with strict client and server-side route guards.
+- **4-Column Glassmorphic Footer:** Includes live system operational status badge (`● Ecosystem Operational`), platform links, social feeds, and an interactive Eco Pledge email input with instant feedback.
+- **Role-Based Authentication & Security:** Cookie and JWT-based authentication with strict client/server route guards and a theme-consistent Reset Password flow with password strength analytics.
 - **Real-Time Direct Messaging (Socket.io):** Instant chat channels between Vendors, NGOs, and Volunteers with persistent message history and delete confirmation.
 - **Eco-Mascot & LangChain AI Assistant:** Powered by **LangChain JS (`@langchain/google-genai` & `@langchain/core`)** and Google Gemini (`gemini-3.6-flash`). Features multi-turn conversation memory, live MongoDB surplus item RAG context, and real-time guidance on food preservation and platform logistics.
 - **Expiry Live Countdown & Urgent Quick-Filters:** Real-time live countdown badges (e.g. `Expires in 2h 45m`) and preset catalog quick-filters for `⚡ Urgent Pickups`, `💚 Free Donations`, and `❤️ Wishlist`.
 - **Item Bookmarks & Wishlist:** Bookmark favorite surplus food items with one-click heart toggles for quick claim access.
 - **Automated Backend Expiry Sweeper:** Background worker (`expirySweeper.js`) that automatically monitors expiration timestamps and transitions past items to `expired` status.
-- **Real-Time Notifications:** Live status alerts for listing claims, volunteer dispatching, and OTP confirmations.
+- **Clean Notification Architecture:** Non-intrusive toast handling that suppresses error popups on background page mounts and empty lists, while delivering real-time status alerts for listing claims, volunteer dispatching, and OTP confirmations.
 - **User Ratings & Trust System:** Post-delivery review system to build community trust and accountability.
 
 ---

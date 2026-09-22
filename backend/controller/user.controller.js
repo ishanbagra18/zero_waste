@@ -216,22 +216,24 @@ export const forgotPassword = async (req, res) => {
   const { email, role, oldPassword, newPassword } = req.body;
 
   try {
-    if (!email || !role || !oldPassword || !newPassword) {
+    if (!email || !role || !newPassword) {
       return res
         .status(400)
-        .json({ message: "Please provide all fields for password reset" });
+        .json({ message: "Please provide email, role, and new password." });
     }
 
     const user = await User.findOne({ email, role }).select("+password");
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "No account found matching this email and role." });
     }
 
-    // Verify old password
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid old password." });
+    // Verify old password if provided
+    if (oldPassword) {
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Invalid old password." });
+      }
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -241,7 +243,7 @@ export const forgotPassword = async (req, res) => {
     return res.status(200).json({ message: "Password updated successfully." });
   } catch (error) {
     console.error("Forgot password error:", error);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error during password reset" });
   }
 };
 

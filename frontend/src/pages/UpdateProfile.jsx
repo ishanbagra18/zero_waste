@@ -2,17 +2,20 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
-  MdPerson,
-  MdEmail,
-  MdPhone,
-  MdLocationOn,
-  MdBusiness,
-  MdCloudUpload,
-  MdLock,
-  MdArrowBack,
-  MdCheckCircle,
-} from "react-icons/md";
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Building2,
+  Upload,
+  Lock,
+  ArrowLeft,
+  CheckCircle2,
+  ShieldCheck,
+  AlertTriangle,
+} from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
+import ParallaxHero from "../components/ParallaxHero";
 
 export default function UpdateProfile() {
   const [form, setForm] = useState({
@@ -30,10 +33,14 @@ export default function UpdateProfile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const token = localStorage.getItem("token");
+  const role = (localStorage.getItem("role") || "").toLowerCase();
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate("/myprofile");
+    if (role === "vendor") navigate("/vendor/dashboard");
+    else if (role === "ngo") navigate("/ngo/dashboard");
+    else if (role === "volunteer") navigate("/volunteer/dashboard");
+    else navigate("/myprofile");
   };
 
   // Extract User Metadata safely from JWT
@@ -139,57 +146,67 @@ export default function UpdateProfile() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-black via-zinc-900 to-neutral-950 text-white px-4 sm:px-6 lg:px-8 py-10 selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24">
       <Toaster position="top-right" />
 
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Navigation Control Toolbar */}
-        <div className="flex items-center justify-between">
+      {/* Hero Header Section with Back Button */}
+      <ParallaxHero
+        badgeText="Profile Control Console"
+        title={
+          <>
+            Update Your <span className="text-emerald-400">Account Profile</span>
+          </>
+        }
+        subtitle="Configure your personal identity, contact channels, organisation details, and operational location."
+        actionButtons={
           <button
             onClick={handleBack}
-            className="group inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:text-emerald-400 text-sm font-medium px-4 py-2.5 rounded-xl shadow-md transition-all duration-200"
+            className="px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-slate-300 font-semibold text-sm transition shadow-lg flex items-center gap-2 cursor-pointer"
           >
-            <MdArrowBack className="group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-4 h-4 text-emerald-400" />
             Back to Dashboard
           </button>
-        </div>
+        }
+      />
 
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
         {/* Master Profile Control Layout Card */}
-        <div className="w-full bg-white/[0.02] backdrop-blur-xl border border-white/[0.08] rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden">
-
+        <div className="w-full bg-slate-900/90 border border-slate-800 backdrop-blur-2xl rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden">
           {/* Identity/Profile Preview Panel */}
-          <aside className="md:w-1/3 p-8 bg-zinc-950/40 flex flex-col items-center justify-center gap-6 border-b md:border-b-0 md:border-r border-white/[0.08]">
+          <aside className="md:w-1/3 p-8 bg-slate-950/60 flex flex-col items-center justify-center gap-6 border-b md:border-b-0 md:border-r border-slate-800">
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-500" />
-              <div className="relative w-40 h-40 rounded-full overflow-hidden border-2 border-emerald-500/40 group-hover:border-emerald-400 transition duration-300 shadow-2xl">
+              <div className="relative w-36 h-36 rounded-full overflow-hidden border-2 border-emerald-500/40 group-hover:border-emerald-400 transition duration-300 shadow-2xl bg-slate-950">
                 <img
                   src={photoPreview || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                   alt="Profile Avatar Target Preview"
-                  className="w-full h-full object-cover bg-zinc-900"
+                  className="w-full h-full object-cover"
                 />
               </div>
             </div>
 
             <div className="text-center space-y-1.5 max-w-full px-2">
-              <h3 className="text-2xl font-extrabold text-zinc-100 truncate">
+              <h3 className="text-xl font-extrabold text-white truncate">
                 {form.name || "Identity Unset"}
               </h3>
-              <p className="text-sm font-semibold tracking-wide text-emerald-400 uppercase truncate">
+              <p className="text-xs font-bold tracking-wide text-emerald-400 uppercase truncate">
                 {form.organisation || "Corporate Node"}
               </p>
             </div>
 
-            <div className="w-full border-t border-white/[0.05] pt-4 flex flex-col gap-2 text-xs font-medium text-zinc-400">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.01] border border-white/[0.03] truncate">
-                <span role="img" aria-label="Location">📍</span> <span className="truncate">{form.location || "Not Specifed"}</span>
+            <div className="w-full border-t border-slate-800/80 pt-4 flex flex-col gap-2 text-xs font-medium text-slate-400">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800/80 truncate">
+                <MapPin className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                <span className="truncate">{form.location || "Not Specified"}</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.01] border border-white/[0.03] truncate">
-                <span role="img" aria-label="Phone">📞</span> <span className="truncate">{form.phone || "Not Provided"}</span>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800/80 truncate">
+                <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="truncate">{form.phone || "Not Provided"}</span>
               </div>
             </div>
 
-            <label className="cursor-pointer group mt-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-200 px-4 py-2.5 rounded-xl inline-flex items-center gap-2 transition duration-200 shadow-sm">
-              <MdCloudUpload className="text-emerald-400 text-sm group-hover:scale-110 transition-transform" />
+            <label className="cursor-pointer group mt-2 bg-slate-950 hover:bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white px-4 py-2.5 rounded-xl inline-flex items-center gap-2 transition duration-200 shadow-sm">
+              <Upload className="text-emerald-400 w-4 h-4 group-hover:scale-110 transition-transform" />
               <span>Upload New Photo</span>
               <input
                 type="file"
@@ -205,14 +222,14 @@ export default function UpdateProfile() {
           <section className="md:w-2/3 p-6 sm:p-10 flex flex-col justify-between min-h-[520px]">
             <div>
               <header className="mb-6">
-                <h2 className="text-3xl font-extrabold tracking-tight text-white">
-                  Account Management
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                  Account Details
                 </h2>
-                <p className="text-zinc-400 text-sm mt-1">Configure individual directory metadata variables securely.</p>
+                <p className="text-slate-400 text-xs sm:text-sm mt-1">Configure individual directory metadata variables securely.</p>
               </header>
 
               {/* Navigation Tab Anchors */}
-              <nav className="flex gap-2 border-b border-white/[0.06] mb-8" aria-label="Profile Tabs">
+              <nav className="flex gap-2 border-b border-slate-800 mb-8" aria-label="Profile Tabs">
                 {[
                   { id: "personal", label: "Personal Information" },
                   { id: "security", label: "Security & Credentials" },
@@ -221,10 +238,11 @@ export default function UpdateProfile() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2.5 text-sm font-semibold transition-all relative border-b-2 -mb-[2px] ${activeTab === tab.id
-                        ? "border-emerald-500 text-emerald-400 font-bold"
-                        : "border-transparent text-zinc-400 hover:text-zinc-200"
-                      }`}
+                    className={`px-4 py-2.5 text-xs sm:text-sm font-bold transition-all relative border-b-2 -mb-[2px] cursor-pointer ${
+                      activeTab === tab.id
+                        ? "border-emerald-500 text-emerald-400 font-extrabold"
+                        : "border-transparent text-slate-400 hover:text-slate-200"
+                    }`}
                   >
                     {tab.label}
                   </button>
@@ -234,13 +252,13 @@ export default function UpdateProfile() {
               {/* Functional View Forms Container */}
               <form onSubmit={handleSubmit} className="space-y-6">
                 {activeTab === "personal" && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 animate-fadeIn">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <InputField
                       label="Legal Full Name"
                       name="name"
                       value={form.name}
                       onChange={handleChange}
-                      icon={<MdPerson />}
+                      icon={<User className="w-4 h-4 text-emerald-400" />}
                       placeholder="e.g., Jane Doe"
                       autoComplete="name"
                     />
@@ -250,7 +268,7 @@ export default function UpdateProfile() {
                       type="email"
                       value={form.email}
                       onChange={handleChange}
-                      icon={<MdEmail />}
+                      icon={<Mail className="w-4 h-4 text-emerald-400" />}
                       placeholder="name@org.com"
                       autoComplete="email"
                     />
@@ -260,7 +278,7 @@ export default function UpdateProfile() {
                       type="tel"
                       value={form.phone}
                       onChange={handleChange}
-                      icon={<MdPhone />}
+                      icon={<Phone className="w-4 h-4 text-emerald-400" />}
                       placeholder="10-digit mobile number"
                       autoComplete="tel"
                     />
@@ -269,7 +287,7 @@ export default function UpdateProfile() {
                       name="organisation"
                       value={form.organisation}
                       onChange={handleChange}
-                      icon={<MdBusiness />}
+                      icon={<Building2 className="w-4 h-4 text-emerald-400" />}
                       placeholder="Company or Group Name"
                     />
                     <div className="sm:col-span-2">
@@ -278,7 +296,7 @@ export default function UpdateProfile() {
                         name="location"
                         value={form.location}
                         onChange={handleChange}
-                        icon={<MdLocationOn />}
+                        icon={<MapPin className="w-4 h-4 text-emerald-400" />}
                         placeholder="City, State, Country"
                         autoComplete="street-address"
                       />
@@ -287,39 +305,43 @@ export default function UpdateProfile() {
                 )}
 
                 {activeTab === "security" && (
-                  <div className="space-y-4 max-w-md animate-fadeIn">
+                  <div className="space-y-4 max-w-md">
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                         Change Password
                       </label>
-                      <div className="flex items-center gap-3 bg-zinc-900/50 px-3.5 py-3 rounded-xl border border-zinc-800 text-zinc-500 cursor-not-allowed select-none">
-                        <MdLock className="text-lg" />
+                      <div className="flex items-center gap-3 bg-slate-950 px-4 py-3 rounded-2xl border border-slate-800 text-slate-500 cursor-not-allowed select-none">
+                        <Lock className="w-4 h-4 text-slate-600" />
                         <input
                           type="password"
                           placeholder="••••••••••••"
                           disabled
-                          className="bg-transparent outline-none flex-1 text-sm text-zinc-600 cursor-not-allowed w-full"
+                          className="bg-transparent outline-none flex-1 text-xs text-slate-600 cursor-not-allowed w-full"
                         />
                       </div>
                     </div>
-                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-200 text-xs leading-relaxed">
-                      ⚠️ <strong>System Notice:</strong> Multi-factor Authentication (2FA) and cryptographic profile update controls are currently locked down by global administration configurations and will release shortly.
+                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-300 text-xs leading-relaxed flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
+                      <div>
+                        <strong className="text-amber-400 font-bold block mb-0.5">System Notice</strong>
+                        Cryptographic profile update controls are currently managed by platform policies. To change password, use the Forgot Password recovery flow.
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {/* Submissions Action Block Footer */}
-                <div className="pt-6 border-t border-white/[0.05] flex justify-end">
+                <div className="pt-6 border-t border-slate-800 flex justify-end">
                   <button
                     type="submit"
                     disabled={isSubmitting || activeTab !== "personal"}
-                    className="w-full sm:w-auto min-w-[160px] inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 disabled:border-zinc-700/50 border border-transparent font-semibold text-sm rounded-xl text-white transition-all duration-150 active:scale-[0.98] shadow-md shadow-emerald-950/20"
+                    className="w-full sm:w-auto min-w-[160px] inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all duration-150 active:scale-[0.98] shadow-lg shadow-emerald-500/20 disabled:opacity-40 disabled:pointer-events-none"
                   >
                     {isSubmitting ? (
-                      <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                      <div className="h-4 w-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <>
-                        <MdCheckCircle className="text-base" />
+                        <CheckCircle2 className="w-4 h-4" />
                         <span>Save System Profile</span>
                       </>
                     )}
@@ -328,7 +350,6 @@ export default function UpdateProfile() {
               </form>
             </div>
           </section>
-
         </div>
       </div>
     </div>
@@ -339,13 +360,11 @@ export default function UpdateProfile() {
 function InputField({ label, name, type = "text", value, onChange, icon, placeholder, autoComplete }) {
   return (
     <div className="space-y-1.5 w-full">
-      <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block">
+      <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
         {label}
       </label>
-      <div className="group flex items-center gap-3 bg-zinc-900/40 focus-within:bg-zinc-900/90 px-3.5 py-2.5 rounded-xl border border-white/[0.06] focus-within:border-emerald-500/60 transition-all duration-150 shadow-inner">
-        <span className="text-zinc-500 group-focus-within:text-emerald-400 text-lg transition-colors duration-150 shrink-0">
-          {icon}
-        </span>
+      <div className="group flex items-center gap-2.5 bg-slate-950 focus-within:bg-slate-950 px-4 py-3 rounded-2xl border border-slate-800 focus-within:border-emerald-500 transition shadow-inner">
+        <span className="shrink-0">{icon}</span>
         <input
           type={type}
           name={name}
@@ -354,7 +373,7 @@ function InputField({ label, name, type = "text", value, onChange, icon, placeho
           placeholder={placeholder}
           autoComplete={autoComplete}
           required
-          className="bg-transparent outline-none flex-1 text-zinc-100 text-sm placeholder-zinc-600 w-full"
+          className="bg-transparent outline-none flex-1 text-white text-xs md:text-sm placeholder-slate-500 w-full"
         />
       </div>
     </div>

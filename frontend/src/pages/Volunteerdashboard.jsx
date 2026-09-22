@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
+import volunteer3dHero from "../assets/volunteer_3d_hero.png";
 import {
   Truck,
   CheckCircle2,
@@ -19,10 +20,29 @@ import {
   Activity,
   ArrowUpRight,
   Navigation,
-  Compass,
   Heart,
   Package,
+  PieChart as ChartIcon,
+  Leaf,
+  Layers,
+  Building2,
 } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  FaTruck,
+  FaHeart,
+  FaShieldAlt,
+  FaLeaf,
+  FaUsers,
+  FaCheckCircle,
+} from "react-icons/fa";
 
 export default function Volunteerdashboard() {
   const navigate = useNavigate();
@@ -34,7 +54,6 @@ export default function Volunteerdashboard() {
 
   const fetchDashboardData = async () => {
     if (!token) {
-      toast.error("Authentication token missing. Please log in.");
       setLoading(false);
       return;
     }
@@ -55,7 +74,6 @@ export default function Volunteerdashboard() {
       setNotifications(notificationRes.data.notifications || []);
     } catch (error) {
       console.error("❌ Error loading volunteer dashboard:", error);
-      toast.error("Failed to load dashboard metrics.");
     } finally {
       setLoading(false);
     }
@@ -85,99 +103,192 @@ export default function Volunteerdashboard() {
   const activeTransits = bookings.filter((b) => b.status === "accepted" || b.status === "pickup_confirmed").length;
   const completedDeliveries = bookings.filter((b) => b.status === "completed" || b.status === "delivered").length;
 
+  // Pie Chart Data
+  const pieData = [
+    { name: "Pending Approval", value: pendingBookings },
+    { name: "Active In-Transit", value: activeTransits },
+    { name: "Verified Delivered", value: completedDeliveries },
+  ].filter((d) => d.value > 0);
+
+  const COLORS = ["#facc15", "#38bdf8", "#10b981"];
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24 relative">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24 relative font-sans antialiased">
       <Toaster position="top-right" />
 
-      {/* Hero Header Section */}
-      <section className="relative pt-16 pb-12 flex items-center justify-center overflow-hidden">
+      {/* 🌟 1. Cinematic Hero Landing Banner */}
+      <section
+        className="w-full min-h-[75vh] sm:min-h-[85vh] bg-cover bg-center relative flex items-center overflow-hidden border-b border-white/[0.04]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.95)), url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200')",
+        }}
+      >
         {/* Vignette Gradients for Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-slate-950/90 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/60 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-transparent/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
 
         {/* Ambient Light Orbs */}
-        <div className="absolute top-1/4 left-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute left-0 top-0 w-[36rem] h-[36rem] bg-emerald-500/[0.05] rounded-full blur-[140px] pointer-events-none animate-pulse" />
+        <div className="absolute right-0 bottom-0 w-[36rem] h-[36rem] bg-teal-500/[0.05] rounded-full blur-[140px] pointer-events-none" />
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-8 py-16 text-center space-y-8">
-          {/* Status Kicker Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: -15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-lg backdrop-blur-md"
-          >
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-            <span>🟢 Live Logistics Network • Volunteer Hub</span>
-          </motion.div>
+        <div className="relative w-full container mx-auto px-6 sm:px-12 lg:px-8 max-w-7xl z-10 py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
-          {/* Hero Headings */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="space-y-4 max-w-4xl mx-auto"
-          >
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-tight">
-              Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400">Hero Volunteer!</span>
-            </h1>
-
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-200 tracking-tight">
-              Driven by Purpose, Powered by Community
-            </h2>
-
-            <p className="text-slate-300 text-sm sm:text-base lg:text-lg leading-relaxed max-w-3xl mx-auto font-normal">
-              Your dedication ensures surplus food moves swiftly from vendors to NGOs. Manage regional food recovery dispatches, accept NGO transport requests, and validate completed deliveries.
-            </p>
-          </motion.div>
-
-          {/* Hero Action Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-wrap items-center justify-center gap-3 pt-2"
-          >
-            <Link
-              to="/volunteer/recent-bookings"
-              className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
-            >
-              <Navigation className="w-4 h-4 text-slate-950" /> Freight Bookings Console ({totalBookings})
-            </Link>
-
-            <Link
-              to="/notifications"
-              className="px-5 py-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 text-slate-200 font-bold text-sm backdrop-blur-xl transition-all transform hover:-translate-y-0.5 flex items-center gap-2 relative"
-            >
-              <Bell className="w-4 h-4 text-emerald-400" /> Notifications
-              {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black">
-                  {unreadCount}
+            {/* Left Column: Typography & CTAs */}
+            <div className="lg:col-span-7 text-left space-y-6">
+              {/* Status Kicker Badge */}
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                 </span>
-              )}
-            </Link>
+                <p className="text-emerald-400 uppercase tracking-widest text-xs font-black select-none">
+                  Live Logistics Operations • Volunteer Hub
+                </p>
+              </div>
 
-            <Link
-              to="/myprofile"
-              className="px-4 py-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white font-semibold text-sm backdrop-blur-md transition flex items-center gap-1.5"
-            >
-              <User className="w-4 h-4 text-teal-400" /> Profile
-            </Link>
+              {/* Styled Headings Structural Block */}
+              <div className="space-y-4 border-l-2 border-emerald-500/30 pl-4 sm:pl-6">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] select-none">
+                  Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400">Hero Volunteer!</span>
+                </h1>
 
-            <button
-              onClick={handleLogout}
-              className="px-4 py-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/40 text-rose-400 hover:text-rose-300 font-semibold text-sm backdrop-blur-md transition flex items-center gap-1.5"
-            >
-              <LogOut className="w-4 h-4" /> Sign Out
-            </button>
-          </motion.div>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight select-none">
+                  Driven by Purpose, Powered by Community
+                </h2>
+
+                <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-2xl select-text pt-1">
+                  Your dedication accelerates surplus food recovery. Manage regional food dispatches, accept transport requests from NGOs, and validate deliveries with 6-digit OTP codes.
+                </p>
+
+                {/* Action Buttons */}
+                <div className="pt-3 flex flex-wrap items-center gap-3">
+                  <Link
+                    to="/volunteer/recent-bookings"
+                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl shadow-lg shadow-emerald-950/40 transition text-xs sm:text-sm uppercase tracking-wider inline-flex items-center gap-2"
+                  >
+                    <Navigation className="w-4 h-4 text-slate-950" /> Freight Bookings Console ({totalBookings})
+                  </Link>
+
+                  <button
+                    onClick={() => navigate('/readmore')}
+                    className="border border-slate-700 hover:border-emerald-500/50 text-slate-200 font-bold px-6 py-3 rounded-xl hover:bg-white/5 transition text-xs sm:text-sm"
+                  >
+                    Read More
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: 3D Visual Asset */}
+            <div className="lg:col-span-5 flex justify-center lg:justify-end relative group">
+              {/* Outer Vibrant Glow Ring */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-teal-400/10 to-cyan-500/20 rounded-3xl blur-3xl opacity-60 group-hover:opacity-90 transition duration-700 pointer-events-none" />
+
+              {/* Animated Floating 3D Graphic */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: [0, -10, 0] }}
+                transition={{
+                  y: { duration: 4, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" },
+                  opacity: { duration: 0.8 },
+                  scale: { duration: 0.8 },
+                }}
+                className="relative max-w-md w-full flex items-center justify-center overflow-hidden"
+              >
+                <img
+                  src="https://i.pinimg.com/originals/21/cc/d0/21ccd0e8897e00e9c19eeac49dc47288.gif"
+                  alt="3D Volunteer Logistics Motion Graphic"
+                  className="w-full h-auto object-contain max-h-[320px] rounded-3xl mix-blend-screen opacity-95 hover:scale-105 transition-transform duration-500 relative z-10 shadow-2xl"
+                  loading="lazy"
+                />
+              </motion.div>
+            </div>
+
+          </div>
         </div>
       </section>
 
-      {/* Main Content Dashboard Workspace */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 relative z-20 space-y-10">
-        {/* Real-time KPI Overview Grid */}
+      {/* 🌍 2. Why Volunteers Matter Value Proposition Grid */}
+      <section className="relative py-16 lg:py-24 px-4 sm:px-12 lg:px-8 bg-gradient-to-b from-slate-950 via-[#0a0c14] to-zinc-950 border-t border-white/[0.04]">
+        <div className="max-w-6xl mx-auto space-y-12">
+
+          <div className="text-center space-y-2">
+            <div className="flex justify-center">
+              <span className="inline-flex items-center gap-1.5 bg-emerald-500/5 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
+                Logistics Mission Values
+              </span>
+            </div>
+            <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 select-none">
+              Why Volunteer Logistics Matter
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {/* Block 1 */}
+            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-emerald-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
+              <div className="absolute inset-0 bg-emerald-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
+              <span className="bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-2xl text-emerald-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
+                <FaTruck size={22} />
+              </span>
+              <div className="space-y-2">
+                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors duration-200">
+                  Rapid Redistribution
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
+                  Rapid transport dispatches ensure surplus perishable food is picked up from vendors and delivered to community centers before expiry.
+                </p>
+              </div>
+            </article>
+
+            {/* Block 2 */}
+            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-indigo-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
+              <div className="absolute inset-0 bg-indigo-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
+              <span className="bg-indigo-500/10 border border-indigo-500/20 p-3.5 rounded-2xl text-indigo-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
+                <FaShieldAlt size={22} />
+              </span>
+              <div className="space-y-2">
+                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-indigo-400 transition-colors duration-200">
+                  OTP Verified Handoff
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
+                  6-digit security OTP pins validate every delivery point, guaranteeing full transparency and accountability for all items transferred.
+                </p>
+              </div>
+            </article>
+
+            {/* Block 3 */}
+            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-teal-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
+              <div className="absolute inset-0 bg-teal-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
+              <span className="bg-teal-500/10 border border-teal-500/20 p-3.5 rounded-2xl text-teal-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
+                <FaHeart size={22} />
+              </span>
+              <div className="space-y-2">
+                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-teal-400 transition-colors duration-200">
+                  Direct Social Impact
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
+                  Empower grassroots NGOs by removing transport hurdles, letting them focus resources directly on serving families in need.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* 📊 3. Real-time Analytical Metrics Overview */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+        <header className="text-center space-y-2 mb-4">
+          <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+            Operational Activity Metrics
+          </h3>
+          <p className="text-sm text-slate-400 max-w-md mx-auto">
+            Live summary of your regional transport jobs and delivery status.
+          </p>
+        </header>
+
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <StatCard
             icon={Bell}
@@ -200,34 +311,26 @@ export default function Volunteerdashboard() {
             value={activeTransits}
             label="Active Transits"
             subtext="In-progress transport"
-            accent="text-emerald-300"
-            border="hover:border-emerald-500/40"
+            accent="text-blue-400"
+            border="hover:border-blue-500/40"
           />
           <StatCard
             icon={ShieldCheck}
             value={completedDeliveries}
             label="Verified Deliveries"
             subtext="OTP validated"
-            accent="text-teal-400"
-            border="hover:border-teal-500/40"
+            accent="text-emerald-400"
+            border="hover:border-emerald-500/40"
           />
         </div>
 
-        {/* Primary Logistics Workstation Card */}
-        <div className="space-y-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-black text-white flex items-center gap-2.5">
-              <Sparkles className="w-5 h-5 text-emerald-400" /> Primary Logistics Workstation
-            </h2>
-            <span className="text-xs font-semibold text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
-              Station #01 Active
-            </span>
-          </div>
-
-          <div>
+        {/* 🚛 4. Primary Workstation & Visual Chart Module Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Primary Workstation Card */}
+          <div className="lg:col-span-7">
             <Link
               to="/volunteer/recent-bookings"
-              className="group p-8 sm:p-10 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/60 backdrop-blur-2xl shadow-2xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between"
+              className="group p-8 sm:p-10 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/60 backdrop-blur-2xl shadow-2xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-full"
             >
               <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition duration-500" />
               <div className="space-y-4 relative z-10">
@@ -236,36 +339,73 @@ export default function Volunteerdashboard() {
                 </div>
                 <div>
                   <h3 className="text-2xl sm:text-3xl font-black text-white group-hover:text-emerald-400 transition-colors flex items-center gap-2">
-                    Logistics Freight Bookings Console <ArrowUpRight className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-400" />
+                    Logistics Freight Console <ArrowUpRight className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-400" />
                   </h3>
-                  <p className="text-sm text-slate-400 mt-2.5 leading-relaxed font-medium max-w-3xl">
-                    Access your complete operational queue. Expand any booking to view full waybill details, approve/decline pending requests, confirm transport pickup, and verify 6-digit delivery OTP codes upon destination arrival.
+                  <p className="text-sm text-slate-400 mt-2.5 leading-relaxed font-medium">
+                    Access your complete operational queue. Expand any booking to view full waybill details, approve pending transport requests, confirm pickup, and enter delivery verification OTP codes.
                   </p>
                 </div>
               </div>
 
               <div className="mt-8 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400 relative z-10">
-                <span className="text-sm">Launch Freight Console ({totalBookings} Total Jobs) &rarr;</span>
-                <span className="text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-emerald-300">Operational Hub</span>
+                <span className="text-sm">Open Full Console ({totalBookings} Total Jobs) &rarr;</span>
+                <span className="text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-emerald-300">Station Active</span>
               </div>
             </Link>
           </div>
+
+          {/* Recharts Pie Distribution Graphic */}
+          <div className="lg:col-span-5 bg-slate-900/80 border border-slate-800 p-6 rounded-3xl shadow-xl flex flex-col justify-between min-h-[340px] backdrop-blur-xl">
+            <h4 className="text-sm font-bold tracking-wide text-slate-300 flex items-center gap-2 mb-4">
+              <ChartIcon size={16} className="text-emerald-400" /> Freight Status Distribution
+            </h4>
+
+            {pieData.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs italic space-y-2">
+                <span>📊</span>
+                <p>No freight jobs registered to render chart visualizer.</p>
+              </div>
+            ) : (
+              <div className="w-full h-[240px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="45%"
+                      outerRadius={75}
+                      innerRadius={50}
+                      paddingAngle={4}
+                      dataKey="value"
+                      label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="#020617" strokeWidth={2} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ backgroundColor: "#020617", borderRadius: "12px", borderColor: "rgba(255,255,255,0.08)" }} />
+                    <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: "11px" }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Live Freight Activity Stream */}
+        {/* 📋 5. Live Freight Activity Queue Stream */}
         <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-2xl space-y-6 shadow-xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Clock className="w-5 h-5 text-emerald-400" /> Live Freight Activity Stream
+                <Clock className="w-5 h-5 text-emerald-400" /> Live Freight Queue Stream
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">Real-time status updates on incoming NGO bookings.</p>
+              <p className="text-xs text-slate-400 mt-0.5">Recent transport requests and pickup jobs.</p>
             </div>
             <Link
-              to="/notifications"
+              to="/volunteer/recent-bookings"
               className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1.5 bg-emerald-500/10 px-3.5 py-2 rounded-xl border border-emerald-500/20"
             >
-              <Bell className="w-3.5 h-3.5" /> Notifications ({unreadCount})
+              View All Freight Jobs ({totalBookings}) &rarr;
             </Link>
           </div>
 
@@ -276,9 +416,9 @@ export default function Volunteerdashboard() {
               ))}
             </div>
           ) : bookings.length === 0 ? (
-            <div className="text-center py-10 space-y-2">
-              <Truck className="w-8 h-8 text-slate-600 mx-auto" />
-              <p className="text-xs text-slate-400 italic">No bookings logged in your queue yet.</p>
+            <div className="text-center py-12 space-y-2">
+              <Truck className="w-10 h-10 text-slate-600 mx-auto" />
+              <p className="text-sm font-bold text-slate-400">No active bookings found in your queue.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -317,7 +457,7 @@ export default function Volunteerdashboard() {
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

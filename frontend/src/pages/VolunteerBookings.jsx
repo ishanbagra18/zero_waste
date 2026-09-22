@@ -24,6 +24,7 @@ import {
   AlertCircle,
   FileText,
   Send,
+  Package,
 } from "lucide-react";
 import ParallaxHero from "../components/ParallaxHero";
 
@@ -40,7 +41,6 @@ export default function VolunteerBookings() {
 
   const fetchBookings = async () => {
     if (!token) {
-      toast.error("Authentication token missing. Please log in.");
       setLoading(false);
       return;
     }
@@ -60,7 +60,6 @@ export default function VolunteerBookings() {
       }
     } catch (error) {
       console.error("Error fetching volunteer bookings:", error);
-      toast.error("Failed to load bookings data.");
     } finally {
       setLoading(false);
     }

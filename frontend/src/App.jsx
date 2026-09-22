@@ -30,6 +30,7 @@ const Allngos = lazy(() => import("./pages/Allngos"));
 const Allvendors = lazy(() => import("./pages/Allvendors"));
 const Neartongo = lazy(() => import("./pages/Neartongo"));
 const Readmore = lazy(() => import("./pages/Readmore"));
+const MyVendorItems = lazy(() => import("./pages/MyVendorItems"));
 const Chatting = lazy(() => import("./pages/Chatting"));
 const SendReview = lazy(() => import("./pages/SendReview"));
 const AllReviews = lazy(() => import("./pages/AllReviews"));
@@ -57,11 +58,7 @@ const AppContent = () => {
     location.pathname === "/" ||
     location.pathname === "/register" ||
     location.pathname === "/forgotpassword";
-  const isVolunteerRole =
-    (role || "").toLowerCase() === "volunteer" ||
-    location.pathname.toLowerCase().includes("/volunteer");
-
-  const hasNavbar = !isAuthPage && !isVolunteerRole && !isChattingPage;
+  const hasNavbar = !isAuthPage && !isChattingPage;
 
   return (
     <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col relative selection:bg-emerald-500 selection:text-white ${isChattingPage ? 'h-screen overflow-hidden' : ''}`}>
@@ -89,7 +86,7 @@ const AppContent = () => {
               <Route path="/bookingform/:id" element={<Bookingform />} />
 
               {/* ====================================================== */}
-              {/* Protected Routes for BOTH Vendor and NGO */}
+              {/* Protected Routes for ALL THREE ROLES (Vendor, NGO, Volunteer) */}
               {/* ====================================================== */}
               <Route element={<ProtectedRoute allowedRoles={['vendor', 'NGO', 'Volunteer']} />}>
                 <Route path="/updateprofile" element={<UpdateProfile />} />
@@ -97,6 +94,7 @@ const AppContent = () => {
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/allvendors" element={<Allvendors />} />
                 <Route path="/near" element={<Neartongo />} />
+                <Route path="/readmore" element={<Readmore />} />
               </Route>
 
               {/* ====================================================== */}
@@ -104,10 +102,17 @@ const AppContent = () => {
               {/* ====================================================== */}
               <Route element={<ProtectedRoute allowedRoles={['vendor']} />}>
                 <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+                <Route path="/vendor/my-items" element={<MyVendorItems />} />
                 <Route path="/vendor/createitem" element={<CreateItem />} />
                 <Route path="/vendor/updateitem/:id" element={<Updateitem />} />
                 <Route path="/allngos" element={<Allngos />} />
-                <Route path="/readmore" element={<Readmore />} />
+              </Route>
+
+              {/* ====================================================== */}
+              {/* Protected Routes for Vendor & NGO */}
+              {/* ====================================================== */}
+              <Route element={<ProtectedRoute allowedRoles={['vendor', 'NGO']} />}>
+                <Route path="/ngo/bookvolunteer" element={<BookVolunteer />} />
               </Route>
 
               {/* ====================================================== */}
@@ -116,7 +121,6 @@ const AppContent = () => {
               <Route element={<ProtectedRoute allowedRoles={['NGO']} />}>
                 <Route path="/ngo/dashboard" element={<NgoDashboard />} />
                 <Route path="/ngo/myclaimed" element={<MyClaimed />} />
-                <Route path="/ngo/bookvolunteer" element={<BookVolunteer />} />
               </Route>
             </Routes>
           </PageWrapper>

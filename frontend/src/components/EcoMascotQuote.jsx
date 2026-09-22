@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Quote, Volume2, VolumeX, Shuffle, Copy, Check, Award, HeartHandshake } from "lucide-react";
 import toast from "react-hot-toast";
+import { playClickSound } from "../utils/audio";
 
 // ZeroWaste & Sustainability Specific Quotes & Daily Tips
 const ZEROWASTE_QUOTES = [
@@ -91,8 +92,8 @@ export default function EcoMascotQuote() {
 
   const currentQuote = ZEROWASTE_QUOTES[currentQuoteIndex];
 
-  // Text-to-Speech using Browser Web Speech API
   const handleSpeakQuote = () => {
+    playClickSound();
     if (!('speechSynthesis' in window)) {
       toast.error("Text-to-speech is not supported on your browser");
       return;
@@ -117,6 +118,7 @@ export default function EcoMascotQuote() {
   };
 
   const handleNextQuote = () => {
+    playClickSound();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     setIsSpeaking(false);
     const nextIdx = (currentQuoteIndex + 1) % ZEROWASTE_QUOTES.length;
@@ -124,6 +126,7 @@ export default function EcoMascotQuote() {
   };
 
   const handleCopyQuote = () => {
+    playClickSound();
     navigator.clipboard.writeText(`"${currentQuote.quote}" — ${currentQuote.author} (via ZeroWaste)`);
     setCopied(true);
     toast.success("ZeroWaste Quote copied!");

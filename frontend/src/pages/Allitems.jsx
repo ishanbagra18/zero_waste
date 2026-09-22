@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useData } from "../context/DataContext";
 import ParallaxHero from "../components/ParallaxHero";
+import { playClickSound } from "../utils/audio";
 
 export default function Allitems() {
   const { items, fetchItems } = useData();
@@ -38,8 +39,14 @@ export default function Allitems() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
+  const userRole = (localStorage.getItem("role") || "").toLowerCase();
 
   useEffect(() => {
+    if (userRole === "volunteer") {
+      toast.error("Volunteers do not have access to surplus item exchange listings.");
+      navigate("/volunteer/dashboard", { replace: true });
+      return;
+    }
     fetchItems();
     if (token) {
       axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/favorites`, {
@@ -50,10 +57,11 @@ export default function Allitems() {
         }
       }).catch(err => console.warn("Failed to load favorites", err.message));
     }
-  }, [fetchItems, token]);
+  }, [fetchItems, token, userRole, navigate]);
 
   const toggleFavorite = async (e, itemId) => {
     e.stopPropagation();
+    playClickSound();
     if (!token) {
       toast.error("Please login to bookmark items.");
       return;
@@ -101,13 +109,52 @@ export default function Allitems() {
 
   useEffect(() => {
     if (Array.isArray(items)) {
-      setCategories([...new Set(items.map((item) => item.category).filter(Boolean))]);
-      setLocations([...new Set(items.map((item) => item.location).filter(Boolean))]);
+      const activeItems = items.filter((item) => {
+        if (item.status === "expired") return false;
+        if (item.expiryDate && new Date(item.expiryDate).getTime() <= Date.now()) return false;
+        const status = (item.status || "").toLowerCase();
+        const claimStatus = (item.claimStatus || "").toLowerCase();
+        const deliveryStatus = (item.deliveryStatus || "").toLowerCase();
+        if (
+          status === "completed" ||
+          status === "collected" ||
+          status === "delivered" ||
+          claimStatus === "collected" ||
+          deliveryStatus === "delivered"
+        ) {
+          return false;
+        }
+        return true;
+      });
+      setCategories([...new Set(activeItems.map((item) => item.category).filter(Boolean))]);
+      setLocations([...new Set(activeItems.map((item) => item.location).filter(Boolean))]);
     }
   }, [items]);
 
   useEffect(() => {
     let filtered = [...items];
+
+    // Filter out items that are expired or completed
+    filtered = filtered.filter((item) => {
+      if (item.status === "expired") return false;
+      if (item.expiryDate && new Date(item.expiryDate).getTime() <= Date.now()) {
+        return false;
+      }
+      const status = (item.status || "").toLowerCase();
+      const claimStatus = (item.claimStatus || "").toLowerCase();
+      const deliveryStatus = (item.deliveryStatus || "").toLowerCase();
+      if (
+        status === "completed" ||
+        status === "collected" ||
+        status === "delivered" ||
+        claimStatus === "collected" ||
+        deliveryStatus === "delivered"
+      ) {
+        return false;
+      }
+      return true;
+    });
+
     if (selectedCategory) {
       filtered = filtered.filter((item) => item.category === selectedCategory);
     }

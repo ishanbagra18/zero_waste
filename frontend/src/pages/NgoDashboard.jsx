@@ -62,10 +62,7 @@ const NgoDashboard = () => {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      if (!token) {
-        toast.error("Authentication token missing. Please log in.");
-        return;
-      }
+      if (!token) return;
 
       try {
         const res = await axios.get(NOTIFICATION_API, {
@@ -76,11 +73,11 @@ const NgoDashboard = () => {
         setNotifications(res.data.notifications || []);
       } catch (error) {
         console.error("❌ Error fetching notifications:", error);
-        toast.error("Failed to load notifications");
       }
     };
 
     const fetchMyClaimed = async () => {
+      if (!token) return;
       try {
         const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/items/get-claimed-items`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -88,8 +85,7 @@ const NgoDashboard = () => {
         });
         setClaimedItems(res.data.claimedItems || []);
       } catch (error) {
-        toast.error("Failed to fetch claimed items");
-        console.error(error);
+        console.error("Error fetching claimed items:", error);
       }
     };
 
@@ -197,6 +193,21 @@ const NgoDashboard = () => {
               <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-2xl select-text pt-1">
                 Your efforts today can shape a better tomorrow. Let’s reduce waste, uplift communities, and protect our planet—one step at a time.
               </p>
+
+              <div className="pt-3 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={() => navigate('/vendor/allitems')}
+                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl shadow-lg shadow-emerald-950/40 transition text-xs sm:text-sm uppercase tracking-wider"
+                >
+                  Explore Surplus Items 📦
+                </button>
+                <button
+                  onClick={() => navigate('/readmore')}
+                  className="border border-slate-700 hover:border-emerald-500/50 text-slate-200 font-bold px-6 py-3 rounded-xl hover:bg-white/5 transition text-xs sm:text-sm"
+                >
+                  Read More
+                </button>
+              </div>
             </div>
 
           </div>
@@ -427,14 +438,13 @@ const NgoDashboard = () => {
             </p>
           </div>
 
-          {/* Action Trigger Link */}
           <div className="pt-2">
             <button
               onClick={handleRedirect}
-              className="w-full sm:w-auto inline-flex items-center justify-center bg-green-700 hover:bg-green-800 active:scale-[0.98] text-white font-bold text-sm px-8 py-3.5 rounded-xl shadow-lg shadow-blue-950/40 border border-blue-400/20 transition-all duration-150 group/btn"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 active:scale-[0.98] text-slate-950 font-black text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-emerald-500/20 border border-emerald-400/30 transition-all duration-200 group/btn"
               type="button">
               <span>View All Vendors</span>
-              <span className="text-xs tracking-normal opacity-80 group-hover/btn:translate-x-1 transition-transform duration-150">&rarr;</span>
+              <span className="text-sm font-black group-hover/btn:translate-x-1 transition-transform duration-150">&rarr;</span>
             </button>
           </div>
         </div>

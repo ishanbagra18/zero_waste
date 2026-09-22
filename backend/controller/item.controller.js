@@ -352,7 +352,7 @@ export const getClaimedItems = async (req, res) => {
       .select("name quantity claimStatus deliveryStatus claimedAt pickupConfirmedAt deliveredAt itemImage"); // include itemImage
 
     if (!claimedItems || claimedItems.length === 0) {
-      return res.status(404).json({ message: "No claimed items found." });
+      return res.status(200).json({ message: "No claimed items found.", claimedItems: [] });
     }
 
     return res.status(200).json({

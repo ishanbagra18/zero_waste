@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { MdDelete, MdCheckCircle, MdCancel } from "react-icons/md";
+import { Bell, ArrowLeft, CheckCircle2, Clock, Trash2, KeyRound, ShieldCheck } from "lucide-react";
 import { useSocket } from "../context/SocketContext";
+import ParallaxHero from "../components/ParallaxHero";
 
 const Notification = () => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [otpInputs, setOtpInputs] = useState({});
   const [ngoIdInputs, setNgoIdInputs] = useState({});
@@ -17,10 +20,7 @@ const Notification = () => {
   const NOTIFICATION_API = `${import.meta.env.VITE_API_BASE_URL}/api/notifications/notification`;
 
   const fetchNotifications = async () => {
-    if (!token) {
-      toast.error("Authentication token missing. Please log in.");
-      return;
-    }
+    if (!token) return;
 
     try {
       const res = await axios.get(NOTIFICATION_API, {
@@ -30,7 +30,6 @@ const Notification = () => {
       setNotifications(res.data.notifications || []);
     } catch (error) {
       console.error("Error fetching notifications:", error);
-      toast.error("Failed to load notifications");
     }
   };
 
@@ -271,20 +270,36 @@ const Notification = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24">
       <Toaster position="top-right" />
 
-      <div className="p-8 max-w-6xl mx-auto">
-        <h1 className="text-4xl font-extrabold mb-8 text-emerald-400 select-none">
-          🔔 Notifications
-        </h1>
+      {/* Hero Header */}
+      <ParallaxHero
+        badgeText="Real-time Activity Stream"
+        title={
+          <>
+            Notifications <span className="text-emerald-400">Inbox</span>
+          </>
+        }
+        subtitle="Stay updated on claim requests, volunteer dispatches, and delivery verification signals across the exchange network."
+        actionButtons={
+          <button
+            onClick={() => navigate(getDashboardPath(role))}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-slate-300 hover:text-white font-semibold text-sm transition shadow-lg"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-400" /> Back to Dashboard
+          </button>
+        }
+      />
 
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 space-y-6">
         {notifications.length === 0 ? (
-          <p className="text-gray-400 text-center mt-20 text-lg select-none">
-            No notifications found.
-          </p>
+          <div className="p-12 text-center rounded-3xl bg-slate-900/40 border border-slate-800 space-y-3">
+            <Bell className="w-10 h-10 text-slate-600 mx-auto" />
+            <p className="text-sm text-slate-400 italic">No unread notifications at this moment.</p>
+          </div>
         ) : (
-          <ul className="space-y-6 max-w-4xl mx-auto">
+          <ul className="space-y-4">
             {notifications.map((note) => {
               const isUnread = !note.isRead;
               const canActOnClaim = role === "vendor" && note.itemId && note.notificationType === "claim_request" && note.actionStatus === "pending";
@@ -292,57 +307,57 @@ const Notification = () => {
               const canConfirmPickup = role === "Volunteer" && note.itemId && note.notificationType === "claim_approved" && note.actionStatus === "approved";
 
               const isVolunteer = role === "Volunteer";
-              const isNgo = role === "NGO";
               const canAcceptBooking = isVolunteer && note.bookingId && note.notificationType === "booking_request" && note.actionStatus === "pending";
               const canVerifyBookingOtp = isVolunteer && note.bookingId && note.notificationType === "booking_pickup_confirmed" && note.actionStatus === "pending";
+
               return (
                 <li
                   key={note._id}
-                  className={`bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 transition-transform hover:scale-[1.02] ${isUnread ? "border-l-8 border-emerald-400" : "border-l-4 border-gray-700"
-                    }`}
-                  aria-live={isUnread ? "polite" : "off"}
+                  className={`bg-slate-900/90 border backdrop-blur-2xl rounded-3xl p-5 sm:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 transition-all duration-300 shadow-xl ${
+                    isUnread
+                      ? "border-emerald-500/50 shadow-emerald-500/5"
+                      : "border-slate-800 hover:border-slate-700 opacity-90"
+                  }`}
                 >
-                  <div className="flex-1">
-                    <p
-                      className={`text-lg font-semibold ${isUnread ? "text-white" : "text-gray-300"
-                        }`}
-                    >
-                      {note.message}
-                    </p>
-                    <p className="text-sm text-gray-400 mt-1 select-none">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${isUnread ? "bg-emerald-400 animate-pulse" : "bg-slate-600"}`} />
+                      <p className={`text-sm sm:text-base font-bold ${isUnread ? "text-white" : "text-slate-300"}`}>
+                        {note.message}
+                      </p>
+                    </div>
+
+                    <p className="text-xs text-slate-500 flex items-center gap-1 font-medium pl-4">
+                      <Clock className="w-3.5 h-3.5 text-slate-400" />
                       {new Date(note.createdAt).toLocaleString()}
                     </p>
+
                     {isUnread && (
                       <button
                         onClick={() => markAsRead(note._id)}
-                        className="inline-block mt-3 rounded-md bg-emerald-500 px-4 py-1 text-sm font-medium text-white shadow hover:bg-emerald-600 transition"
-                        aria-label="Mark notification as read"
+                        className="ml-4 inline-flex items-center gap-1 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 px-3 py-1 text-xs font-bold text-emerald-300 transition"
                       >
-                        Mark as Read
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Mark as Read
                       </button>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-3 mt-4 md:mt-0">
+                  <div className="flex flex-wrap gap-2.5 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
                     {/* Claim request actions for vendors */}
                     {canActOnClaim && (
                       <>
                         <button
                           onClick={() => updateClaimStatus(note.itemId, "approved")}
-                          className="flex items-center gap-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                          aria-label="Approve claim"
-                          title="Approve"
+                          className="flex-1 md:flex-none inline-flex items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition shadow-md shadow-emerald-500/20"
                         >
-                          <MdCheckCircle size={20} /> Approve
+                          <MdCheckCircle size={16} /> Approve
                         </button>
 
                         <button
                           onClick={() => updateClaimStatus(note.itemId, "rejected")}
-                          className="flex items-center gap-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                          aria-label="Reject claim"
-                          title="Reject"
+                          className="flex-1 md:flex-none inline-flex items-center justify-center gap-1 bg-slate-800 hover:bg-rose-500/20 text-rose-400 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition"
                         >
-                          <MdCancel size={20} /> Reject
+                          <MdCancel size={16} /> Reject
                         </button>
                       </>
                     )}
@@ -351,11 +366,9 @@ const Notification = () => {
                     {canConfirmPickup && (
                       <button
                         onClick={() => confirmPickup(note.itemId)}
-                        className="flex items-center gap-1 bg-cyan-600 hover:bg-cyan-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                        aria-label="Confirm pickup"
-                        title="Confirm Pickup"
+                        className="w-full md:w-auto inline-flex items-center justify-center gap-1 bg-teal-500 hover:bg-teal-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition shadow-md shadow-teal-500/20"
                       >
-                        <MdCheckCircle size={20} /> Pickup Confirmed
+                        <MdCheckCircle size={16} /> Confirm Pickup
                       </button>
                     )}
 
@@ -371,16 +384,14 @@ const Notification = () => {
                               [note._id]: e.target.value,
                             }))
                           }
-                          placeholder={note.otpCode ? `OTP: ${note.otpCode}` : "Enter OTP"}
-                          className="rounded-md bg-gray-900 border border-gray-600 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400"
+                          placeholder={note.otpCode ? `OTP: ${note.otpCode}` : "Enter 6-digit OTP"}
+                          className="rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2 text-white text-xs placeholder-slate-500 outline-none focus:border-emerald-500 font-mono tracking-wider"
                         />
                         <button
                           onClick={() => verifyDeliveryOtp(note.itemId, note._id)}
-                          className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                          aria-label="Verify OTP"
-                          title="Verify OTP"
+                          className="inline-flex items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition shadow-md shadow-emerald-500/20"
                         >
-                          <MdCheckCircle size={20} /> Verify OTP
+                          <KeyRound className="w-3.5 h-3.5" /> Verify Delivery OTP
                         </button>
                       </div>
                     )}
@@ -398,20 +409,20 @@ const Notification = () => {
                             }))
                           }
                           placeholder="Enter NGO ID to accept"
-                          className="rounded-md bg-gray-900 border border-gray-600 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400 text-sm"
+                          className="rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2 text-white text-xs placeholder-slate-500 outline-none focus:border-emerald-500"
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={() => acceptBookingRequest(note.bookingId, note._id)}
-                            className="flex-1 flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md shadow text-white font-semibold transition text-sm"
+                            className="flex-1 inline-flex items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3 py-2 rounded-xl text-xs font-black transition shadow-md"
                           >
-                            <MdCheckCircle size={18} /> Approve
+                            <MdCheckCircle size={16} /> Approve
                           </button>
                           <button
                             onClick={() => declineBookingRequest(note.bookingId)}
-                            className="flex-1 flex items-center justify-center gap-1 bg-gray-700 hover:bg-rose-900/50 hover:text-rose-300 px-4 py-2 rounded-md shadow text-slate-300 font-semibold transition text-sm"
+                            className="flex-1 inline-flex items-center justify-center gap-1 bg-slate-800 hover:bg-rose-500/20 text-rose-400 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition"
                           >
-                            <MdCancel size={18} /> Decline
+                            <MdCancel size={16} /> Decline
                           </button>
                         </div>
                       </div>
@@ -430,30 +441,30 @@ const Notification = () => {
                             }))
                           }
                           placeholder="Enter OTP code"
-                          className="rounded-md bg-gray-900 border border-gray-600 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400 text-sm"
+                          className="rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2 text-white text-xs placeholder-slate-500 outline-none focus:border-emerald-500 font-mono tracking-wider"
                         />
                         <button
                           onClick={() => verifyBookingOtpAction(note.bookingId, note._id)}
-                          className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md shadow text-white font-semibold transition text-sm"
+                          className="inline-flex items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition shadow-md"
                         >
-                          <MdCheckCircle size={20} /> Verify OTP
+                          <KeyRound className="w-3.5 h-3.5" /> Verify OTP
                         </button>
                       </div>
                     )}
 
                     {role === "NGO" && note.otpCode && (note.notificationType === "booking_pickup_confirmed" || note.notificationType === "claim_approved") && (
-                      <div className="w-full md:w-auto rounded-md border border-cyan-500/40 bg-cyan-500/10 px-4 py-2 text-cyan-100 text-sm">
-                        Delivery OTP: <span className="font-semibold">{note.otpCode}</span>
+                      <div className="w-full md:w-auto rounded-xl border border-teal-500/40 bg-teal-500/10 px-3.5 py-2 text-teal-300 text-xs font-mono">
+                        Delivery OTP: <strong className="text-white tracking-widest">{note.otpCode}</strong>
                       </div>
                     )}
 
                     {/* Delete button */}
                     <button
                       onClick={() => deleteNotification(note._id)}
-                      className="flex items-center gap-1 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md shadow text-white font-semibold transition"
-                      aria-label="Delete notification"
+                      className="p-2.5 rounded-xl bg-slate-950 hover:bg-rose-500/20 border border-slate-800 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 transition"
+                      title="Delete Notification"
                     >
-                      <MdDelete size={20} /> Delete
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </li>

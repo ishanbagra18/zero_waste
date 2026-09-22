@@ -40,8 +40,7 @@ export default function MyClaimed() {
 
         setClaimedItems(res.data.claimedItems || []);
       } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to fetch claimed items");
-        console.error(error);
+        console.error("Error fetching claimed items:", error);
       } finally {
         setLoading(false);
       }

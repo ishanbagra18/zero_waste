@@ -20,11 +20,15 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
   // If the user's role is not allowed, redirect them
   if (allowedRoles && !allowedRoles.includes(role)) {
-    if (role === 'vendor') {
+    const currentRole = (role || '').toLowerCase();
+    if (currentRole === 'vendor') {
       return <Navigate to="/vendor/dashboard" replace />;
     }
-    if (role === 'NGO' || role === 'ngo') {
+    if (currentRole === 'ngo') {
       return <Navigate to="/ngo/dashboard" replace />;
+    }
+    if (currentRole === 'volunteer') {
+      return <Navigate to="/volunteer/dashboard" replace />;
     }
     return <Navigate to="/" replace />;
   }

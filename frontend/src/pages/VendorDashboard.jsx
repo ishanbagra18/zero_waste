@@ -35,6 +35,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useAuth } from "../context/AuthContext";
+import { playClickSound, playSuccessSound } from "../utils/audio";
 
 const VendorDashboard = () => {
   const { token, logout: authLogout } = useAuth();
@@ -57,10 +58,7 @@ const VendorDashboard = () => {
   const NOTIFICATION_API = `${import.meta.env.VITE_API_BASE_URL}/api/notifications/notification`;
 
   const fetchNotifications = async () => {
-    if (!token) {
-      toast.error("Authentication token missing. Please log in.");
-      return;
-    }
+    if (!token) return;
     try {
       const res = await axios.get(NOTIFICATION_API, {
         headers: { Authorization: `Bearer ${token}` },
@@ -68,7 +66,7 @@ const VendorDashboard = () => {
       });
       setNotifications(res.data.notifications || []);
     } catch (error) {
-      toast.error("Failed to load notifications");
+      console.error("Failed to load notifications:", error);
     }
   };
 
@@ -86,11 +84,10 @@ const VendorDashboard = () => {
         if (Array.isArray(res.data.items)) {
           setItems(res.data.items);
         } else {
-          toast.error("Invalid response format.");
           setItems([]);
         }
       } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to load items");
+        console.error("Failed to load vendor items:", error);
       } finally {
         setLoading(false);
       }
@@ -102,6 +99,7 @@ const VendorDashboard = () => {
   const [disintegratingId, setDisintegratingId] = useState(null);
 
   const confirmDelete = (id) => {
+    playClickSound();
     setDeleteItemId(id);
     setShowConfirmModal(true);
   };
@@ -118,6 +116,7 @@ const VendorDashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setItems((prev) => prev.filter((item) => item._id !== targetId));
+        playSuccessSound();
         toast.success("Item deleted successfully!");
       } catch (error) {
         toast.error(error.response?.data?.message || "Failed to delete item");
@@ -146,8 +145,7 @@ const VendorDashboard = () => {
     }
   };
 
-  const visibleItems = items.slice(0, visibleCount);
-  const loadMoreItems = () => setVisibleCount((prev) => prev + 5);
+  const visibleItems = items.slice(0, 5);
 
   // Stats Aggregations
   const totalItems = items.length;
@@ -195,17 +193,94 @@ const VendorDashboard = () => {
         </div>
       </section>
 
+      {/* 🌿 Why Vendors Matter Value Proposition Grid */}
+      <section className="relative py-16 lg:py-24 px-4 sm:px-12 lg:px-8 bg-gradient-to-b from-slate-950 via-[#0a0c14] to-zinc-950 border-y border-white/[0.04]">
+        <div className="max-w-6xl mx-auto space-y-12">
+          {/* Section Header */}
+          <div className="text-center space-y-2">
+            <div className="flex justify-center">
+              <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+                Eco-Impact Vision
+              </span>
+            </div>
+            <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">
+              Why Vendors Matter
+            </h3>
+            <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+              Vendors are the backbone of the zero-waste ecosystem. Every surplus item listed transforms potential waste into vital community support.
+            </p>
+          </div>
+
+          {/* Feature Matrix */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {/* Card 1: Preventing Landfill Waste */}
+            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-emerald-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
+              <div className="absolute inset-0 bg-emerald-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
+              <span className="bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-2xl text-emerald-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
+                <PackageCheck size={22} />
+              </span>
+              <div className="space-y-2">
+                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors duration-200">
+                  Direct Waste Diversion
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
+                  By listing surplus food and items, commercial suppliers intercept quality goods before disposal, significantly lowering local landfill mass.
+                </p>
+              </div>
+            </article>
+
+            {/* Card 2: Empowering Non-Profits */}
+            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-amber-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
+              <div className="absolute inset-0 bg-amber-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
+              <span className="bg-amber-500/10 border border-amber-500/20 p-3.5 rounded-2xl text-amber-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
+                <Handshake size={22} />
+              </span>
+              <div className="space-y-2">
+                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-amber-400 transition-colors duration-200">
+                  Community Support
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
+                  Your excess stock gives non-profit networks instant access to essentials, helping feed families and support local community centers.
+                </p>
+              </div>
+            </article>
+
+            {/* Card 3: ESG & Circular Economy */}
+            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-cyan-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
+              <div className="absolute inset-0 bg-cyan-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
+              <span className="bg-cyan-500/10 border border-cyan-500/20 p-3.5 rounded-2xl text-cyan-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
+                <Zap size={22} />
+              </span>
+              <div className="space-y-2">
+                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-cyan-400 transition-colors duration-200">
+                  Circular Brand Equity
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
+                  Demonstrate active sustainability leadership, reduce carbon footprints, and earn trust with eco-conscious consumers in your community.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       {/* Active Inventory Grid Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/[0.04] pb-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-              📦 My Listed Items
+              📦 My Listed Items 
             </h2>
             <p className="text-sm text-slate-400 mt-1">
-              Track, update, and manage your current ecological surplus items below.
+              Showing your surplus inventory items.
             </p>
           </div>
+          <Link
+            to="/vendor/my-items"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs transition shadow-lg shrink-0"
+          >
+            View All My Items ({items.length} Total) &rarr;
+          </Link>
         </header>
 
         {/* Loading / Cards Grid Display */}
@@ -371,17 +446,15 @@ const VendorDashboard = () => {
           </div>
         )}
 
-        {/* Load More Trigger Control */}
-        {visibleCount < items.length && (
-          <div className="text-center pt-6">
-            <button
-              onClick={loadMoreItems}
-              className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 px-6 py-2.5 rounded-xl text-xs font-bold transition shadow-md"
-            >
-              Load More Pipelines <ChevronDown size={14} />
-            </button>
-          </div>
-        )}
+        {/* View All Items Link Button */}
+        <div className="text-center pt-6">
+          <Link
+            to="/vendor/my-items"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black px-7 py-3 rounded.2xl transition-all shadow-lg shadow-emerald-500/20 text-xs uppercase tracking-wider rounded-2xl"
+          >
+            View All My Listed Items ({items.length} Items) &rarr;
+          </Link>
+        </div>
       </main>
 
       {/* Analytical Aggregate Block Metrics */}
@@ -463,6 +536,8 @@ const VendorDashboard = () => {
           )}
         </div>
       </section>
+
+
 
       {/* Confirmation Action Dialog Modal overlay */}
       {showConfirmModal && (

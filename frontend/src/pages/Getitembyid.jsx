@@ -84,9 +84,15 @@ export default function Getitembyid() {
   }, [item?.expiryDate]);
 
   useEffect(() => {
+    const currentRole = (role || localStorage.getItem("role") || "").toLowerCase();
+    if (currentRole === "volunteer") {
+      toast.error("Volunteers do not have access to item details pages.");
+      navigate("/volunteer/dashboard", { replace: true });
+      return;
+    }
     fetchItemById();
     fetchRelatedItems();
-  }, [id, token]);
+  }, [id, token, role, navigate]);
 
   const fetchItemById = async () => {
     setLoading(true);
