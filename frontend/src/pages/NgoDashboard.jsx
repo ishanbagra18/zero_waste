@@ -446,6 +446,7 @@ const NgoDashboard = () => {
           </div>
 
           {/* Scroll indicator at bottom */}
+          {/* added the plant animation  */}
           {framesLoaded && scrollProgress < 0.1 && (
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 animate-bounce">
               <span className="text-xs text-slate-400 font-medium tracking-wide">Scroll to grow</span>
