@@ -22,6 +22,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { playClickSound, playSuccessSound } from "../utils/audio";
 import ParallaxHero from "../components/ParallaxHero";
+import ItemCardWithCursor from "../components/items/ItemCardWithCursor";
 
 export default function MyVendorItems() {
   const { token } = useAuth();
@@ -246,28 +247,32 @@ export default function MyVendorItems() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence mode="popLayout">
               {filteredItems.map((item) => (
-                <motion.div
+                <ItemCardWithCursor
                   key={item._id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                  animate={
-                    disintegratingId === item._id
-                      ? {
-                          opacity: [1, 0.6, 0],
-                          scale: [1, 0.9, 0.5],
-                          filter: ["blur(0px)", "blur(12px)", "blur(24px)"],
-                          rotate: [0, -3, 3, 0],
-                        }
-                      : { opacity: 1, scale: 1, y: 0 }
-                  }
-                  transition={
-                    disintegratingId === item._id
-                      ? { duration: 0.6, ease: "easeInOut" }
-                      : { duration: 0.3 }
-                  }
-                  exit={{ opacity: 0, scale: 0.5, filter: "blur(20px)" }}
-                  className="group bg-slate-900/80 border border-slate-800 backdrop-blur-xl p-4 rounded-3xl shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden"
+                  onClick={() => navigate(`/vendor/item/${item._id}`)}
+                  className="h-full cursor-pointer"
                 >
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={
+                      disintegratingId === item._id
+                        ? {
+                            opacity: [1, 0.6, 0],
+                            scale: [1, 0.9, 0.5],
+                            filter: ["blur(0px)", "blur(12px)", "blur(24px)"],
+                            rotate: [0, -3, 3, 0],
+                          }
+                        : { opacity: 1, scale: 1, y: 0 }
+                    }
+                    transition={
+                      disintegratingId === item._id
+                        ? { duration: 0.6, ease: "easeInOut" }
+                        : { duration: 0.3 }
+                    }
+                    exit={{ opacity: 0, scale: 0.5, filter: "blur(20px)" }}
+                    className="group bg-slate-900/80 border border-slate-800 backdrop-blur-xl p-4 rounded-3xl shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden h-full"
+                  >
                   <div>
                     <div className="relative rounded-2xl overflow-hidden aspect-video w-full mb-4 border border-slate-800 bg-slate-950">
                       <img
@@ -346,7 +351,8 @@ export default function MyVendorItems() {
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              </ItemCardWithCursor>
+            ))}
             </AnimatePresence>
           </div>
         ) : (

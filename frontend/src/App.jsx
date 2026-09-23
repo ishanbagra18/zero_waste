@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import PageWrapper from "./components/PageWrapper";
 import EcoMascotQuote from "./components/EcoMascotQuote";
+import SmoothScroll from "./components/common/SmoothScroll";
 
 import { useAuth } from "./context/AuthContext";
 
@@ -136,7 +137,9 @@ const AppContent = () => {
 function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <SmoothScroll>
+        <AppContent />
+      </SmoothScroll>
     </BrowserRouter>
   );
 }

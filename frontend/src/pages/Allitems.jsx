@@ -21,6 +21,7 @@ import {
 import { useData } from "../context/DataContext";
 import ParallaxHero from "../components/ParallaxHero";
 import { playClickSound } from "../utils/audio";
+import ItemCardWithCursor from "../components/items/ItemCardWithCursor";
 
 export default function Allitems() {
   const { items, fetchItems } = useData();
@@ -337,106 +338,110 @@ export default function Allitems() {
                 const isFavorited = favorites.includes(item._id);
 
                 return (
-                  <div
+                  <ItemCardWithCursor
                     key={item._id}
                     onClick={() => navigate(`/vendor/item/${item._id}`)}
-                    className={`group flex flex-col justify-between cursor-pointer bg-slate-900/80 border ${
-                      urgent ? "border-amber-500/80 shadow-amber-500/10" : "border-slate-800"
-                    } hover:border-emerald-500/50 rounded-3xl overflow-hidden backdrop-blur-xl transition-all duration-300 shadow-xl hover:-translate-y-1 relative`}
+                    className="h-full"
                   >
-                    <div className="space-y-4">
-                      {/* Image Box */}
-                      <div className="h-48 w-full overflow-hidden bg-slate-950 relative border-b border-slate-800/80">
-                        <img
-                          src={item.itemImage?.url || "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80"}
-                          alt={item.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80";
-                          }}
-                        />
+                    <div
+                      className={`group flex flex-col justify-between cursor-pointer bg-slate-900/80 border ${
+                        urgent ? "border-amber-500/80 shadow-amber-500/10" : "border-slate-800"
+                      } hover:border-emerald-500/50 rounded-3xl overflow-hidden backdrop-blur-xl transition-all duration-300 shadow-xl hover:-translate-y-1 relative h-full`}
+                    >
+                      <div className="space-y-4">
+                        {/* Image Box */}
+                        <div className="h-48 w-full overflow-hidden bg-slate-950 relative border-b border-slate-800/80">
+                          <img
+                            src={item.itemImage?.url || "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80"}
+                            alt={item.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80";
+                            }}
+                          />
 
-                        {/* URGENT / Expiring Soon Badge */}
-                        {urgent && (
-                          <div className="absolute top-3 left-3 z-10">
-                            <span className="text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-amber-500 text-slate-950 shadow-lg flex items-center gap-1 animate-pulse">
-                              <Zap className="w-3 h-3 fill-slate-950" /> URGENT
-                            </span>
-                          </div>
-                        )}
+                          {/* URGENT / Expiring Soon Badge */}
+                          {urgent && (
+                            <div className="absolute top-3 left-3 z-10">
+                              <span className="text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-amber-500 text-slate-950 shadow-lg flex items-center gap-1 animate-pulse">
+                                <Zap className="w-3 h-3 fill-slate-950" /> URGENT
+                              </span>
+                            </div>
+                          )}
 
-                        {/* Bookmark Favorite Button */}
-                        <button
-                          type="button"
-                          onClick={(e) => toggleFavorite(e, item._id)}
-                          className="absolute bottom-3 left-3 z-10 p-2 rounded-full bg-slate-950/80 hover:bg-slate-900 border border-slate-700/80 text-white backdrop-blur-xs transition-colors"
-                          title={isFavorited ? "Remove Bookmark" : "Save Item"}
-                        >
-                          <Heart size={14} className={isFavorited ? "fill-rose-500 text-rose-500" : "text-slate-300"} />
-                        </button>
-
-                        {/* Distinct High-Contrast Status Tag */}
-                        <div className="absolute top-3 right-3 z-10">
-                          <span
-                            className={`text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full border backdrop-blur-md flex items-center gap-1.5 ${badge.color}`}
+                          {/* Bookmark Favorite Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFavorite(e, item._id)}
+                            className="absolute bottom-3 left-3 z-10 p-2 rounded-full bg-slate-950/80 hover:bg-slate-900 border border-slate-700/80 text-white backdrop-blur-xs transition-colors"
+                            title={isFavorited ? "Remove Bookmark" : "Save Item"}
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
-                            {badge.label}
-                          </span>
-                        </div>
-                      </div>
+                            <Heart size={14} className={isFavorited ? "fill-rose-500 text-rose-500" : "text-slate-300"} />
+                          </button>
 
-                      {/* Description Details */}
-                      <div className="px-5 space-y-2">
-                        <h3 className="text-base font-extrabold text-white group-hover:text-emerald-400 transition-colors line-clamp-1 flex items-center gap-2">
-                          <span>{item.name}</span>
-                        </h3>
-                        <p className="text-xs text-slate-400 line-clamp-2 h-8 leading-relaxed">
-                          {item.description || "Fresh surplus inventory ready for community distribution."}
-                        </p>
-
-                        {/* Specs */}
-                        <div className="grid grid-cols-2 gap-2 text-xs text-slate-300 pt-3 border-t border-slate-800/80">
-                          <span className="flex items-center gap-1 truncate text-slate-400">
-                            <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span className="truncate">{item.location}</span>
-                          </span>
-                          <span className="flex items-center gap-1 truncate text-slate-400">
-                            <Tag className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                            <span className="truncate capitalize">{item.category}</span>
-                          </span>
-                          <span className="flex items-center gap-1 truncate text-slate-400">
-                            <Package className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>Qty: {item.quantity}</span>
-                          </span>
-                          <span className="flex items-center gap-1 font-bold text-emerald-400">
-                            <IndianRupee className="w-3.5 h-3.5 shrink-0" />
-                            <span>{item.price ? `₹${item.price}` : "Free"}</span>
-                          </span>
-                        </div>
-
-                        {/* Expiry Countdown Timer Pill */}
-                        {countdownText && (
-                          <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
-                            <span className="flex items-center gap-1 text-amber-400 font-semibold">
-                              <Clock className="w-3.5 h-3.5 shrink-0 animate-spin-slow" />
-                              <span>{countdownText}</span>
-                            </span>
-                            <span className="text-[10px] text-slate-500">
-                              {new Date(item.expiryDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {/* Distinct High-Contrast Status Tag */}
+                          <div className="absolute top-3 right-3 z-10">
+                            <span
+                              className={`text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full border backdrop-blur-md flex items-center gap-1.5 ${badge.color}`}
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                              {badge.label}
                             </span>
                           </div>
-                        )}
+                        </div>
+
+                        {/* Description Details */}
+                        <div className="px-5 space-y-2">
+                          <h3 className="text-base font-extrabold text-white group-hover:text-emerald-400 transition-colors line-clamp-1 flex items-center gap-2">
+                            <span>{item.name}</span>
+                          </h3>
+                          <p className="text-xs text-slate-400 line-clamp-2 h-8 leading-relaxed">
+                            {item.description || "Fresh surplus inventory ready for community distribution."}
+                          </p>
+
+                          {/* Specs */}
+                          <div className="grid grid-cols-2 gap-2 text-xs text-slate-300 pt-3 border-t border-slate-800/80">
+                            <span className="flex items-center gap-1 truncate text-slate-400">
+                              <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              <span className="truncate">{item.location}</span>
+                            </span>
+                            <span className="flex items-center gap-1 truncate text-slate-400">
+                              <Tag className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                              <span className="truncate capitalize">{item.category}</span>
+                            </span>
+                            <span className="flex items-center gap-1 truncate text-slate-400">
+                              <Package className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              <span>Qty: {item.quantity}</span>
+                            </span>
+                            <span className="flex items-center gap-1 font-bold text-emerald-400">
+                              <IndianRupee className="w-3.5 h-3.5 shrink-0" />
+                              <span>{item.price ? `₹${item.price}` : "Free"}</span>
+                            </span>
+                          </div>
+
+                          {/* Expiry Countdown Timer Pill */}
+                          {countdownText && (
+                            <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
+                              <span className="flex items-center gap-1 text-amber-400 font-semibold">
+                                <Clock className="w-3.5 h-3.5 shrink-0 animate-spin-slow" />
+                                <span>{countdownText}</span>
+                              </span>
+                              <span className="text-[10px] text-slate-500">
+                                {new Date(item.expiryDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="p-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400">
+                        <span>View Resource Details</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
-
-                    <div className="p-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400">
-                      <span>View Resource Details</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
+                  </ItemCardWithCursor>
                 );
               })}
             </div>

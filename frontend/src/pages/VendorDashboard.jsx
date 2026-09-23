@@ -36,6 +36,7 @@ import {
 } from "recharts";
 import { useAuth } from "../context/AuthContext";
 import { playClickSound, playSuccessSound } from "../utils/audio";
+import ItemCardWithCursor from "../components/items/ItemCardWithCursor";
 
 const VendorDashboard = () => {
   const { token, logout: authLogout } = useAuth();
@@ -298,33 +299,37 @@ const VendorDashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence mode="popLayout">
               {visibleItems.map((item) => (
-                <motion.div
+                <ItemCardWithCursor
                   key={item._id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                  animate={
-                    disintegratingId === item._id
-                      ? {
-                          opacity: [1, 0.6, 0],
-                          scale: [1, 0.9, 0.5],
-                          filter: ["blur(0px)", "blur(12px)", "blur(24px)"],
-                          rotate: [0, -3, 3, 0],
-                        }
-                      : { opacity: 1, scale: 1, y: 0 }
-                  }
-                  transition={
-                    disintegratingId === item._id
-                      ? { duration: 0.6, ease: "easeInOut" }
-                      : { duration: 0.3 }
-                  }
-                  exit={{
-                    opacity: 0,
-                    scale: 0.5,
-                    filter: "blur(20px)",
-                    transition: { duration: 0.3 },
-                  }}
-                  className="group bg-slate-900/40 backdrop-blur-sm border border-white/[0.06] p-4 rounded-3xl shadow-xl hover:border-emerald-500/30 hover:shadow-emerald-950/20 transition-all duration-300 flex flex-col justify-between relative overflow-visible"
+                  onClick={() => navigate(`/vendor/item/${item._id}`)}
+                  className="h-full cursor-pointer"
                 >
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={
+                      disintegratingId === item._id
+                        ? {
+                            opacity: [1, 0.6, 0],
+                            scale: [1, 0.9, 0.5],
+                            filter: ["blur(0px)", "blur(12px)", "blur(24px)"],
+                            rotate: [0, -3, 3, 0],
+                          }
+                        : { opacity: 1, scale: 1, y: 0 }
+                    }
+                    transition={
+                      disintegratingId === item._id
+                        ? { duration: 0.6, ease: "easeInOut" }
+                        : { duration: 0.3 }
+                    }
+                    exit={{
+                      opacity: 0,
+                      scale: 0.5,
+                      filter: "blur(20px)",
+                      transition: { duration: 0.3 },
+                    }}
+                    className="group bg-slate-900/40 backdrop-blur-sm border border-white/[0.06] p-4 rounded-3xl shadow-xl hover:border-emerald-500/30 hover:shadow-emerald-950/20 transition-all duration-300 flex flex-col justify-between relative overflow-visible h-full"
+                  >
                   {/* Particle Disintegration Explosion Overlay */}
                   {disintegratingId === item._id && (
                     <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center overflow-visible">
@@ -436,7 +441,8 @@ const VendorDashboard = () => {
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              </ItemCardWithCursor>
+            ))}
             </AnimatePresence>
           </div>
         ) : (

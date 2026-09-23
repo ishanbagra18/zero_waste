@@ -1,11 +1,12 @@
 // added new navbar and a charchter called captain zerowaste
 
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import { Bell } from "lucide-react";
+import { motion } from "framer-motion";
 import {
   ShoppingBag,
   User,
@@ -144,73 +145,315 @@ const NgoDashboard = () => {
   ];
 
   const COLORS = ["#10b981", "#6366f1", "#f43f5e"];
+  /* ─── Plant Growth Scroll-Driven Frame Animation State ─── */
+  const TOTAL_FRAMES = 165;
+  const canvasRef = useRef(null);
+  const sectionRef = useRef(null);
+  const framesRef = useRef([]);
+  const rafIdRef = useRef(null);
+  const lastDrawnFrameRef = useRef(-1);
+  const [framesLoaded, setFramesLoaded] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
+  // Build the ordered list of frame file numbers (1-166, skipping 163)
+  const frameNumbers = useRef(
+    Array.from({ length: 166 }, (_, i) => i + 1).filter(n => n !== 163)
+  );
+
+  // Preload all frames into Image objects
+  useEffect(() => {
+    let cancelled = false;
+    const images = [];
+    let loaded = 0;
+
+    // Use Vite's import.meta.glob to get hashed URLs for each frame
+    const frameModules = import.meta.glob(
+      '../assets/plant-frames/frame_*.jpg',
+      { eager: true, import: 'default' }
+    );
+
+    // Build a lookup: frameNumber → resolved URL
+    const urlByNumber = {};
+    for (const [path, url] of Object.entries(frameModules)) {
+      const match = path.match(/frame_(\d+)\.jpg$/);
+      if (match) urlByNumber[parseInt(match[1], 10)] = url;
+    }
+
+    frameNumbers.current.forEach((num, idx) => {
+      const img = new Image();
+      img.src = urlByNumber[num] || '';
+      img.onload = () => {
+        if (cancelled) return;
+        try {
+          const off = document.createElement('canvas');
+          off.width = img.naturalWidth;
+          off.height = img.naturalHeight;
+          const octx = off.getContext('2d');
+          octx.drawImage(img, 0, 0);
+          const idata = octx.getImageData(0, 0, off.width, off.height);
+          const data = idata.data;
+          
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            const maxRGB = Math.max(r, g, b);
+            const minRGB = Math.min(r, g, b);
+            const sat = maxRGB - minRGB;
+            const bright = (r + g + b) / 3;
+
+            // Target light neutral grey / white background pixels
+            if (bright > 120 && sat < 45) {
+              // Smooth falloff: bright 120 (opaque) -> bright 200+ (transparent)
+              let alphaScale = (200 - bright) / 80;
+              if (alphaScale < 0) alphaScale = 0;
+              if (alphaScale > 1) alphaScale = 1;
+
+              // Extra fade for very low saturation near white
+              if (sat < 20 && bright > 150) {
+                const satFade = sat / 20;
+                alphaScale = Math.min(alphaScale, satFade);
+              }
+
+              data[i + 3] = Math.round(data[i + 3] * alphaScale);
+            }
+          }
+          octx.putImageData(idata, 0, 0);
+          images[idx] = off;
+        } catch (e) {
+          images[idx] = img;
+        }
+
+        loaded++;
+        if (loaded >= TOTAL_FRAMES) setFramesLoaded(true);
+      };
+      img.onerror = () => {
+        if (cancelled) return;
+        loaded++;
+        if (loaded >= TOTAL_FRAMES) setFramesLoaded(true);
+      };
+      images[idx] = img;
+    });
+
+    framesRef.current = images;
+    return () => { cancelled = true; };
+  }, []);
+
+  // Draw a specific frame index onto the canvas
+  const drawFrame = useCallback((index) => {
+    const canvas = canvasRef.current;
+    const img = framesRef.current[index];
+    if (!canvas || !img) return;
+    if (lastDrawnFrameRef.current === index) return; // skip redundant draws
+
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+
+    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    // Draw plant smaller and positioned further to the right
+    const imgWidth = img.naturalWidth || img.width;
+    const imgHeight = img.naturalHeight || img.height;
+    const imgRatio = imgWidth / imgHeight;
+    const plantScale = 0.55; // 55% of viewport height
+    const drawH = h * plantScale;
+    const drawW = drawH * imgRatio;
+    // Position: aligned right with 2% padding from right edge
+    const drawX = w - drawW - (w * 0.02);
+    const drawY = (h - drawH) / 2;
+
+    // 1. Fill canvas with page background color
+    const bgColor = '#0f0f1c';
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, w, h);
+
+    // 2. Draw the transparent plant frame cleanly
+    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+    lastDrawnFrameRef.current = index;
+  }, []);
+
+  // Scroll handler: map scroll position within the section to frame index
+  useEffect(() => {
+    if (!framesLoaded) return;
+    // Draw first frame immediately
+    drawFrame(0);
+
+    const onScroll = () => {
+      if (rafIdRef.current) return; // rAF throttle
+      rafIdRef.current = requestAnimationFrame(() => {
+        rafIdRef.current = null;
+        const section = sectionRef.current;
+        if (!section) return;
+
+        const rect = section.getBoundingClientRect();
+        const sectionHeight = section.scrollHeight - window.innerHeight;
+        const scrolled = -rect.top;
+        const progress = Math.max(0, Math.min(1, scrolled / sectionHeight));
+        setScrollProgress(progress);
+
+        const frameIndex = Math.min(
+          TOTAL_FRAMES - 1,
+          Math.max(0, Math.floor(progress * (TOTAL_FRAMES - 1)))
+        );
+        drawFrame(frameIndex);
+      });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // initial draw
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    };
+  }, [framesLoaded, drawFrame]);
+
+  // Resize handler to re-draw current frame on viewport change
+  useEffect(() => {
+    if (!framesLoaded) return;
+    const onResize = () => {
+      lastDrawnFrameRef.current = -1; // force redraw
+      const section = sectionRef.current;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const sectionHeight = section.scrollHeight - window.innerHeight;
+      const scrolled = -rect.top;
+      const progress = Math.max(0, Math.min(1, scrolled / sectionHeight));
+      const frameIndex = Math.min(
+        TOTAL_FRAMES - 1,
+        Math.max(0, Math.floor(progress * (TOTAL_FRAMES - 1)))
+      );
+      drawFrame(frameIndex);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [framesLoaded, drawFrame]);
+
+  // Text is always visible from the start (no scroll-dependent reveal)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f0f1c] via-[#111827] to-[#1f2937] text-white">
       <Toaster />
 
 
-      {/* Hero Section */}
-      {/* 🌟 Cinematic Welcome Landing Banner */}
+      {/* Hero Section — Scroll-Driven Plant Growth Frame Animation */}
       <section
-        className="w-full min-h-[75vh] sm:min-h-[85vh] bg-cover bg-center relative flex items-center overflow-hidden border-b border-white/[0.04]"
-        style={{
-          backgroundImage: "url('https://i.pinimg.com/1200x/35/3f/d2/353fd21fe8848574148cc83bd6ae38cb.jpg')",
-        }}
+        ref={sectionRef}
+        className="relative border-b border-white/[0.04]"
+        style={{ height: '300vh' }}
       >
-        {/* Multi-Layered Vignette for Absolute Typographic Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0f111a] via-transparent to-transparent" />
-
-        {/* Ambient Left Environmental Light Flare */}
-        <div className="absolute left-0 top-0 w-[36rem] h-[36rem] bg-emerald-500/[0.03] rounded-full blur-[140px] pointer-events-none animate-pulse duration-[8000ms]" />
-
-        <div className="relative w-full container mx-auto px-6 sm:px-12 lg:px-8 max-w-7xl z-10 py-16">
-          <div className="max-w-3xl text-left space-y-6">
-
-            {/* Context Action Kicker */}
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-              </span>
-              <p className="text-emerald-400 uppercase tracking-widest text-xs font-black select-none">
-                Ecosystem Hub Portal
-              </p>
+        {/* Sticky inner container — pinned for entire scroll-through */}
+        <div
+          className="sticky top-0 w-full overflow-hidden"
+          style={{ height: '100vh' }}
+        >
+          {/* Preloading skeleton */}
+          {!framesLoaded && (
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#0f0f1c]">
+              <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin shadow-lg shadow-emerald-500/30" />
+              <p className="mt-4 text-sm text-emerald-400 font-medium tracking-wide animate-pulse">Loading plant animation...</p>
             </div>
+          )}
 
-            {/* Styled Headings Structural Block */}
-            <div className="space-y-4 border-l-2 border-emerald-500/30 pl-4 sm:pl-6">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] select-none">
-                Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400">Changemaker!</span>
-              </h1>
+          {/* Canvas — full viewport, plant drawn smaller on the right */}
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full"
+            style={{ display: framesLoaded ? 'block' : 'none' }}
+          />
 
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight select-none">
-                Small Things Make a Big Change
-              </h2>
+          {/* Gradient overlays for text legibility */}
+          {framesLoaded && (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent/40 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0f111a] via-transparent to-transparent pointer-events-none" />
+            </>
+          )}
 
-              <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-2xl select-text pt-1">
-                Your efforts today can shape a better tomorrow. Let’s reduce waste, uplift communities, and protect our planet—one step at a time.
-              </p>
+          {/* Ambient Left Environmental Light Flare */}
+          <div className="absolute left-0 top-0 w-[36rem] h-[36rem] bg-emerald-500/[0.03] rounded-full blur-[140px] pointer-events-none animate-pulse duration-[8000ms]" />
 
-              <div className="pt-3 flex flex-wrap items-center gap-3">
-                <button
-                  onClick={() => navigate('/vendor/allitems')}
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl shadow-lg shadow-emerald-950/40 transition text-xs sm:text-sm uppercase tracking-wider"
+          {/* Text content — always visible from the start */}
+          <div
+            className="relative w-full h-full flex items-center z-10"
+            style={{
+              opacity: 1,
+            }}
+          >
+            <div className="w-full container mx-auto px-6 sm:px-12 lg:px-8 max-w-7xl py-16">
+              <div className="max-w-xl sm:max-w-2xl text-left space-y-6">
+
+                {/* Context Action Kicker */}
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                  </span>
+                  <p className="text-emerald-400 uppercase tracking-widest text-xs font-black select-none">
+                    Ecosystem Hub Portal
+                  </p>
+                </div>
+
+                {/* Styled Headings Structural Block */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="space-y-4 border-l-2 border-emerald-500/40 pl-4 sm:pl-6"
                 >
-                  Explore Surplus Items 📦
-                </button>
-                <button
-                  onClick={() => navigate('/readmore')}
-                  className="border border-slate-700 hover:border-emerald-500/50 text-slate-200 font-bold px-6 py-3 rounded-xl hover:bg-white/5 transition text-xs sm:text-sm"
-                >
-                  Read More
-                </button>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] select-none font-display">
+                    Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400">Changemaker!</span>
+                  </h1>
+
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight select-none font-display">
+                    Small Things Make a Big Change
+                  </h2>
+
+                  <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-2xl select-text pt-1 font-sans">
+                    Your efforts today can shape a better tomorrow. Let's reduce waste, uplift communities, and protect our planet—one step at a time.
+                  </p>
+
+                  <div className="pt-3 flex flex-wrap items-center gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.04, boxShadow: "0 0 25px rgba(16, 185, 129, 0.4)" }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => navigate('/vendor/allitems')}
+                      className="bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500 text-slate-950 font-black px-6 py-3.5 rounded-xl shadow-lg shadow-emerald-950/40 transition text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2"
+                    >
+                      <span>Explore Surplus Items</span>
+                      <span className="text-base">📦</span>
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.04, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => navigate('/readmore')}
+                      className="border border-slate-700/80 hover:border-emerald-500/50 text-slate-200 font-bold px-6 py-3.5 rounded-xl transition text-xs sm:text-sm backdrop-blur-md"
+                    >
+                      Read More
+                    </motion.button>
+                  </div>
+                </motion.div>
+
               </div>
             </div>
-
           </div>
+
+          {/* Scroll indicator at bottom */}
+          {framesLoaded && scrollProgress < 0.1 && (
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 animate-bounce">
+              <span className="text-xs text-slate-400 font-medium tracking-wide">Scroll to grow</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+          )}
         </div>
       </section>
 

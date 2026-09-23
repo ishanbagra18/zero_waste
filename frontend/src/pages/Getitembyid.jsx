@@ -25,6 +25,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import ParallaxHero from "../components/ParallaxHero";
+import { TextEffect } from "@/components/core/text-effect";
+import { SlidingNumber } from "@/components/core/sliding-number";
+
 
 export default function Getitembyid() {
   const [item, setItem] = useState(null);
@@ -365,11 +368,11 @@ export default function Getitembyid() {
                   );
                 })()}
 
-                {/* Live Countdown Timer Widget (Only for active available items) */}
+                {/* Single Live Countdown Timer Widget */}
                 {item.expiryDate && item.status === "available" && (
                   <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/30 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2 text-amber-400 font-bold">
-                      <Clock size={16} className="animate-spin-slow" />
+                      <Clock size={16} className="animate-spin-slow text-amber-400" />
                       <span>Time Remaining:</span>
                     </div>
                     {timeLeft.isExpired ? (
@@ -377,12 +380,12 @@ export default function Getitembyid() {
                         Expired
                       </span>
                     ) : (
-                      <div className="flex items-center gap-1 font-mono font-bold text-white text-sm">
-                        <span className="bg-slate-900 px-2 py-1 rounded-md border border-slate-800">{String(timeLeft.hours).padStart(2, "0")}h</span>
-                        <span>:</span>
-                        <span className="bg-slate-900 px-2 py-1 rounded-md border border-slate-800">{String(timeLeft.minutes).padStart(2, "0")}m</span>
-                        <span>:</span>
-                        <span className="bg-slate-900 px-2 py-1 rounded-md border border-slate-800">{String(timeLeft.seconds).padStart(2, "0")}s</span>
+                      <div className="flex items-center gap-0.5 font-mono font-bold text-white text-sm bg-slate-900 px-3.5 py-1.5 rounded-xl border border-slate-800 shadow-inner">
+                        <SlidingNumber value={timeLeft.hours} padStart={true} />
+                        <span className="text-zinc-500 mx-0.5">:</span>
+                        <SlidingNumber value={timeLeft.minutes} padStart={true} />
+                        <span className="text-zinc-500 mx-0.5">:</span>
+                        <SlidingNumber value={timeLeft.seconds} padStart={true} />
                       </div>
                     )}
                   </div>
@@ -401,9 +404,11 @@ export default function Getitembyid() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                      {item.description || "No description provided for this surplus food item."}
-                    </p>
+                    <div className="mt-2 text-sm text-slate-300 leading-relaxed">
+                      <TextEffect per="char" preset="fade" key={item._id}>
+                        {item.description || "No description provided for this surplus food item."}
+                      </TextEffect>
+                    </div>
                   </div>
 
                   {/* Metadata Specs Grid */}

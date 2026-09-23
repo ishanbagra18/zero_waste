@@ -59,11 +59,16 @@ export default function BookVolunteer() {
       {/* Hero Section */}
       <ParallaxHero
         badgeText="Volunteer Logistics Network"
-        title={
-          <>
-            Book Active <span className="text-emerald-400">Logistics Volunteers</span>
-          </>
-        }
+       title={
+  <>
+    <span className="font-sans font-extrabold tracking-tight">
+      Book Active{" "}
+    </span>
+    <span className="font-sans font-extrabold tracking-tight text-emerald-400">
+      Logistics Volunteers
+    </span>
+  </>
+}
         subtitle="Connect with dedicated regional volunteers for food pickup, freight transportation, and community distribution support."
         actionButtons={
           <button
