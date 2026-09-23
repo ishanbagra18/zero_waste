@@ -265,8 +265,8 @@ const NgoDashboard = () => {
     const plantScale = 0.55; // 55% of viewport height
     const drawH = h * plantScale;
     const drawW = drawH * imgRatio;
-    // Position: aligned right with 2% padding from right edge
-    const drawX = w - drawW - (w * 0.02);
+    // Position: shifted further right towards right edge
+    const drawX = w - drawW + (w * 0.04);
     const drawY = (h - drawH) / 2;
 
     // 1. Fill canvas with page background color
