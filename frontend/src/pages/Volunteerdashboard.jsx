@@ -3,7 +3,17 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
+import { HeartHandshake } from "lucide-react";
 import volunteer3dHero from "../assets/volunteer_3d_hero.png";
+
+import {
+  
+  Recycle,
+  PackageCheck,
+  House,
+} from "lucide-react";
+
+import {  ArrowRight } from "lucide-react";
 import {
   Truck,
   CheckCircle2,
@@ -117,166 +127,489 @@ export default function Volunteerdashboard() {
       <Toaster position="top-right" />
 
       {/* 🌟 1. Cinematic Hero Landing Banner */}
-      <section
-        className="w-full min-h-[75vh] sm:min-h-[85vh] bg-cover bg-center relative flex items-center overflow-hidden border-b border-white/[0.04]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.95)), url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200')",
-        }}
+
+<section
+  className="relative isolate flex min-h-[75vh] w-full items-center overflow-hidden border-b border-white/[0.08] bg-[#020617] sm:min-h-[85vh]"
+  style={{
+    backgroundImage: `
+      linear-gradient(90deg, rgba(2,6,23,0.97) 0%, rgba(2,6,23,0.88) 48%, rgba(2,6,23,0.68) 100%),
+      linear-gradient(0deg, #020617 0%, transparent 45%),
+      url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=85&w=2000')
+    `,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  }}
+>
+  {/* Ambient lighting */}
+  <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+    <div className="absolute -left-40 top-0 h-[32rem] w-[32rem] rounded-full bg-emerald-500/[0.13] blur-[130px]" />
+    <div className="absolute -right-32 top-1/4 h-[35rem] w-[35rem] rounded-full bg-cyan-500/[0.10] blur-[140px]" />
+    <div className="absolute bottom-[-12rem] left-1/3 h-96 w-96 rounded-full bg-teal-500/[0.08] blur-[120px]" />
+
+    <div
+      className="absolute inset-0 opacity-[0.055]"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px)",
+        backgroundSize: "56px 56px",
+        maskImage: "linear-gradient(to bottom, black, transparent 95%)",
+      }}
+    />
+
+    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
+  </div>
+
+  <div className="relative z-10 mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
+    <div className="grid items-center gap-14 lg:grid-cols-12 lg:gap-8">
+
+      {/* LEFT: Welcome and actions */}
+      <div className="space-y-8 lg:col-span-7">
+
+        {/* Status badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }}
+          className="inline-flex max-w-full items-center gap-3 rounded-full border border-emerald-400/20 bg-slate-950/55 px-4 py-2.5 shadow-lg shadow-emerald-950/20 backdrop-blur-xl"
+        >
+          <span className="relative flex h-2.5 w-2.5 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+            <span className="relative h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
+          </span>
+
+          <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300 sm:text-xs sm:tracking-[0.2em]">
+            Volunteer Operations Center
+          </span>
+
+          <span className="hidden h-4 w-px bg-white/15 sm:block" />
+
+          <span className="hidden text-xs text-slate-400 sm:block">
+            Making every delivery count
+          </span>
+        </motion.div>
+
+        {/* Main heading */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, delay: 0.08 }}
+          className="relative space-y-5"
+        >
+          <div className="absolute -left-4 top-1 hidden h-28 w-1 rounded-full bg-gradient-to-b from-emerald-400 via-teal-400/50 to-transparent sm:block lg:-left-6" />
+
+          <p className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-300">
+            <HeartHandshake className="h-4 w-4 text-emerald-400" />
+            Every journey makes a difference
+          </p>
+
+          <h1 className="max-w-3xl text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl xl:text-7xl">
+            Welcome,
+            <span className="mt-2 block bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text pb-2 text-transparent">
+              Hero Volunteer.
+            </span>
+          </h1>
+
+          <h2 className="text-lg font-semibold leading-relaxed text-slate-200 sm:text-xl lg:text-2xl">
+            Driven by purpose.{" "}
+            <span className="text-slate-400">Powered by community.</span>
+          </h2>
+
+          <p className="max-w-xl text-base leading-8 text-slate-400 sm:text-lg">
+            Turn surplus food into meaningful impact. Coordinate regional
+            dispatches, respond to NGO transport requests, and verify
+            deliveries with secure 6-digit OTPs.
+            <span className="font-medium text-emerald-300">
+              {" "}Every successful handoff matters.
+            </span>
+          </p>
+        </motion.div>
+
+        {/* CTA buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex flex-col gap-3 pt-1 sm:flex-row sm:flex-wrap sm:items-center"
+        >
+          <Link
+            to="/volunteer/recent-bookings"
+            className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-300 px-6 py-4 font-bold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(16,185,129,0.35)] focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950 sm:px-7"
+          >
+            <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 group-hover:translate-x-full" />
+
+            <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-black/10">
+              <Navigation className="h-[18px] w-[18px]" />
+            </span>
+
+            <span className="relative text-left">
+              <span className="block text-sm sm:text-base">
+                Freight Bookings
+              </span>
+              <span className="mt-0.5 block text-xs font-medium text-slate-800/75">
+                View and manage requests
+              </span>
+            </span>
+
+            <span className="relative ml-1 rounded-full bg-slate-950/10 px-2.5 py-1 text-sm font-extrabold tabular-nums">
+              {totalBookings}
+            </span>
+
+            <ArrowUpRight className="relative h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => navigate("/readmore")}
+            className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-6 py-4 font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/30 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:px-7"
+          >
+            <span>Discover Our Mission</span>
+            <ArrowRight className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-x-1" />
+          </button>
+        </motion.div>
+
+        {/* Value indicators */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="grid max-w-xl grid-cols-3 border-t border-white/10 pt-6"
+        >
+          <div className="pr-3 sm:pr-5">
+            <div className="mb-2 flex items-center gap-2 text-emerald-300">
+              <Recycle className="h-4 w-4 shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-wider sm:text-xs">
+                Recover
+              </span>
+            </div>
+            <p className="text-xs leading-5 text-slate-400 sm:text-sm">
+              Rescue surplus food
+            </p>
+          </div>
+
+          <div className="border-l border-white/10 px-3 sm:px-5">
+            <div className="mb-2 flex items-center gap-2 text-teal-300">
+              <Truck className="h-4 w-4 shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-wider sm:text-xs">
+                Deliver
+              </span>
+            </div>
+            <p className="text-xs leading-5 text-slate-400 sm:text-sm">
+              Connect every handoff
+            </p>
+          </div>
+
+          <div className="border-l border-white/10 pl-3 sm:pl-5">
+            <div className="mb-2 flex items-center gap-2 text-cyan-300">
+              <ShieldCheck className="h-4 w-4 shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-wider sm:text-xs">
+                Verify
+              </span>
+            </div>
+            <p className="text-xs leading-5 text-slate-400 sm:text-sm">
+              Confirm deliveries
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* RIGHT: Logistics visual panel */}
+      <motion.div
+        initial={{ opacity: 0, x: 28, scale: 0.97 }}
+        animate={{ opacity: 1, x: 0, scale: 1 }}
+        transition={{ duration: 0.75, delay: 0.18 }}
+        className="relative mx-auto w-full max-w-md lg:col-span-5 lg:ml-auto"
       >
-        {/* Vignette Gradients for Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-transparent/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+        {/* Background glow */}
+        <div className="absolute -inset-5 rounded-[2.5rem] bg-gradient-to-br from-emerald-400/15 via-transparent to-cyan-400/10 blur-2xl" />
 
-        {/* Ambient Light Orbs */}
-        <div className="absolute left-0 top-0 w-[36rem] h-[36rem] bg-emerald-500/[0.05] rounded-full blur-[140px] pointer-events-none animate-pulse" />
-        <div className="absolute right-0 bottom-0 w-[36rem] h-[36rem] bg-teal-500/[0.05] rounded-full blur-[140px] pointer-events-none" />
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.12] bg-slate-950/75 p-5 shadow-2xl shadow-black/40 backdrop-blur-2xl sm:p-6">
 
-        {/* Hero Content */}
-        <div className="relative w-full container mx-auto px-6 sm:px-12 lg:px-8 max-w-7xl z-10 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-
-            {/* Left Column: Typography & CTAs */}
-            <div className="lg:col-span-7 text-left space-y-6">
-              {/* Status Kicker Badge */}
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-                </span>
-                <p className="text-emerald-400 uppercase tracking-widest text-xs font-black select-none">
-                  Live Logistics Operations • Volunteer Hub
-                </p>
+          {/* Panel header */}
+          <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] pb-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-400/15 bg-emerald-400/10 text-emerald-300">
+                <Truck className="h-5 w-5" />
               </div>
-
-              {/* Styled Headings Structural Block */}
-              <div className="space-y-4 border-l-2 border-emerald-500/30 pl-4 sm:pl-6">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] select-none">
-                  Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400">Hero Volunteer!</span>
-                </h1>
-
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight select-none">
-                  Driven by Purpose, Powered by Community
-                </h2>
-
-                <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-2xl select-text pt-1">
-                  Your dedication accelerates surplus food recovery. Manage regional food dispatches, accept transport requests from NGOs, and validate deliveries with 6-digit OTP codes.
+              <div>
+                <h3 className="font-bold text-white">
+                  Delivery Operations
+                </h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  Your impact starts here
                 </p>
-
-                {/* Action Buttons */}
-                <div className="pt-3 flex flex-wrap items-center gap-3">
-                  <Link
-                    to="/volunteer/recent-bookings"
-                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl shadow-lg shadow-emerald-950/40 transition text-xs sm:text-sm uppercase tracking-wider inline-flex items-center gap-2"
-                  >
-                    <Navigation className="w-4 h-4 text-slate-950" /> Freight Bookings Console ({totalBookings})
-                  </Link>
-
-                  <button
-                    onClick={() => navigate('/readmore')}
-                    className="border border-slate-700 hover:border-emerald-500/50 text-slate-200 font-bold px-6 py-3 rounded-xl hover:bg-white/5 transition text-xs sm:text-sm"
-                  >
-                    Read More
-                  </button>
-                </div>
               </div>
             </div>
 
-            {/* Right Column: 3D Visual Asset */}
-            <div className="lg:col-span-5 flex justify-center lg:justify-end relative group">
-              {/* Outer Vibrant Glow Ring */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-teal-400/10 to-cyan-500/20 rounded-3xl blur-3xl opacity-60 group-hover:opacity-90 transition duration-700 pointer-events-none" />
+            <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/[0.08] px-3 py-2">
+              <span className="flex items-center gap-2 text-xs font-semibold text-emerald-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                Volunteer hub
+              </span>
+            </div>
+          </div>
 
-              {/* Animated Floating 3D Graphic */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: [0, -10, 0] }}
-                transition={{
-                  y: { duration: 4, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" },
-                  opacity: { duration: 0.8 },
-                  scale: { duration: 0.8 },
-                }}
-                className="relative max-w-md w-full flex items-center justify-center overflow-hidden"
-              >
-                <img
-                  src="https://i.pinimg.com/originals/21/cc/d0/21ccd0e8897e00e9c19eeac49dc47288.gif"
-                  alt="3D Volunteer Logistics Motion Graphic"
-                  className="w-full h-auto object-contain max-h-[320px] rounded-3xl mix-blend-screen opacity-95 hover:scale-105 transition-transform duration-500 relative z-10 shadow-2xl"
-                  loading="lazy"
-                />
-              </motion.div>
+          {/* Illustration */}
+          <div className="relative my-5 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-emerald-950/60 via-slate-900 to-slate-950 p-5 sm:p-6">
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border border-emerald-400/10" />
+            <div className="absolute -right-4 -top-4 h-28 w-28 rounded-full border border-emerald-400/10" />
+            <div className="absolute bottom-0 left-0 h-24 w-40 bg-emerald-400/[0.06] blur-2xl" />
+
+            <div className="relative z-10 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300">
+                  One mission
+                </p>
+                <p className="mt-2 max-w-[200px] text-2xl font-black leading-tight text-white sm:text-3xl">
+                  From surplus
+                  <span className="block text-emerald-300">
+                    to support.
+                  </span>
+                </p>
+              </div>
+
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border border-emerald-300/20 bg-emerald-400/10 shadow-inner shadow-emerald-300/10 sm:h-24 sm:w-24">
+                <HeartHandshake className="h-10 w-10 text-emerald-300 sm:h-12 sm:w-12" />
+              </div>
             </div>
 
+            {/* Journey line */}
+            <div className="relative z-10 mt-7 flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.07] text-slate-300">
+                <PackageCheck className="h-4 w-4" />
+              </div>
+              <div className="h-px flex-1 bg-gradient-to-r from-emerald-400/70 via-teal-300/50 to-cyan-400/70" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300">
+                <Truck className="h-4 w-4" />
+              </div>
+              <div className="h-px flex-1 bg-gradient-to-r from-teal-300/50 to-cyan-400/70" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
+                <House className="h-4 w-4" />
+              </div>
+            </div>
+
+            <div className="relative z-10 mt-2 flex justify-between text-[10px] font-medium text-slate-400 sm:text-xs">
+              <span>Surplus</span>
+              <span>Transport</span>
+              <span>Community</span>
+            </div>
+          </div>
+
+          {/* Booking callout */}
+          <Link
+            to="/volunteer/recent-bookings"
+            className="group flex items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 transition-all duration-300 hover:border-emerald-400/25 hover:bg-emerald-400/[0.06]"
+          >
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
+                <Navigation className="h-5 w-5" />
+              </div>
+
+              <div className="min-w-0">
+                <p className="font-semibold text-white">
+                  Freight bookings
+                </p>
+                <p className="mt-1 text-xs leading-5 text-slate-400">
+                  Open your dispatch requests
+                </p>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="flex h-8 min-w-8 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 text-sm font-bold tabular-nums text-emerald-300">
+                {totalBookings}
+              </span>
+              <ArrowUpRight className="h-4 w-4 text-slate-500 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-300" />
+            </div>
+          </Link>
+
+          {/* Footer */}
+          <div className="mt-5 flex items-start gap-3 px-1">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+            <p className="text-xs leading-5 text-slate-400">
+              Verify delivery handoffs using your platform's 6-digit OTP
+              workflow.
+            </p>
           </div>
         </div>
-      </section>
+
+        {/* Floating decorative chip */}
+        <motion.div
+          animate={{ y: [0, -5, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -right-2 top-16 hidden items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/90 p-3 shadow-xl backdrop-blur-xl sm:flex lg:-right-5"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-400/10 text-teal-300">
+            <Leaf className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-white">Purpose in motion</p>
+            <p className="mt-1 text-[10px] text-slate-400">
+              Every handoff matters
+            </p>
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
 
       {/* 🌍 2. Why Volunteers Matter Value Proposition Grid */}
-      <section className="relative py-16 lg:py-24 px-4 sm:px-12 lg:px-8 bg-gradient-to-b from-slate-950 via-[#0a0c14] to-zinc-950 border-t border-white/[0.04]">
-        <div className="max-w-6xl mx-auto space-y-12">
+<section className="relative py-16 lg:py-24 px-4 sm:px-12 lg:px-8 bg-gradient-to-b from-slate-950 via-[#0a0c14] to-zinc-950 border-t border-white/[0.04]">
+  <div className="max-w-6xl mx-auto space-y-12">
 
-          <div className="text-center space-y-2">
-            <div className="flex justify-center">
-              <span className="inline-flex items-center gap-1.5 bg-emerald-500/5 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
-                Logistics Mission Values
-              </span>
-            </div>
-            <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 select-none">
-              Why Volunteer Logistics Matter
-            </h3>
+    {/* Section Heading */}
+    <div className="text-center space-y-4">
+      <div className="flex justify-center">
+        <span className="inline-flex items-center gap-2 bg-emerald-500/[0.07] border border-emerald-400/20 text-emerald-300 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] px-4 py-2 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          Logistics Mission Values
+        </span>
+      </div>
+
+      <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">
+        Why Volunteer Logistics Matter
+      </h3>
+
+      <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-400 leading-7">
+        Every pickup, every secure handoff, and every delivery brings us
+        one step closer to a world with less waste and more care.
+      </p>
+    </div>
+
+    {/* Value Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-7">
+
+      {/* Card 1 */}
+      <article className="group relative flex flex-col items-start overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.025] p-7 sm:p-8 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-400/40 hover:bg-white/[0.045] hover:shadow-[0_15px_45px_-20px_rgba(16,185,129,0.2)]">
+
+        <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-emerald-400/[0.04] transition-all duration-500 group-hover:scale-150 group-hover:bg-emerald-400/[0.08]" />
+
+        <div className="relative mb-7 flex w-full items-center justify-between">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:bg-emerald-400/15">
+            <FaTruck size={23} />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {/* Block 1 */}
-            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-emerald-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
-              <div className="absolute inset-0 bg-emerald-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
-              <span className="bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-2xl text-emerald-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
-                <FaTruck size={22} />
-              </span>
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors duration-200">
-                  Rapid Redistribution
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
-                  Rapid transport dispatches ensure surplus perishable food is picked up from vendors and delivered to community centers before expiry.
-                </p>
-              </div>
-            </article>
-
-            {/* Block 2 */}
-            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-indigo-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
-              <div className="absolute inset-0 bg-indigo-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
-              <span className="bg-indigo-500/10 border border-indigo-500/20 p-3.5 rounded-2xl text-indigo-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
-                <FaShieldAlt size={22} />
-              </span>
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-indigo-400 transition-colors duration-200">
-                  OTP Verified Handoff
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
-                  6-digit security OTP pins validate every delivery point, guaranteeing full transparency and accountability for all items transferred.
-                </p>
-              </div>
-            </article>
-
-            {/* Block 3 */}
-            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-teal-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
-              <div className="absolute inset-0 bg-teal-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
-              <span className="bg-teal-500/10 border border-teal-500/20 p-3.5 rounded-2xl text-teal-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
-                <FaHeart size={22} />
-              </span>
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-teal-400 transition-colors duration-200">
-                  Direct Social Impact
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
-                  Empower grassroots NGOs by removing transport hurdles, letting them focus resources directly on serving families in need.
-                </p>
-              </div>
-            </article>
-          </div>
+          <span className="text-4xl font-black tracking-tighter text-white/[0.07] group-hover:text-emerald-300/20 transition-colors duration-300">
+            01
+          </span>
         </div>
-      </section>
+
+        <div className="relative space-y-3">
+          <h4 className="text-xl lg:text-2xl font-bold tracking-tight text-white transition-colors duration-300 group-hover:text-emerald-300">
+            Rapid Redistribution
+          </h4>
+          <p className="text-sm text-slate-400 leading-7">
+            Ensure surplus perishable food reaches community centers
+            on time through efficient pickups and coordinated
+            volunteer transportation.
+          </p>
+        </div>
+
+        <div className="mt-7 pt-5 w-full border-t border-white/[0.07]">
+          <span className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-300">
+            <FaTruck size={13} />
+            Faster pickups. Less waste.
+          </span>
+        </div>
+      </article>
+
+      {/* Card 2 */}
+      <article className="group relative flex flex-col items-start overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.025] p-7 sm:p-8 transition-all duration-300 hover:-translate-y-2 hover:border-indigo-400/40 hover:bg-white/[0.045] hover:shadow-[0_15px_45px_-20px_rgba(129,140,248,0.2)]">
+
+        <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-indigo-400/[0.04] transition-all duration-500 group-hover:scale-150 group-hover:bg-indigo-400/[0.08]" />
+
+        <div className="relative mb-7 flex w-full items-center justify-between">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-400/20 bg-indigo-400/10 text-indigo-300 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:bg-indigo-400/15">
+            <FaShieldAlt size={23} />
+          </div>
+          <span className="text-4xl font-black tracking-tighter text-white/[0.07] group-hover:text-indigo-300/20 transition-colors duration-300">
+            02
+          </span>
+        </div>
+
+        <div className="relative space-y-3">
+          <h4 className="text-xl lg:text-2xl font-bold tracking-tight text-white transition-colors duration-300 group-hover:text-indigo-300">
+            OTP-Verified Handoff
+          </h4>
+          <p className="text-sm text-slate-400 leading-7">
+            Validate every transfer using a six-digit OTP, ensuring
+            a more secure, transparent, and accountable delivery
+            process from pickup to handoff.
+          </p>
+        </div>
+
+        <div className="mt-7 pt-5 w-full border-t border-white/[0.07]">
+          <span className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-300">
+            <FaShieldAlt size={13} />
+            Secure. Transparent. Reliable.
+          </span>
+        </div>
+      </article>
+
+      {/* Card 3 */}
+      <article className="group relative flex flex-col items-start overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.025] p-7 sm:p-8 transition-all duration-300 hover:-translate-y-2 hover:border-teal-400/40 hover:bg-white/[0.045] hover:shadow-[0_15px_45px_-20px_rgba(45,212,191,0.2)]">
+
+        <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-teal-400/[0.04] transition-all duration-500 group-hover:scale-150 group-hover:bg-teal-400/[0.08]" />
+
+        <div className="relative mb-7 flex w-full items-center justify-between">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-400/20 bg-teal-400/10 text-teal-300 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:bg-teal-400/15">
+            <FaHeart size={23} />
+          </div>
+          <span className="text-4xl font-black tracking-tighter text-white/[0.07] group-hover:text-teal-300/20 transition-colors duration-300">
+            03
+          </span>
+        </div>
+
+        <div className="relative space-y-3">
+          <h4 className="text-xl lg:text-2xl font-bold tracking-tight text-white transition-colors duration-300 group-hover:text-teal-300">
+            Direct Social Impact
+          </h4>
+          <p className="text-sm text-slate-400 leading-7">
+            Empower grassroots NGOs by reducing transportation
+            barriers, helping them dedicate more time and resources
+            to families and communities in need.
+          </p>
+        </div>
+
+        <div className="mt-7 pt-5 w-full border-t border-white/[0.07]">
+          <span className="inline-flex items-center gap-2 text-xs font-semibold text-teal-300">
+            <FaHeart size={13} />
+            People first. Always.
+          </span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       {/* 📊 3. Real-time Analytical Metrics Overview */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">

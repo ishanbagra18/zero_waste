@@ -57,8 +57,7 @@ const AppContent = () => {
 
   const isAuthPage =
     location.pathname === "/" ||
-    location.pathname === "/register" ||
-    location.pathname === "/forgotpassword";
+    location.pathname === "/register";
   const hasNavbar = !isAuthPage && !isChattingPage;
 
   return (

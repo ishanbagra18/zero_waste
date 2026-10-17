@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Toaster, toast } from "react-hot-toast";
+
+import React, { useRef, useState } from "react";
+import { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import {
   MdEdit,
@@ -11,7 +11,13 @@ import {
   MdBusiness,
   MdLocationOn,
   MdAccountCircle,
-  MdRefresh
+  MdRefresh,
+  MdArrowForward,
+  MdArrowOutward,
+  MdShield,
+  MdStar,
+  MdEco,
+  MdVerifiedUser,
 } from "react-icons/md";
 import { useAuth } from "../context/AuthContext";
 
@@ -19,346 +25,623 @@ const MyProfile = () => {
   const { user, userId, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchProfile = async () => {
     try {
+      setRefreshing(true);
       await refreshProfile();
       setError(null);
     } catch (err) {
-      setError("Failed to sync profile information.");
+      setError("Failed to sync profile information. Please try again.");
+    } finally {
+      setRefreshing(false);
     }
   };
 
-  // Loading State with Micro Spinner
+  // Loading screen
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
-        <div className="loader ease-linear rounded-full border-4 border-zinc-800 border-t-emerald-500 h-12 w-12"></div>
-        <p className="text-emerald-400 mt-4 text-sm font-medium tracking-widest uppercase animate-pulse">
-          Syncing profile data...
-        </p>
-        <style>{`
-          .loader { animation: spin 0.8s linear infinite; }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#070b14] px-4 text-white">
+        <div className="absolute -left-32 top-0 h-80 w-80 rounded-full bg-emerald-500/10 blur-[120px]" />
+        <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-teal-500/[0.07] blur-[120px]" />
+
+        <div className="relative flex flex-col items-center rounded-3xl border border-white/[0.08] bg-white/[0.03] px-10 py-12 text-center shadow-2xl backdrop-blur-xl">
+          <div className="relative flex h-16 w-16 items-center justify-center">
+            <div className="absolute inset-0 animate-spin rounded-full border-2 border-emerald-400/15 border-t-emerald-400" />
+            <MdAccountCircle size={30} className="text-emerald-300" />
+          </div>
+
+          <h2 className="mt-6 text-lg font-bold text-white">
+            Loading your profile
+          </h2>
+          <p className="mt-2 text-sm text-slate-400">
+            Syncing your account information...
+          </p>
+        </div>
       </div>
     );
   }
 
-  // Error/Fallback State
+  // Error or missing profile
   if (!user || error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white px-4 text-center">
-        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-full text-red-400 text-3xl mb-4">⚠️</div>
-        <p className="text-zinc-300 text-xl font-semibold max-w-md mb-6">
-          {error || "We couldn't retrieve your profile profile information."}
-        </p>
-        <div className="flex gap-4">
-          <button
-            onClick={fetchProfile}
-            className="inline-flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 px-5 py-2.5 rounded-xl transition font-medium border border-zinc-700 shadow-md"
-          >
-            <MdRefresh size={18} /> Retry Sync
-          </button>
-          <button
-            onClick={() => navigate("/login")}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl transition font-medium shadow-md"
-          >
-            Go to Login
-          </button>
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#070b14] px-4 text-white">
+        <div className="absolute left-0 top-0 h-80 w-80 rounded-full bg-red-500/[0.06] blur-[120px]" />
+
+        <div className="relative w-full max-w-md rounded-3xl border border-white/[0.08] bg-slate-900/70 p-8 text-center shadow-2xl backdrop-blur-xl sm:p-10">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-red-400/20 bg-red-400/10 text-3xl text-red-300">
+            !
+          </div>
+
+          <h2 className="mt-6 text-2xl font-black text-white">
+            Profile unavailable
+          </h2>
+
+          <p className="mt-3 text-sm leading-7 text-slate-400">
+            {error || "We couldn't retrieve your profile information."}
+          </p>
+
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={fetchProfile}
+              disabled={refreshing}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <MdRefresh
+                size={19}
+                className={refreshing ? "animate-spin" : ""}
+              />
+              {refreshing ? "Retrying..." : "Retry Sync"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-emerald-300"
+            >
+              Go to Login
+              <MdArrowForward size={18} />
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-zinc-100 p-6 sm:p-12 lg:p-16 selection:bg-emerald-500/30 font-sans">
-      <Toaster position="top-right" />
+    <div className="relative min-h-screen overflow-hidden bg-[#070b14] font-sans text-slate-100 selection:bg-emerald-400/30">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "#111827",
+            color: "#f8fafc",
+            border: "1px solid rgba(255,255,255,0.08)",
+          },
+        }}
+      />
 
-      {/* Inject custom animation keyframes dynamically */}
-      <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes ambientFloat {
-          0%, 100% { transform: perspective(1000px) translateY(0px) rotateX(0deg) rotateY(0deg); }
-          50% { transform: perspective(1000px) translateY(-6px) rotateX(2deg) rotateY(-2deg); }
-        }
-        .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-ambient-float { animation: ambientFloat 6s ease-in-out infinite; }
-      `}</style>
+      {/* Ambient background */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 top-0 h-[32rem] w-[32rem] rounded-full bg-emerald-500/[0.07] blur-[140px]" />
+        <div className="absolute -right-40 top-1/3 h-[30rem] w-[30rem] rounded-full bg-teal-500/[0.06] blur-[130px]" />
+        <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-cyan-500/[0.035] blur-[120px]" />
 
-      <div className="max-w-6xl mx-auto space-y-10">
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+            backgroundSize: "64px 64px",
+          }}
+        />
+      </div>
 
-        {/* Top Header Section */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/[0.06] pb-8">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
+        {/* Page header */}
+        <header className="mb-9 flex flex-col gap-6 border-b border-white/[0.08] pb-8 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-200 to-blue-500 select-none">
-              My Profile
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/[0.06] px-3.5 py-2">
+              <MdVerifiedUser size={15} className="text-emerald-300" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300 sm:text-xs">
+                Account Center
+              </span>
+            </div>
+
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
+              My{" "}
+              <span className="bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent">
+                Profile
+              </span>
             </h1>
-            <p className="text-zinc-400 text-sm mt-1.5">Manage your digital account footprint and impact metrics.</p>
+
+            <p className="mt-3 max-w-xl text-sm leading-7 text-slate-400 sm:text-base">
+              Manage your personal information, account preferences, and
+              community presence from one place.
+            </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <button
+          {/* Action buttons */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <ActionButton
               onClick={() => navigate("/updateprofile")}
-              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-950/40 text-white"
-              aria-label="Update Profile"
+              icon={<MdEdit size={18} />}
+              primary
             >
-              <MdEdit size={16} /> Update Profile
-            </button>
-            <button
+              Edit Profile
+            </ActionButton>
+
+            <ActionButton
               onClick={() => navigate("/forgotpassword")}
-              className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 active:scale-[0.98] px-4 py-2.5 rounded-xl font-bold text-sm transition-all text-zinc-300"
-              aria-label="Forgot Password"
+              icon={<MdLockReset size={19} />}
             >
-              <MdLockReset size={18} /> Reset Password
-            </button>
-            <button
+              Reset Password
+            </ActionButton>
+
+            <ActionButton
               onClick={() => navigate(`/allreview/${userId}`)}
-              className="inline-flex items-center gap-2 bg-indigo-700 hover:bg-indigo-600 active:scale-[0.98] px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-950/40 text-white"
-              aria-label="View All Reviews"
+              icon={<MdRateReview size={18} />}
             >
-              <MdRateReview size={16} /> View Reviews
-            </button>
+              My Reviews
+            </ActionButton>
           </div>
         </header>
 
-        {/* Dashboard Workspace */}
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Profile workspace */}
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-7">
+          {/* Profile identity card */}
+          <div className="lg:col-span-4">
+            <ThreeDProfileCard user={user} />
+          </div>
 
-          {/* Left Summary Profile Widget Card with 3D Styling */}
-          <ThreeDProfileCard user={user} />
+          {/* Account information */}
+          <div className="flex min-w-0 flex-col gap-6 lg:col-span-8">
+            <section className="overflow-hidden rounded-3xl border border-white/[0.08] bg-slate-900/50 shadow-xl shadow-black/10 backdrop-blur-xl">
+              <div className="flex items-center justify-between gap-4 border-b border-white/[0.07] px-5 py-5 sm:px-7">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/[0.08] text-emerald-300">
+                      <MdAccountCircle size={20} />
+                    </div>
+                    <h2 className="text-lg font-bold text-white sm:text-xl">
+                      Account Details
+                    </h2>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-slate-500 sm:ml-11 sm:text-sm">
+                    Your registered information and account role.
+                  </p>
+                </div>
 
-          {/* Right Information Dashboard Workspace */}
-          <section className="lg:col-span-2 flex flex-col gap-8">
+                <button
+                  type="button"
+                  onClick={() => navigate("/updateprofile")}
+                  aria-label="Edit account details"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-slate-400 transition hover:border-emerald-400/25 hover:bg-emerald-400/[0.07] hover:text-emerald-300"
+                >
+                  <MdEdit size={18} />
+                </button>
+              </div>
 
-            {/* Core Registration Properties Metadata Sheet */}
-            <div className="bg-white/[0.02] backdrop-blur-md border border-white/[0.08] rounded-3xl p-8 sm:p-10 shadow-xl">
-              <h3 className="text-xl font-bold text-emerald-400 mb-6 border-b border-white/[0.06] pb-4 select-none">
-                Account Directory Details
-              </h3>
+              <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 sm:p-6">
+                <InfoItem
+                  label="Email Address"
+                  value={user.email}
+                  icon={<MdEmail />}
+                  accent="emerald"
+                />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm tracking-wide">
-                <InfoItem label="Email Address" value={user.email} icon={<MdEmail />} />
-                <InfoItem label="Phone Line" value={user.phone} icon={<MdPhone />} />
-                <InfoItem label="Affiliated Organisation" value={user.organisation} icon={<MdBusiness />} />
-                <InfoItem label="Base Location" value={user.location} icon={<MdLocationOn />} />
+                <InfoItem
+                  label="Phone Number"
+                  value={user.phone}
+                  icon={<MdPhone />}
+                  accent="teal"
+                />
+
+                <InfoItem
+                  label="Affiliated Organisation"
+                  value={user.organisation}
+                  icon={<MdBusiness />}
+                  accent="cyan"
+                />
+
+                <InfoItem
+                  label="Base Location"
+                  value={user.location}
+                  icon={<MdLocationOn />}
+                  accent="blue"
+                />
+
                 <div className="sm:col-span-2">
-                  <InfoItem label="Assigned Access Role" value={user.role} icon={<MdAccountCircle />} />
+                  <InfoItem
+                    label="Assigned Access Role"
+                    value={formatRole(user.role)}
+                    icon={<MdShield />}
+                    accent="violet"
+                  />
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* Eco Callout Card */}
-            <div className="bg-gradient-to-br from-emerald-950/40 via-zinc-900/50 to-black border border-emerald-500/20 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row items-center gap-4 sm:items-start text-center sm:text-left text-zinc-200">
-              <span className="text-4xl shrink-0 bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20">🌱</span>
-              <div className="space-y-1">
-                <h4 className="text-lg font-bold text-white tracking-wide">Making a Sustainable Impact</h4>
-                <p className="text-sm leading-relaxed text-zinc-400 max-w-xl">
-                  You’ve taken a proactive step toward systemic environmental changes by joining <strong>Zero Waste</strong>.
-                  Keep minimizing surplus disposal pipelines, reinforcing partner NGOs, and scaling green micro-alternatives.
-                </p>
+            {/* Community profile highlights */}
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <HighlightCard
+                icon={<MdStar size={22} />}
+                title="Community Rating"
+                value={
+                  user.averageRating
+                    ? `${Number(user.averageRating).toFixed(1)} / 5.0`
+                    : "Not rated yet"
+                }
+                description="Your feedback and reputation in the community."
+                accent="amber"
+              />
+
+              <HighlightCard
+                icon={<MdVerifiedUser size={22} />}
+                title="Community Badge"
+                value={user.badge || "Getting started"}
+                description="Your current platform recognition."
+                accent="violet"
+              />
+            </section>
+
+            {/* Sustainability callout */}
+            <section className="group relative overflow-hidden rounded-3xl border border-emerald-400/15 bg-gradient-to-br from-emerald-950/35 via-slate-900/70 to-slate-950 p-6 shadow-xl shadow-emerald-950/10 sm:p-8">
+              <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-emerald-400/[0.08] blur-[80px] transition-colors duration-500 group-hover:bg-emerald-400/[0.13]" />
+
+              <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 shadow-inner">
+                  <MdEco size={30} />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <h3 className="text-lg font-bold text-white sm:text-xl">
+                      Making a Sustainable Impact
+                    </h3>
+                    <span className="rounded-full border border-emerald-400/15 bg-emerald-400/[0.07] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald-300">
+                      Zero Waste
+                    </span>
+                  </div>
+
+                  <p className="max-w-2xl text-sm leading-7 text-slate-400">
+                    Being part of Zero Waste means being part of a
+                    community working toward more responsible resource use.
+                    Keep supporting surplus recovery, community partnerships,
+                    and sustainable choices.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/readmore")}
+                    className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-emerald-300 transition hover:text-emerald-200"
+                  >
+                    Discover our mission
+                    <MdArrowOutward
+                      size={17}
+                      className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                    />
+                  </button>
+                </div>
               </div>
-            </div>
+            </section>
+          </div>
+        </div>
 
-          </section>
-        </main>
+        {/* Bottom account footer */}
+        <footer className="mt-8 flex flex-col gap-3 border-t border-white/[0.06] pt-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <span>Manage your information and keep your account up to date.</span>
+          <button
+            type="button"
+            onClick={fetchProfile}
+            disabled={refreshing}
+            className="inline-flex w-fit items-center gap-2 font-semibold text-slate-400 transition hover:text-emerald-300 disabled:opacity-50"
+          >
+            <MdRefresh
+              size={16}
+              className={refreshing ? "animate-spin" : ""}
+            />
+            {refreshing ? "Syncing..." : "Sync profile"}
+          </button>
+        </footer>
+      </main>
+    </div>
+  );
+};
+
+// Reusable action button
+const ActionButton = ({ children, icon, onClick, primary = false }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={
+      primary
+        ? "inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-300 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-950/20 transition hover:-translate-y-0.5 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+        : "inline-flex items-center justify-center gap-2.5 rounded-xl border border-white/[0.09] bg-white/[0.035] px-4 py-3 text-sm font-semibold text-slate-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07] hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-300"
+    }
+  >
+    {icon}
+    {children}
+  </button>
+);
+
+// Reusable profile field
+const InfoItem = ({ label, value, icon, accent = "emerald" }) => {
+  const accentStyles = {
+    emerald: "border-emerald-400/15 bg-emerald-400/[0.07] text-emerald-300",
+    teal: "border-teal-400/15 bg-teal-400/[0.07] text-teal-300",
+    cyan: "border-cyan-400/15 bg-cyan-400/[0.07] text-cyan-300",
+    blue: "border-blue-400/15 bg-blue-400/[0.07] text-blue-300",
+    violet: "border-violet-400/15 bg-violet-400/[0.07] text-violet-300",
+  };
+
+  return (
+    <div className="group flex min-w-0 items-start gap-3.5 rounded-2xl border border-white/[0.055] bg-white/[0.018] p-4 transition duration-200 hover:border-white/[0.11] hover:bg-white/[0.035]">
+      <div
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${accentStyles[accent]}`}
+      >
+        {React.cloneElement(icon, { size: 20 })}
+      </div>
+
+      <div className="min-w-0 flex-1 pt-0.5">
+        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">
+          {label}
+        </p>
+        <p className="mt-1.5 break-words text-sm font-semibold leading-6 text-slate-200">
+          {value || "Not set"}
+        </p>
       </div>
     </div>
   );
 };
 
-// 3D Profile Summary Card Component with Interactive Physics & Layering
+// Small highlight card
+const HighlightCard = ({ icon, title, value, description, accent }) => {
+  const styles = {
+    amber: {
+      border: "border-amber-400/15 hover:border-amber-400/30",
+      icon: "border-amber-400/20 bg-amber-400/10 text-amber-300",
+      glow: "bg-amber-400/[0.05]",
+      value: "text-amber-200",
+    },
+    violet: {
+      border: "border-violet-400/15 hover:border-violet-400/30",
+      icon: "border-violet-400/20 bg-violet-400/10 text-violet-300",
+      glow: "bg-violet-400/[0.05]",
+      value: "text-violet-200",
+    },
+  };
+
+  const style = styles[accent] || styles.amber;
+
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-2xl border bg-slate-900/50 p-5 transition duration-300 hover:-translate-y-0.5 ${style.border}`}
+    >
+      <div
+        className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl ${style.glow}`}
+      />
+
+      <div className="relative flex items-start gap-3">
+        <div
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${style.icon}`}
+        >
+          {icon}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-slate-300">{title}</p>
+          <p className={`mt-2 break-words text-xl font-black ${style.value}`}>
+            {value}
+          </p>
+        </div>
+      </div>
+
+      <p className="relative mt-4 text-xs leading-6 text-slate-500">
+        {description}
+      </p>
+    </div>
+  );
+};
+
+// Interactive profile identity card
 const ThreeDProfileCard = ({ user }) => {
-  const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0, scale: 1 });
+  const cardRef = useRef(null);
+  const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0 });
   const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-  const cardRef = React.useRef(null);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (event) => {
     if (!cardRef.current) return;
+
     const rect = cardRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    if (!rect.width || !rect.height) return;
 
-    const xPct = (mouseX / rect.width) - 0.5;
-    const yPct = (mouseY / rect.height) - 0.5;
-
-    // Max tilt angles (+/- 18 deg)
-    const rotateY = xPct * 24;
-    const rotateX = -yPct * 24;
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
 
     setTransform({
-      rotateX,
-      rotateY,
-      scale: 1.04
+      rotateY: (x - 0.5) * 12,
+      rotateX: (0.5 - y) * 12,
     });
 
     setGlare({
-      x: (mouseX / rect.width) * 100,
-      y: (mouseY / rect.height) * 100,
-      opacity: 0.5
+      x: x * 100,
+      y: y * 100,
+      opacity: 0.4,
     });
   };
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setTransform({ rotateX: 0, rotateY: 0, scale: 1 });
+  const resetCard = () => {
+    setTransform({ rotateX: 0, rotateY: 0 });
     setGlare({ x: 50, y: 50, opacity: 0 });
   };
 
+  const role = formatRole(user.role);
+
   return (
-    <div className="w-full flex justify-center" style={{ perspective: "1200px" }}>
+    <div className="relative">
+      <div className="pointer-events-none absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-emerald-400/[0.09] via-transparent to-teal-400/[0.07] blur-xl" />
+
       <section
         ref={cardRef}
         onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseLeave={resetCard}
+        onBlur={resetCard}
         style={{
-          transform: isHovered
-            ? `perspective(1200px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg) scale3d(${transform.scale}, ${transform.scale}, ${transform.scale})`
-            : undefined,
+          transform: `perspective(1100px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg)`,
           transformStyle: "preserve-3d",
-          transition: isHovered ? "transform 0.1s ease-out, box-shadow 0.2s ease-out" : "transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.6s ease-out",
-          boxShadow: isHovered
-            ? `${-transform.rotateY * 2.5}px ${transform.rotateX * 2.5 + 20}px 35px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.35)`
-            : "0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.15)"
+          transition: "transform 180ms ease-out",
         }}
-        className={`relative w-full bg-gradient-to-b from-slate-900/90 via-zinc-900/95 to-black border border-emerald-500/30 rounded-3xl p-8 flex flex-col items-center text-center overflow-hidden cursor-pointer select-none group ${!isHovered ? "animate-ambient-float" : ""
-          }`}
+        className="relative isolate overflow-hidden rounded-3xl border border-emerald-400/15 bg-gradient-to-b from-slate-900/95 via-slate-900/90 to-[#080d17] p-6 shadow-2xl shadow-black/30 sm:p-8"
       >
-        {/* Dynamic 3D Metallic Light Glare Overlay */}
+        {/* Dynamic light reflection */}
         <div
-          className="pointer-events-none absolute inset-0 rounded-3xl transition-opacity duration-300"
+          className="pointer-events-none absolute inset-0 z-20 rounded-3xl transition-opacity duration-200"
           style={{
-            background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255, 255, 255, 0.25) 0%, rgba(16, 185, 129, 0.12) 35%, transparent 75%)`,
+            background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255,255,255,0.10), rgba(16,185,129,0.06) 30%, transparent 65%)`,
             opacity: glare.opacity,
-            zIndex: 10
           }}
         />
 
-        {/* 3D Volumetric Depth Backdrop Accents */}
-        <div
-          className="absolute -top-16 -left-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"
-          style={{ transform: "translateZ(-30px)" }}
-        />
-        <div
-          className="absolute -bottom-16 -right-16 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"
-          style={{ transform: "translateZ(-30px)" }}
-        />
+        <div className="pointer-events-none absolute -left-16 -top-16 h-52 w-52 rounded-full bg-emerald-500/[0.09] blur-[70px]" />
+        <div className="pointer-events-none absolute -bottom-16 -right-16 h-52 w-52 rounded-full bg-teal-500/[0.08] blur-[70px]" />
 
-        {/* 3D Border Glow Frame */}
-        <div
-          className="absolute inset-0 rounded-3xl border border-emerald-400/20 pointer-events-none group-hover:border-emerald-400/40 transition-colors duration-300"
-          style={{ transform: "translateZ(10px)" }}
-        />
+        {/* Profile card header */}
+        <div className="relative z-10 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300">
+              Profile Identity
+            </p>
+            <p className="mt-1.5 text-xs text-slate-500">
+              Your community presence
+            </p>
+          </div>
 
-        {/* 3D Layer 1: Avatar with floating ring */}
-        <div
-          className="relative group/avatar mb-6 transition-transform duration-300"
-          style={{ transform: "translateZ(50px)" }}
-        >
-          <div className="absolute inset-0 bg-emerald-500 rounded-full blur-lg opacity-30 group-hover/avatar:opacity-60 transition duration-500" />
-          <div className="relative p-1.5 rounded-full bg-gradient-to-tr from-emerald-400 via-teal-300 to-indigo-500 shadow-2xl">
-            <img
-              src={user.photo?.url || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
-              alt={`${user.name || 'User'}'s profile avatar`}
-              className="w-36 h-36 sm:w-40 sm:h-40 rounded-full object-cover border-2 border-black/80 bg-black shadow-inner"
-              loading="lazy"
-            />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035] text-slate-400">
+            <MdAccountCircle size={20} />
           </div>
         </div>
 
-        {/* 3D Layer 2: User Name */}
-        <h2
-          className="text-2xl sm:text-3xl font-black text-white capitalize tracking-wide max-w-full truncate px-2 mb-2 drop-shadow-lg"
-          style={{ transform: "translateZ(40px)" }}
-        >
-          {user.name}
-        </h2>
+        {/* Avatar */}
+        <div className="relative z-10 mt-8 flex flex-col items-center text-center">
+          <div className="relative">
+            <div className="absolute -inset-3 rounded-full bg-emerald-400/[0.12] blur-xl" />
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-emerald-300 via-teal-400 to-cyan-500 opacity-90" />
 
-        {/* 3D Layer 3: Role Badge */}
-        <div
-          className="mb-8"
-          style={{ transform: "translateZ(35px)" }}
-        >
-          <p className="text-xs uppercase tracking-widest text-emerald-400 font-black px-3.5 py-1.5 bg-emerald-500/15 rounded-full border border-emerald-500/30 shadow-lg backdrop-blur-md">
-            {(() => {
-              const r = (user.role || "").toLowerCase();
-              if (r === "vendor") return "Vendor Partner";
-              if (r === "volunteer") return "Logistics Volunteer";
-              if (r === "ngo") return "NGO Partner";
-              return user.role || "Community Partner";
-            })()}
+            <img
+              src={
+                user.photo?.url ||
+                "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+              }
+              alt={`${user.name || "User"}'s profile avatar`}
+              onError={(event) => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.src =
+                  "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+              }}
+              className="relative h-32 w-32 rounded-full border-[3px] border-slate-950 bg-slate-900 object-cover shadow-xl sm:h-36 sm:w-36"
+              loading="lazy"
+            />
+
+            <span
+              className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-4 border-slate-900 bg-emerald-400 text-slate-950 shadow-lg"
+              title="Profile"
+            >
+              <MdVerifiedUser size={16} />
+            </span>
+          </div>
+
+          <h2 className="mt-6 max-w-full break-words text-2xl font-black tracking-tight text-white sm:text-3xl">
+            {user.name || "Community Member"}
+          </h2>
+
+          <p className="mt-2 text-sm text-slate-400">
+            Member of the Zero Waste community
           </p>
+
+          <div className="mt-4 inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.07] px-4 py-2">
+            <MdShield size={15} className="shrink-0 text-emerald-300" />
+            <span className="break-words text-xs font-bold text-emerald-200">
+              {role}
+            </span>
+          </div>
         </div>
 
-        {/* 3D Layer 4: Platform Badges with individual 3D depth */}
-        <div
-          className="space-y-3.5 w-full max-w-[260px]"
-          style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}
-        >
-          <Badge
-            icon="🏅"
-            label="System Badge"
-            value={user.badge || "No Tier Status"}
-            bgGradient="from-purple-950/70 via-purple-900/40 to-zinc-900/70"
-            textColor="text-purple-300"
-            borderColor="border-purple-500/30"
-            delay="0.1s"
-            translateZ="15px"
-          />
-          <Badge
-            icon="⭐"
+        {/* User badges */}
+        <div className="relative z-10 mt-8 space-y-3 border-t border-white/[0.08] pt-6">
+          <ProfileBadge
+            icon={<MdStar size={21} />}
             label="Community Rating"
-            value={user.averageRating ? `${Number(user.averageRating).toFixed(1)} / 5.0` : "Unrated"}
-            bgGradient="from-amber-950/70 via-amber-900/40 to-zinc-900/70"
-            textColor="text-amber-300"
-            borderColor="border-amber-500/30"
-            delay="0.2s"
-            translateZ="20px"
+            value={
+              user.averageRating
+                ? `${Number(user.averageRating).toFixed(1)} / 5.0`
+                : "Not rated yet"
+            }
+            accent="amber"
+          />
+
+          <ProfileBadge
+            icon={<MdVerifiedUser size={21} />}
+            label="Platform Badge"
+            value={user.badge || "Getting started"}
+            accent="violet"
           />
         </div>
+
+        {/* Edit shortcut */}
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = "/updateprofile";
+          }}
+          className="relative z-10 mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.09] bg-white/[0.035] px-4 py-3 text-sm font-semibold text-slate-300 transition hover:border-emerald-400/25 hover:bg-emerald-400/[0.06] hover:text-emerald-200"
+        >
+          <MdEdit size={17} />
+          Edit Profile
+          <MdArrowOutward size={16} />
+        </button>
       </section>
     </div>
   );
 };
 
-// Presentational Badge Element Component with 3D Lift
-const Badge = ({ icon, label, value, bgGradient, textColor, borderColor, delay, translateZ = "10px" }) => (
-  <div
-    className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-gradient-to-br ${bgGradient} border ${borderColor} opacity-0 animate-fade-in-up shadow-xl backdrop-blur-md transition-transform duration-300 hover:scale-[1.03]`}
-    style={{
-      animationDelay: delay,
-      transform: `translateZ(${translateZ})`
-    }}
-  >
-    <span className="text-2xl shrink-0 drop-shadow" role="img" aria-hidden="true">{icon}</span>
-    <div className="text-left min-w-0">
-      <p className="text-[10px] uppercase font-black tracking-widest text-zinc-400">{label}</p>
-      <p className={`text-sm font-extrabold truncate ${textColor}`}>{value}</p>
-    </div>
-  </div>
-);
+// Badge inside profile identity card
+const ProfileBadge = ({ icon, label, value, accent }) => {
+  const accents = {
+    amber: "border-amber-400/15 bg-amber-400/[0.06] text-amber-300",
+    violet: "border-violet-400/15 bg-violet-400/[0.06] text-violet-300",
+  };
 
-// Presentational Grid Field Matrix Item
-const InfoItem = ({ label, value, icon }) => (
-  <div className="flex items-start gap-3 bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl shadow-inner min-w-0">
-    <span className="text-zinc-500 text-xl mt-0.5 shrink-0">{icon}</span>
-    <div className="min-w-0">
-      <span className="text-zinc-500 uppercase tracking-widest font-bold text-[10px] block mb-0.5">{label}</span>
-      <span className="break-words font-semibold text-zinc-200 text-sm">{value || "Not Set"}</span>
+  return (
+    <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/[0.055] bg-white/[0.02] p-3.5 transition hover:bg-white/[0.04]">
+      <div
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${accents[accent] || accents.amber}`}
+      >
+        {icon}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-500">
+          {label}
+        </p>
+        <p className="mt-1 break-words text-sm font-bold text-slate-200">
+          {value}
+        </p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+const formatRole = (role) => {
+  const normalized = (role || "").toLowerCase();
+
+  if (normalized === "vendor") return "Vendor Partner";
+  if (normalized === "volunteer") return "Logistics Volunteer";
+  if (normalized === "ngo") return "NGO Partner";
+
+  return role || "Community Partner";
+};
 
 export default MyProfile;

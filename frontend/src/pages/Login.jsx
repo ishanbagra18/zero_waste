@@ -29,11 +29,14 @@ export default function Login() {
     setError("");
     setIsSubmitting(true);
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/login`, {
-        email,
-        password,
-        role,
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/login`,
+        {
+          email,
+          password,
+          role,
+        }
+      );
       const { token, user } = res.data;
       authLogin(token, user.role, user);
       toast.success("Login successful!");
@@ -46,65 +49,84 @@ export default function Login() {
       }
     } catch (err) {
       console.error("Login error:", err.response?.data);
-      setError(err.response?.data?.message || "Login failed. Please check credentials.");
+      setError(
+        err.response?.data?.message || "Login failed. Please check credentials."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white relative flex items-center justify-center p-4 md:p-8 overflow-hidden">
+    <div
+      className="min-h-screen text-slate-100 selection:bg-emerald-500 selection:text-white relative flex items-center justify-center p-4 md:p-8 overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{
+        // Replace this URL with your custom character background image path
+        // The linear-gradient adds a dark overlay so your form stays readable
+        backgroundImage: `linear-gradient(to right, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.7) 50%, rgba(2, 6, 23, 0.8) 100%), url('https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?q=80&w=2000&auto=format&fit=crop')`,
+        backgroundColor: "#020617", // fallback slate-950
+      }}
+    >
       <Toaster position="top-right" reverseOrder={false} />
 
-      {/* Ambient Eco Glow Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Ambient Eco Glow Orbs - enhanced for background blend */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
 
-      {/* Main Glassmorphic Container Card */}
-      <div className="relative z-10 w-full max-w-4xl flex flex-col md:flex-row rounded-3xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-900/90 backdrop-blur-2xl my-4">
-        
+      {/* Main Glassmorphic Container Card - increased transparency for glass effect */}
+      <div className="relative z-10 w-full max-w-4xl flex flex-col md:flex-row rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-slate-700/50 bg-slate-900/70 backdrop-blur-xl my-4">
         {/* Left Branding Section */}
-        <div className="md:w-1/2 p-8 md:p-12 space-y-6 flex flex-col justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white border-b md:border-b-0 md:border-r border-slate-800/80 relative overflow-hidden">
-          <div className="absolute -top-12 -left-12 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="md:w-1/2 p-8 md:p-12 space-y-6 flex flex-col justify-center bg-gradient-to-br from-slate-900/80 via-slate-950/60 to-slate-900/80 text-white border-b md:border-b-0 md:border-r border-slate-700/50 relative overflow-hidden">
+          <div className="absolute -top-12 -left-12 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
 
           <div className="flex items-center gap-2 text-emerald-400">
-            <span className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+            <span className="p-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-sm">
               <Leaf className="w-5 h-5 text-emerald-400" />
             </span>
-            <span className="text-xs font-black uppercase tracking-widest text-emerald-400">ZeroWaste Ecosystem</span>
+            <span className="text-xs font-black uppercase tracking-widest text-emerald-400 drop-shadow-md">
+              ZeroWaste Ecosystem
+            </span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-black leading-tight tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-black leading-tight tracking-tight drop-shadow-lg">
             Flip the Waste <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
               Script Today
             </span>
           </h1>
 
-          <h2 className="text-sm md:text-base text-emerald-200/90 font-medium leading-relaxed">
-            ♻️ Turning surplus food & physical resources into community support, one item at a time.
+          <h2 className="text-sm md:text-base text-emerald-100/90 font-medium leading-relaxed drop-shadow-md">
+            ♻️ Turning surplus food & physical resources into community support,
+            one item at a time.
           </h2>
 
-          <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2 text-xs text-slate-400 italic">
-            <p className="text-slate-300 font-semibold">"One platform. Zero waste. Infinite impact."</p>
-            <p>Direct real-time redistribution connecting Vendors, NGOs, and Volunteer logistics.</p>
+          <div className="p-4 rounded-2xl bg-slate-950/60 backdrop-blur-md border border-slate-700/50 space-y-2 text-xs text-slate-300 italic shadow-lg">
+            <p className="text-slate-200 font-semibold">
+              "One platform. Zero waste. Infinite impact."
+            </p>
+            <p className="text-slate-400">
+              Direct real-time redistribution connecting Vendors, NGOs, and
+              Volunteer logistics.
+            </p>
           </div>
         </div>
 
         {/* Right Section - Login Form */}
         <form
           onSubmit={handleSubmit}
-          className="md:w-1/2 w-full p-8 md:p-12 space-y-6 flex flex-col justify-center bg-slate-900/60 backdrop-blur-xl"
+          className="md:w-1/2 w-full p-8 md:p-12 space-y-6 flex flex-col justify-center bg-slate-900/40 backdrop-blur-lg"
         >
           <div className="space-y-1 text-left">
-            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-md">
               Welcome Back
             </h2>
-            <p className="text-xs text-slate-400">Enter your credentials to access your dashboard</p>
+            <p className="text-xs text-slate-300">
+              Enter your credentials to access your dashboard
+            </p>
           </div>
 
           {error && (
-            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs px-4 py-3 rounded-2xl text-center font-semibold animate-pulse">
+            <div className="bg-rose-500/20 backdrop-blur-md border border-rose-500/40 text-rose-300 text-xs px-4 py-3 rounded-2xl text-center font-semibold animate-pulse">
               {error}
             </div>
           )}
@@ -114,7 +136,7 @@ export default function Login() {
             <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300">
               Email Address
             </label>
-            <div className="flex items-center gap-2.5 bg-slate-950 px-4 py-3 rounded-2xl border border-slate-800 focus-within:border-emerald-500 transition shadow-inner">
+            <div className="flex items-center gap-2.5 bg-slate-950/50 px-4 py-3 rounded-2xl border border-slate-700/50 focus-within:border-emerald-500 focus-within:bg-slate-950/80 transition shadow-inner backdrop-blur-sm">
               <MdEmail className="text-emerald-400 shrink-0" size={18} />
               <input
                 type="email"
@@ -124,7 +146,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isSubmitting}
-                className="bg-transparent flex-1 outline-none text-xs md:text-sm text-white placeholder-slate-500"
+                className="bg-transparent flex-1 outline-none text-xs md:text-sm text-white placeholder-slate-400"
                 autoComplete="off"
               />
             </div>
@@ -143,7 +165,7 @@ export default function Login() {
                 <KeyRound className="w-3 h-3" /> Forgot password?
               </Link>
             </div>
-            <div className="flex items-center gap-2.5 bg-slate-950 px-4 py-3 rounded-2xl border border-slate-800 focus-within:border-emerald-500 transition shadow-inner">
+            <div className="flex items-center gap-2.5 bg-slate-950/50 px-4 py-3 rounded-2xl border border-slate-700/50 focus-within:border-emerald-500 focus-within:bg-slate-950/80 transition shadow-inner backdrop-blur-sm">
               <MdLock className="text-emerald-400 shrink-0" size={18} />
               <input
                 type={showPassword ? "text" : "password"}
@@ -153,17 +175,21 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isSubmitting}
-                className="bg-transparent flex-1 outline-none text-xs md:text-sm text-white placeholder-slate-500"
+                className="bg-transparent flex-1 outline-none text-xs md:text-sm text-white placeholder-slate-400"
                 autoComplete="off"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="focus:outline-none text-slate-500 hover:text-emerald-400 transition"
+                className="focus:outline-none text-slate-400 hover:text-emerald-400 transition"
                 tabIndex={-1}
                 aria-label="Toggle password visibility"
               >
-                {showPassword ? <MdVisibilityOff size={18} /> : <MdVisibility size={18} />}
+                {showPassword ? (
+                  <MdVisibilityOff size={18} />
+                ) : (
+                  <MdVisibility size={18} />
+                )}
               </button>
             </div>
           </div>
@@ -173,14 +199,14 @@ export default function Login() {
             <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300">
               Select Role
             </label>
-            <div className="flex items-center gap-2.5 bg-slate-950 px-4 py-3 rounded-2xl border border-slate-800 focus-within:border-emerald-500 transition shadow-inner">
+            <div className="flex items-center gap-2.5 bg-slate-950/50 px-4 py-3 rounded-2xl border border-slate-700/50 focus-within:border-emerald-500 focus-within:bg-slate-950/80 transition shadow-inner backdrop-blur-sm">
               <MdPerson className="text-emerald-400 shrink-0" size={18} />
               <select
                 name="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 disabled={isSubmitting}
-                className="bg-transparent flex-1 outline-none text-xs md:text-sm text-white cursor-pointer"
+                className="bg-transparent flex-1 outline-none text-xs md:text-sm text-white cursor-pointer appearance-none"
               >
                 <option value="vendor" className="bg-slate-900 text-white">
                   Vendor (Business / Supplier)
@@ -199,7 +225,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 font-black text-slate-950 rounded-2xl shadow-xl shadow-emerald-500/20 text-xs md:text-sm uppercase tracking-wider transition disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 font-black text-slate-950 rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] text-xs md:text-sm uppercase tracking-wider transition-all disabled:opacity-50"
           >
             {isSubmitting ? (
               <>
@@ -215,7 +241,7 @@ export default function Login() {
           </button>
 
           {/* Register Link */}
-          <div className="text-center text-xs text-slate-400 pt-2">
+          <div className="text-center text-xs text-slate-300 pt-2 drop-shadow-md">
             Don’t have an account?{" "}
             <Link
               to="/register"

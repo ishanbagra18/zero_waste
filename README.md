@@ -247,6 +247,16 @@ Traditional web applications rely on periodic HTTP polling (`setInterval` GET re
 - `POST /api/review/:id` - Post review & star rating for a user.
 - `GET /api/review/:id` - Fetch user feedback history.
 
+### 📝 Implemented Details Not Covered Above
+
+The feature and endpoint summaries above do not yet describe these implemented details:
+
+- **Saved items:** `POST /api/users/toggle-favorite/:itemId` and `GET /api/users/favorites` let signed-in users save listings and view their wishlist.
+- **Volunteer response:** `PATCH /api/book/:id/decline` lets an assigned volunteer decline a delivery request.
+- **Claim and delivery status:** `PATCH /api/items/:id/claim-status` and `PATCH /api/items/:id/delivery-reached` update a claim's progress and mark delivery arrival.
+- **Delete actions:** `DELETE /api/message/delete/:id` removes a chat message, and `DELETE /api/notifications/notification/:id` removes a notification.
+- **Frontend API configuration:** The frontend reads `VITE_API_BASE_URL`. Set it in `frontend/.env` to the backend origin (for local development, `http://localhost:3002`). The backend's allowed browser origins can be extended with the comma-separated `ALLOWED_ORIGINS` variable.
+
 ---
 
 ## 🔒 Security & Verification System

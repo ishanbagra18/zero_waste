@@ -16,6 +16,19 @@ import {
 
 
 import {
+  Sprout,
+  Leaf,
+  PackageOpen,
+  ArrowUpRight,
+  ArrowRight,
+  Recycle,
+  HeartHandshake,
+  Globe2,
+  ChevronDown,
+} from "lucide-react";
+
+
+import {
   PieChart,
   Pie,
   Cell,
@@ -344,119 +357,259 @@ const NgoDashboard = () => {
 
 
       {/* Hero Section — Scroll-Driven Plant Growth Frame Animation */}
-      <section
-        ref={sectionRef}
-        className="relative border-b border-white/[0.04]"
-        style={{ height: '300vh' }}
-      >
-        {/* Sticky inner container — pinned for entire scroll-through */}
-        <div
-          className="sticky top-0 w-full overflow-hidden"
-          style={{ height: '100vh' }}
-        >
-          {/* Preloading skeleton */}
-          {!framesLoaded && (
-            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#0f0f1c]">
-              <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin shadow-lg shadow-emerald-500/30" />
-              <p className="mt-4 text-sm text-emerald-400 font-medium tracking-wide animate-pulse">Loading plant animation...</p>
-            </div>
-          )}
+   
 
-          {/* Canvas — full viewport, plant drawn smaller on the right */}
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full"
-            style={{ display: framesLoaded ? 'block' : 'none' }}
-          />
+<section
+  ref={sectionRef}
+  className="relative isolate h-[300vh] overflow-clip border-b border-white/[0.06] bg-[#070b14]"
+>
+  {/* Sticky viewport: preserve scroll-driven plant animation */}
+  <div className="sticky top-0 h-screen h-[100svh] min-h-[600px] w-full overflow-hidden">
 
-          {/* Gradient overlays for text legibility */}
-          {framesLoaded && (
-            <>
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent/40 pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0f111a] via-transparent to-transparent pointer-events-none" />
-            </>
-          )}
-
-          {/* Ambient Left Environmental Light Flare */}
-          <div className="absolute left-0 top-0 w-[36rem] h-[36rem] bg-emerald-500/[0.03] rounded-full blur-[140px] pointer-events-none animate-pulse duration-[8000ms]" />
-
-          {/* Text content — always visible from the start */}
-          <div
-            className="relative w-full h-full flex items-center z-10"
-            style={{
-              opacity: 1,
-            }}
-          >
-            <div className="w-full container mx-auto px-6 sm:px-12 lg:px-8 max-w-7xl py-16">
-              <div className="max-w-xl sm:max-w-2xl text-left space-y-6">
-
-                {/* Context Action Kicker */}
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-                  </span>
-                  <p className="text-emerald-400 uppercase tracking-widest text-xs font-black select-none">
-                    Ecosystem Hub Portal
-                  </p>
-                </div>
-
-                {/* Styled Headings Structural Block */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="space-y-4 border-l-2 border-emerald-500/40 pl-4 sm:pl-6"
-                >
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] select-none font-display">
-                    Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400">Changemaker!</span>
-                  </h1>
-
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight select-none font-display">
-                    Small Things Make a Big Change
-                  </h2>
-
-                  <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-2xl select-text pt-1 font-sans">
-                    Your efforts today can shape a better tomorrow. Let's reduce waste, uplift communities, and protect our planet—one step at a time.
-                  </p>
-
-                  <div className="pt-3 flex flex-wrap items-center gap-3">
-                    <motion.button
-                      whileHover={{ scale: 1.04, boxShadow: "0 0 25px rgba(16, 185, 129, 0.4)" }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => navigate('/vendor/allitems')}
-                      className="bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500 text-slate-950 font-black px-6 py-3.5 rounded-xl shadow-lg shadow-emerald-950/40 transition text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2"
-                    >
-                      <span>Explore Surplus Items</span>
-                      <span className="text-base">📦</span>
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.04, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => navigate('/readmore')}
-                      className="border border-slate-700/80 hover:border-emerald-500/50 text-slate-200 font-bold px-6 py-3.5 rounded-xl transition text-xs sm:text-sm backdrop-blur-md"
-                    >
-                      Read More
-                    </motion.button>
-                  </div>
-                </motion.div>
-
-              </div>
-            </div>
+    {/* Loading state */}
+    {!framesLoaded && (
+      <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#070b14]">
+        <div className="relative flex h-20 w-20 items-center justify-center">
+          <div className="absolute inset-0 animate-ping rounded-full border border-emerald-400/20" />
+          <div className="absolute inset-2 rounded-full border border-emerald-400/30" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
+            <Sprout size={26} />
           </div>
-
-          {/* Scroll indicator at bottom */}
-          {/* added the plant animation  */}
-          {framesLoaded && scrollProgress < 0.1 && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 animate-bounce">
-              <span className="text-xs text-slate-400 font-medium tracking-wide">Scroll to grow</span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
-          )}
         </div>
-      </section>
+
+        <p className="mt-6 text-sm font-semibold text-white">
+          Preparing your eco experience
+        </p>
+        <p className="mt-2 text-xs text-slate-500">
+          Growing a greener tomorrow...
+        </p>
+
+        <div className="mt-5 h-1 w-36 overflow-hidden rounded-full bg-white/[0.07]">
+          <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-emerald-400 to-teal-300" />
+        </div>
+      </div>
+    )}
+
+    {/* Plant animation: intentionally unchanged */}
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 z-0 h-full w-full"
+      style={{
+        display: framesLoaded ? "block" : "none",
+      }}
+    />
+
+    {/* Cinematic background: protect plant visibility */}
+    <div className="pointer-events-none absolute inset-0 z-[1]">
+      {/* Reading area stays predominantly on the left */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#070b14] via-[#070b14]/95 via-[38%] to-transparent sm:via-[42%] lg:w-[76%] lg:via-[#070b14]/90 lg:via-[50%] lg:to-transparent" />
+
+      {/* Soft left-side ambient lighting */}
+      <div className="absolute -left-40 top-[18%] h-[30rem] w-[30rem] rounded-full bg-emerald-500/[0.08] blur-[140px]" />
+      <div className="absolute left-[20%] bottom-[8%] h-64 w-64 rounded-full bg-teal-500/[0.04] blur-[100px]" />
+
+      {/* Restrained cinematic vignette */}
+      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/25 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#070b14]/65 to-transparent" />
+
+      {/* Fine ambient texture */}
+      <div
+        className="absolute inset-0 opacity-[0.035]"
+        style={{
+          backgroundImage:
+            "radial-gradient(rgba(255,255,255,0.7) 0.7px, transparent 0.7px)",
+          backgroundSize: "24px 24px",
+          maskImage:
+            "linear-gradient(to right, black, transparent 65%)",
+        }}
+      />
+    </div>
+
+    {/* Main content */}
+    <div className="pointer-events-none absolute inset-0 z-10 flex items-center">
+      <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-14 xl:px-20">
+        <div className="w-full max-w-[590px] lg:w-[49%] xl:max-w-[650px]">
+
+          {/* Eyebrow */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-7 inline-flex items-center gap-3 rounded-full border border-emerald-300/20 bg-[#0b171c]/80 px-4 py-2.5 shadow-lg shadow-black/10 backdrop-blur-xl"
+          >
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+              <span className="relative h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.19em] text-emerald-200 sm:text-xs">
+              Ecosystem Hub Portal
+            </span>
+            <ArrowUpRight size={14} className="text-emerald-400/70" />
+          </motion.div>
+
+          {/* Heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.08 }}
+            className="relative"
+          >
+            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400 sm:text-xs">
+              Less waste. More possibility.
+            </p>
+
+            <h1 className="text-[2.7rem] font-black leading-[1.04] tracking-[-0.055em] text-white sm:text-6xl md:text-7xl xl:text-[5.5rem]">
+              Welcome,
+              <span className="mt-2 block bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text pb-2 text-transparent">
+                Changemaker.
+              </span>
+            </h1>
+
+            <div className="mt-6 h-px w-20 bg-gradient-to-r from-emerald-400 to-transparent" />
+
+            <h2 className="mt-6 text-lg font-semibold leading-relaxed tracking-tight text-white sm:text-2xl">
+              Small things today.
+              <span className="block text-slate-400">
+                A better world tomorrow.
+              </span>
+            </h2>
+
+            <p className="mt-5 max-w-[490px] text-sm leading-7 text-slate-300/85 sm:text-base sm:leading-8">
+              Your actions can shape a more sustainable future.
+              Reduce waste, uplift communities, and give valuable
+              resources a second life — one meaningful step at a time.
+            </p>
+          </motion.div>
+
+          {/* Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, delay: 0.2 }}
+            className="pointer-events-auto mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
+          >
+            <motion.button
+              type="button"
+              whileHover={{
+                scale: 1.025,
+                boxShadow: "0 12px 35px rgba(16,185,129,0.22)",
+              }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate("/vendor/allitems")}
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-300 via-emerald-300 to-teal-200 px-5 py-3.5 text-sm font-extrabold text-[#062018] shadow-[0_8px_30px_rgba(16,185,129,0.12)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-[#070b14] sm:px-6"
+            >
+              <span className="absolute inset-0 -translate-x-full bg-white/35 transition-transform duration-500 group-hover:translate-x-full" />
+
+              <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-black/[0.07]">
+                <PackageOpen size={19} />
+              </span>
+
+              <span className="relative">Explore Surplus Items</span>
+              <ArrowUpRight
+                size={17}
+                className="relative transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
+            </motion.button>
+
+            <motion.button
+              type="button"
+              whileHover={{
+                scale: 1.025,
+                backgroundColor: "rgba(255,255,255,0.07)",
+              }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate("/readmore")}
+              className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/[0.13] bg-white/[0.035] px-6 py-4 text-sm font-semibold text-slate-100 backdrop-blur-xl transition-colors duration-300 hover:border-emerald-300/40 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+            >
+              <span>Discover Our Mission</span>
+              <ArrowRight
+                size={17}
+                className="text-emerald-300 transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </motion.button>
+          </motion.div>
+
+          {/* Values */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.32 }}
+            className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-white/[0.09] pt-5 sm:gap-x-6"
+          >
+            <div className="flex items-center gap-2">
+              <Recycle size={16} className="shrink-0 text-emerald-300" />
+              <span className="text-xs font-medium text-slate-300 sm:text-sm">
+                Reduce waste
+              </span>
+            </div>
+
+            <span className="hidden h-4 w-px bg-white/15 sm:block" />
+
+            <div className="flex items-center gap-2">
+              <HeartHandshake size={16} className="shrink-0 text-teal-300" />
+              <span className="text-xs font-medium text-slate-300 sm:text-sm">
+                Support communities
+              </span>
+            </div>
+
+            <span className="hidden h-4 w-px bg-white/15 sm:block" />
+
+            <div className="flex items-center gap-2">
+              <Leaf size={16} className="shrink-0 text-cyan-300" />
+              <span className="text-xs font-medium text-slate-300 sm:text-sm">
+                Protect our planet
+              </span>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+
+    {/* Plant-side caption */}
+    {framesLoaded && (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
+        className="pointer-events-none absolute bottom-10 right-6 z-10 hidden items-center gap-3 rounded-full border border-white/[0.10] bg-[#07100e]/35 px-4 py-2.5 text-xs font-medium text-slate-200/80 backdrop-blur-md md:flex lg:right-10"
+      >
+        <span className="flex h-7 w-7 items-center justify-center rounded-full border border-emerald-300/20 bg-emerald-300/10">
+          <Sprout size={15} className="text-emerald-300" />
+        </span>
+        <span>Growth begins with one small action</span>
+      </motion.div>
+    )}
+
+    {/* Scroll indicator */}
+    {framesLoaded && scrollProgress < 0.1 && (
+      <motion.div
+        initial={{ opacity: 0, y: -4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+        className="pointer-events-none absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 sm:bottom-7"
+      >
+        <span className="rounded-full border border-white/[0.08] bg-[#070b14]/65 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 backdrop-blur-md">
+          Scroll to grow
+        </span>
+
+        <motion.div
+          animate={{ y: [0, 5, 0] }}
+          transition={{
+            duration: 1.6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/[0.07] text-emerald-300"
+        >
+          <ChevronDown size={17} />
+        </motion.div>
+      </motion.div>
+    )}
+  </div>
+</section>
+
+
+
 
 
 
@@ -464,81 +617,210 @@ const NgoDashboard = () => {
 
 
       {/* 🌍 Why NGOs Matter Value Proposition Grid */}
-      <section className="relative py-20 lg:py-28 px-4 sm:px-12 lg:px-8 bg-gradient-to-b from-slate-950 via-[#0a0c14] to-zinc-950 border-t border-white/[0.04]">
-        <div className="max-w-6xl mx-auto space-y-12">
+ 
+<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-[#070b14] px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
+  {/* Background decoration */}
+  <div
+    aria-hidden="true"
+    className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+  >
+    <div className="absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-emerald-500/[0.07] blur-[120px]" />
+    <div className="absolute -bottom-32 -left-24 h-72 w-72 rounded-full bg-indigo-500/[0.05] blur-[100px]" />
+    <div className="absolute -bottom-32 -right-24 h-72 w-72 rounded-full bg-pink-500/[0.04] blur-[100px]" />
+  </div>
 
-          {/* Section Typography Headers */}
-          <div className="text-center space-y-2">
-            <div className="flex justify-center">
-              <span className="inline-flex items-center gap-1.5 bg-emerald-500/5 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
-                Platform Mission Values
-              </span>
-            </div>
-            <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 select-none">
-              Why NGOs Matter
-            </h3>
-          </div>
+  <div className="mx-auto max-w-7xl">
+    {/* Section header */}
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.4 }}
+      transition={{ duration: 0.55, ease: "easeOut" }}
+      className="mx-auto mb-14 max-w-3xl text-center sm:mb-16"
+    >
+      <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300 sm:text-xs">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.7)]" />
+        Our mission & values
+      </span>
 
-          {/* Core Feature Matrix */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+      <h3 className="mt-6 text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+        Why NGOs{" "}
+        <span className="bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent">
+          Matter
+        </span>
+      </h3>
 
-            {/* Block: Sustainability */}
-            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-emerald-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
-              <div className="absolute inset-0 bg-emerald-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
+      <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
+        Turning surplus into opportunity through sustainable food
+        recovery, stronger communities, and responsible resource sharing.
+      </p>
 
-              <span className="bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-2xl text-emerald-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
-                <FaLeaf size={22} />
-              </span>
+      <div className="mx-auto mt-7 h-px w-24 bg-gradient-to-r from-transparent via-emerald-400/70 to-transparent" />
+    </motion.div>
 
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors duration-200">
-                  Sustainability
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
-                  Promoting the regular distribution of surplus goods systematically diverts clean, usable excess assets straight away from local landfill ecosystems.
-                </p>
-              </div>
-            </article>
+    {/* Mission cards */}
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-3 lg:gap-6">
+      {/* Sustainability */}
+      <motion.article
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, delay: 0.05 }}
+        whileHover={{ y: -6 }}
+        className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6 shadow-xl shadow-black/10 transition-colors duration-300 hover:border-emerald-400/30 hover:bg-emerald-400/[0.025] sm:p-8"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-emerald-400/[0.06] blur-3xl transition duration-500 group-hover:bg-emerald-400/[0.12]"
+        />
 
-            {/* Block: Community Upliftment */}
-            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-indigo-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
-              <div className="absolute inset-0 bg-indigo-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
+        <div className="relative flex items-center justify-between">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 transition duration-300 group-hover:scale-105 group-hover:bg-emerald-400/[0.15]">
+            <FaLeaf size={24} />
+          </span>
 
-              <span className="bg-indigo-500/10 border border-indigo-500/20 p-3.5 rounded-2xl text-indigo-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
-                <FaUsers size={22} />
-              </span>
+          <span className="text-xs font-bold tracking-[0.18em] text-emerald-400/60">
+            01
+          </span>
+        </div>
 
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-indigo-400 transition-colors duration-200">
-                  Community Upliftment
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
-                  Directly collaborating with verified network vendors allows agile non-profits to dispatch high-priority essentials straight to families in need.
-                </p>
-              </div>
-            </article>
+        <div className="relative mt-8 flex-1">
+          <h4 className="text-xl font-bold tracking-tight text-white transition-colors group-hover:text-emerald-300 sm:text-2xl">
+            Sustainability
+          </h4>
 
-            {/* Block: Awareness */}
-            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-pink-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
-              <div className="absolute inset-0 bg-pink-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
+          <p className="mt-4 text-sm leading-7 text-slate-400">
+            Redirecting usable surplus food away from landfills helps
+            reduce waste and encourages more responsible resource
+            management across local communities.
+          </p>
+        </div>
 
-              <span className="bg-pink-500/10 border border-pink-500/20 p-3.5 rounded-2xl text-pink-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
-                <FaLightbulb size={22} />
-              </span>
-
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-pink-400 transition-colors duration-200">
-                  Platform Awareness
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
-                  Educating teams on consumer habits establishes data accountability, lowering regional overproduction behaviors and waste pipelines.
-                </p>
-              </div>
-            </article>
-
+        <div className="relative mt-7 border-t border-white/[0.07] pt-5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-300/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Reduce waste. Recover value.
           </div>
         </div>
-      </section>
+      </motion.article>
+
+      {/* Community upliftment */}
+      <motion.article
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+        whileHover={{ y: -6 }}
+        className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6 shadow-xl shadow-black/10 transition-colors duration-300 hover:border-indigo-400/30 hover:bg-indigo-400/[0.025] sm:p-8"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-indigo-400/[0.06] blur-3xl transition duration-500 group-hover:bg-indigo-400/[0.12]"
+        />
+
+        <div className="relative flex items-center justify-between">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-400/20 bg-indigo-400/10 text-indigo-300 transition duration-300 group-hover:scale-105 group-hover:bg-indigo-400/[0.15]">
+            <FaUsers size={24} />
+          </span>
+
+          <span className="text-xs font-bold tracking-[0.18em] text-indigo-400/60">
+            02
+          </span>
+        </div>
+
+        <div className="relative mt-8 flex-1">
+          <h4 className="text-xl font-bold tracking-tight text-white transition-colors group-hover:text-indigo-300 sm:text-2xl">
+            Community Upliftment
+          </h4>
+
+          <p className="mt-4 text-sm leading-7 text-slate-400">
+            Connecting NGOs with food vendors helps coordinate surplus
+            collection and distribution, making essential resources more
+            accessible to families and communities in need.
+          </p>
+        </div>
+
+        <div className="relative mt-7 border-t border-white/[0.07] pt-5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
+            Connect people. Create impact.
+          </div>
+        </div>
+      </motion.article>
+
+      {/* Awareness */}
+      <motion.article
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, delay: 0.25 }}
+        whileHover={{ y: -6 }}
+        className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6 shadow-xl shadow-black/10 transition-colors duration-300 hover:border-pink-400/30 hover:bg-pink-400/[0.025] sm:p-8"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-pink-400/[0.06] blur-3xl transition duration-500 group-hover:bg-pink-400/[0.12]"
+        />
+
+        <div className="relative flex items-center justify-between">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-pink-400/20 bg-pink-400/10 text-pink-300 transition duration-300 group-hover:scale-105 group-hover:bg-pink-400/[0.15]">
+            <FaLightbulb size={24} />
+          </span>
+
+          <span className="text-xs font-bold tracking-[0.18em] text-pink-400/60">
+            03
+          </span>
+        </div>
+
+        <div className="relative mt-8 flex-1">
+          <h4 className="text-xl font-bold tracking-tight text-white transition-colors group-hover:text-pink-300 sm:text-2xl">
+            Awareness & Education
+          </h4>
+
+          <p className="mt-4 text-sm leading-7 text-slate-400">
+            Encouraging mindful consumption and responsible food
+            management helps communities recognize the value of surplus
+            resources and make more sustainable choices.
+          </p>
+        </div>
+
+        <div className="relative mt-7 border-t border-white/[0.07] pt-5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-pink-300/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-pink-400" />
+            Build awareness. Inspire change.
+          </div>
+        </div>
+      </motion.article>
+    </div>
+
+    {/* Closing statement */}
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.4 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
+      className="mt-8 rounded-2xl border border-emerald-400/10 bg-gradient-to-r from-emerald-400/[0.06] via-white/[0.02] to-teal-400/[0.04] px-5 py-6 text-center sm:px-8"
+    >
+      <p className="text-sm leading-7 text-slate-300 sm:text-base">
+        <span className="font-semibold text-emerald-300">
+          Less waste, more possibilities.
+        </span>{" "}
+        Every meaningful partnership brings us closer to a more
+        resourceful and compassionate community.
+      </p>
+    </motion.div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -547,96 +829,165 @@ const NgoDashboard = () => {
 
 
       {/* 📊 High-Fidelity Analytical Statistics Layout Card Section */}
-      <section className="py-20 px-4 sm:px-12 lg:px-8 bg-gradient-to-b from-[#0f111a] via-slate-950 to-zinc-950">
-        <div className="max-w-7xl mx-auto space-y-12">
 
-          {/* Section Typography Headers */}
-          <div className="text-center space-y-2">
-            <div className="flex justify-center">
-              <span className="inline-flex items-center gap-1.5 bg-emerald-500/5 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
-                Live Operational Stream
-              </span>
-            </div>
-            <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white select-none">
-              My Activity Overview
-            </h3>
-          </div>
+<section className="relative isolate overflow-hidden py-16 sm:py-20 px-4 sm:px-8 lg:px-8 bg-gradient-to-b from-[#0b1020] via-slate-950 to-[#090b14]">
+  {/* Ambient background accents */}
+  <div className="absolute -top-24 left-1/4 -z-10 h-64 w-64 rounded-full bg-emerald-500/[0.07] blur-[100px] pointer-events-none" />
+  <div className="absolute top-1/3 -right-24 -z-10 h-72 w-72 rounded-full bg-blue-500/[0.06] blur-[110px] pointer-events-none" />
 
-          {/* Primary Statistics Row Matrix */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+  <div className="relative mx-auto max-w-7xl space-y-10 sm:space-y-12">
 
-            {/* Stat: Total Claimed */}
-            <div className="bg-white/[0.01] backdrop-blur-md border border-white/[0.05] border-l-4 border-l-emerald-500 p-5 rounded-2xl text-left shadow-xl hover:bg-white/[0.02] transition-colors group">
-              <div className="flex justify-between items-start">
-                <span className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl text-emerald-400">
-                  <FaBoxOpen size={16} />
-                </span>
-              </div>
-              <div className="mt-4">
-                <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight select-text">{totalClaims}</span>
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Total Claimed</span>
-              </div>
-            </div>
+    {/* Section Header */}
+    <div className="space-y-4 text-center">
+      <div className="flex justify-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.07] px-3.5 py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-300 shadow-[0_0_24px_rgba(16,185,129,0.06)]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+          </span>
+          Live Operational Stream
+        </span>
+      </div>
 
-            {/* Stat: Pending */}
-            <div className="bg-white/[0.01] backdrop-blur-md border border-white/[0.05] border-l-4 border-l-amber-500 p-5 rounded-2xl text-left shadow-xl hover:bg-white/[0.02] transition-colors group">
-              <div className="flex justify-between items-start">
-                <span className="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl text-amber-400">
-                  <FaHourglassHalf size={16} />
-                </span>
-              </div>
-              <div className="mt-4">
-                <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight select-text">{pending}</span>
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Pending Approval</span>
-              </div>
-            </div>
+      <div className="space-y-2">
+        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
+          My Activity <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">Overview</span>
+        </h3>
+        <p className="mx-auto max-w-md text-xs sm:text-sm leading-6 text-slate-400">
+          Track your claims, monitor request progress, and measure your impact.
+        </p>
+      </div>
+    </div>
 
-            {/* Stat: Approved */}
-            <div className="bg-white/[0.01] backdrop-blur-md border border-white/[0.05] border-l-4 border-l-blue-500 p-5 rounded-2xl text-left shadow-xl hover:bg-white/[0.02] transition-colors group">
-              <div className="flex justify-between items-start">
-                <span className="bg-blue-500/10 border border-blue-500/20 p-2.5 rounded-xl text-blue-400">
-                  <FaCheckCircle size={16} />
-                </span>
-              </div>
-              <div className="mt-4">
-                <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight select-text">{approved}</span>
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Approved Requests</span>
-              </div>
-            </div>
+    {/* Primary Statistics */}
+    <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
 
-            {/* Stat: Delivered */}
-            <div className="bg-white/[0.01] backdrop-blur-md border border-white/[0.05] border-l-4 border-l-pink-500 p-5 rounded-2xl text-left shadow-xl hover:bg-white/[0.02] transition-colors group">
-              <div className="flex justify-between items-start">
-                <span className="bg-pink-500/10 border border-pink-500/20 p-2.5 rounded-xl text-pink-400">
-                  <FaTruck size={16} />
-                </span>
-              </div>
-              <div className="mt-4">
-                <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight select-text">{delivered}</span>
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Delivered Items</span>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Extended Operational Pipeline Submetrics Card */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto bg-white/[0.01] border border-white/[0.04] p-4 rounded-2xl shadow-inner">
-            <div className="text-center p-3 border-b sm:border-b-0 sm:border-r border-white/[0.04] last:border-0">
-              <span className="text-xl font-black text-cyan-400 block select-text">{assigned}</span>
-              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mt-0.5">Volunteers Assigned</span>
-            </div>
-            <div className="text-center p-3 border-b sm:border-b-0 sm:border-r border-white/[0.04] last:border-0">
-              <span className="text-xl font-black text-amber-400 block select-text">{pickupConfirmed}</span>
-              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mt-0.5">Pickups Confirmed</span>
-            </div>
-            <div className="text-center p-3 last:border-0">
-              <span className="text-xl font-black text-fuchsia-400 block select-text">{impactScore}</span>
-              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mt-0.5">Calculated Impact Score</span>
-            </div>
-          </div>
-
+      {/* Total Claimed */}
+      <div className="group relative overflow-hidden rounded-2xl border border-emerald-400/15 bg-gradient-to-br from-emerald-400/[0.09] via-white/[0.025] to-transparent p-5 sm:p-6 shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/35 hover:shadow-xl hover:shadow-emerald-950/20">
+        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-400/[0.07] blur-2xl transition-all duration-300 group-hover:bg-emerald-400/[0.13]" />
+        <div className="relative flex items-center justify-between">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 transition-transform duration-300 group-hover:scale-110">
+            <FaBoxOpen size={19} />
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-300/60">01</span>
         </div>
-      </section>
+        <div className="relative mt-7">
+          <span className="block text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white">{totalClaims}</span>
+          <span className="mt-2 block text-[11px] sm:text-xs font-bold uppercase tracking-[0.13em] text-slate-400">Total Claimed</span>
+        </div>
+        <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-white/[0.05]">
+          <div className="h-full w-full rounded-full bg-gradient-to-r from-emerald-500/80 to-emerald-300/30 transition-all duration-500 group-hover:to-emerald-300/70" />
+        </div>
+      </div>
+
+      {/* Pending */}
+      <div className="group relative overflow-hidden rounded-2xl border border-amber-400/15 bg-gradient-to-br from-amber-400/[0.08] via-white/[0.025] to-transparent p-5 sm:p-6 shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400/35 hover:shadow-xl hover:shadow-amber-950/20">
+        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-amber-400/[0.06] blur-2xl transition-all duration-300 group-hover:bg-amber-400/[0.12]" />
+        <div className="relative flex items-center justify-between">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/10 text-amber-300 transition-transform duration-300 group-hover:scale-110">
+            <FaHourglassHalf size={19} />
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300/60">02</span>
+        </div>
+        <div className="relative mt-7">
+          <span className="block text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white">{pending}</span>
+          <span className="mt-2 block text-[11px] sm:text-xs font-bold uppercase tracking-[0.13em] text-slate-400">Pending Approval</span>
+        </div>
+        <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-white/[0.05]">
+          <div className="h-full w-full rounded-full bg-gradient-to-r from-amber-500/80 to-amber-300/30 transition-all duration-500 group-hover:to-amber-300/70" />
+        </div>
+      </div>
+
+      {/* Approved */}
+      <div className="group relative overflow-hidden rounded-2xl border border-blue-400/15 bg-gradient-to-br from-blue-400/[0.08] via-white/[0.025] to-transparent p-5 sm:p-6 shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-blue-400/35 hover:shadow-xl hover:shadow-blue-950/20">
+        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-blue-400/[0.06] blur-2xl transition-all duration-300 group-hover:bg-blue-400/[0.12]" />
+        <div className="relative flex items-center justify-between">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-blue-400/20 bg-blue-400/10 text-blue-300 transition-transform duration-300 group-hover:scale-110">
+            <FaCheckCircle size={19} />
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-blue-300/60">03</span>
+        </div>
+        <div className="relative mt-7">
+          <span className="block text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white">{approved}</span>
+          <span className="mt-2 block text-[11px] sm:text-xs font-bold uppercase tracking-[0.13em] text-slate-400">Approved Requests</span>
+        </div>
+        <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-white/[0.05]">
+          <div className="h-full w-full rounded-full bg-gradient-to-r from-blue-500/80 to-blue-300/30 transition-all duration-500 group-hover:to-blue-300/70" />
+        </div>
+      </div>
+
+      {/* Delivered */}
+      <div className="group relative overflow-hidden rounded-2xl border border-pink-400/15 bg-gradient-to-br from-pink-400/[0.08] via-white/[0.025] to-transparent p-5 sm:p-6 shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-pink-400/35 hover:shadow-xl hover:shadow-pink-950/20">
+        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-pink-400/[0.06] blur-2xl transition-all duration-300 group-hover:bg-pink-400/[0.12]" />
+        <div className="relative flex items-center justify-between">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-pink-400/20 bg-pink-400/10 text-pink-300 transition-transform duration-300 group-hover:scale-110">
+            <FaTruck size={19} />
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-pink-300/60">04</span>
+        </div>
+        <div className="relative mt-7">
+          <span className="block text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-white">{delivered}</span>
+          <span className="mt-2 block text-[11px] sm:text-xs font-bold uppercase tracking-[0.13em] text-slate-400">Delivered Items</span>
+        </div>
+        <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-white/[0.05]">
+          <div className="h-full w-full rounded-full bg-gradient-to-r from-pink-500/80 to-pink-300/30 transition-all duration-500 group-hover:to-pink-300/70" />
+        </div>
+      </div>
+
+    </div>
+
+    {/* Operational Impact Metrics */}
+    <div className="relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.045] to-white/[0.015] p-2 sm:p-3 shadow-2xl shadow-black/20 backdrop-blur-xl">
+      <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08]">
+
+        {/* Volunteers Assigned */}
+        <div className="group relative flex items-center gap-4 sm:flex-col sm:items-center sm:gap-3 p-4 sm:p-6 text-left sm:text-center transition-colors duration-300 hover:bg-white/[0.02] rounded-xl">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-cyan-400/15 bg-cyan-400/[0.08] text-cyan-300 transition-transform duration-300 group-hover:scale-110">
+            <FaBoxOpen size={17} />
+          </div>
+          <div className="min-w-0 flex-1 sm:flex-none">
+            <span className="block text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-cyan-300">{assigned}</span>
+            <span className="mt-1.5 block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.14em] text-slate-400">Volunteers Assigned</span>
+          </div>
+        </div>
+
+        {/* Pickups Confirmed */}
+        <div className="group relative flex items-center gap-4 sm:flex-col sm:items-center sm:gap-3 p-4 sm:p-6 text-left sm:text-center transition-colors duration-300 hover:bg-white/[0.02] rounded-xl">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-400/15 bg-amber-400/[0.08] text-amber-300 transition-transform duration-300 group-hover:scale-110">
+            <FaTruck size={17} />
+          </div>
+          <div className="min-w-0 flex-1 sm:flex-none">
+            <span className="block text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-amber-300">{pickupConfirmed}</span>
+            <span className="mt-1.5 block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.14em] text-slate-400">Pickups Confirmed</span>
+          </div>
+        </div>
+
+        {/* Impact Score */}
+        <div className="group relative flex items-center gap-4 sm:flex-col sm:items-center sm:gap-3 p-4 sm:p-6 text-left sm:text-center transition-colors duration-300 hover:bg-white/[0.02] rounded-xl">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-fuchsia-400/15 bg-fuchsia-400/[0.08] text-fuchsia-300 transition-transform duration-300 group-hover:scale-110">
+            <FaCheckCircle size={17} />
+          </div>
+          <div className="min-w-0 flex-1 sm:flex-none">
+            <span className="block text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-fuchsia-300">{impactScore}</span>
+            <span className="mt-1.5 block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.14em] text-slate-400">Calculated Impact Score</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+
+
+
+
+
 
 
 
@@ -656,109 +1007,289 @@ const NgoDashboard = () => {
 
 
       {/* 🏁 Vendor Directory CTA Section */}
-      <section className="relative py-20 lg:py-24 px-6 sm:px-12 lg:px-8 bg-gradient-to-b from-slate-950 via-[#0a0c14] to-zinc-950 overflow-hidden border-t border-white/[0.04]">
-        {/* Modern Tech Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff02_1px,transparent_1px),linear-gradient(to_bottom,#ffffff02_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-gradient-to-b from-[#080d19] via-[#0b1020] to-[#090b12] px-4 py-20 sm:px-8 sm:py-24 lg:px-8">
 
-        {/* Ambient Indigo Base Glow Ring */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500/[0.03] rounded-full blur-3xl pointer-events-none animate-pulse duration-[6000ms]" />
+  {/* Background Grid */}
+  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_75%)]" />
 
-        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6 group">
-          {/* Micro Badge Header */}
-          <div className="flex justify-center">
-            <span className="inline-flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
+  {/* Ambient Glows */}
+  <div className="pointer-events-none absolute -left-32 top-1/4 h-80 w-80 rounded-full bg-blue-500/[0.09] blur-[110px]" />
+  <div className="pointer-events-none absolute -right-32 bottom-0 h-80 w-80 rounded-full bg-emerald-500/[0.08] blur-[110px]" />
+  <div className="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent" />
+
+  <div className="relative z-10 mx-auto max-w-5xl">
+
+    {/* Main Content Panel */}
+    <div className="group relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-gradient-to-br from-white/[0.055] via-white/[0.025] to-white/[0.015] px-5 py-10 shadow-2xl shadow-black/30 backdrop-blur-xl transition-all duration-500 hover:border-white/[0.14] sm:px-10 sm:py-14 lg:px-16 lg:py-16">
+
+      {/* Panel Accent */}
+      <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-500/[0.07] blur-[80px] transition-all duration-700 group-hover:bg-blue-500/[0.12]" />
+
+      <div className="relative mx-auto max-w-3xl space-y-7 text-center">
+
+        {/* Badge */}
+        <div className="flex justify-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/[0.07] px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.2em] text-blue-300 sm:text-[11px]">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-50" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-400" />
+            </span>
+            Supply Network
+            <span className="h-1 w-1 rounded-full bg-blue-300/50" />
+            <span className="font-semibold tracking-wider text-slate-400">Explore & Connect</span>
+          </span>
+        </div>
+
+        {/* Heading and Description */}
+        <div className="space-y-5">
+          <h3 className="text-3xl font-black leading-[1.15] tracking-tight text-white sm:text-4xl lg:text-5xl">
+            Discover the
+            <span className="block mt-1 bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
               Supply Network
             </span>
-          </div>
+          </h3>
 
-          {/* Typography Content */}
-          <div className="space-y-3">
-            <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 select-none">
-              Check All The Vendors
-            </h3>
-            <p className="text-xs sm:text-sm md:text-base text-slate-400 max-w-xl mx-auto leading-relaxed select-text">
-              Discover active merchants contributing to systemic regional sustainability. Explore live asset inventories and participate in reducing supply waste loops instantly.
-            </p>
-          </div>
-
-          <div className="pt-2">
-            <button
-              onClick={handleRedirect}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 active:scale-[0.98] text-slate-950 font-black text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-emerald-500/20 border border-emerald-400/30 transition-all duration-200 group/btn"
-              type="button">
-              <span>View All Vendors</span>
-              <span className="text-sm font-black group-hover/btn:translate-x-1 transition-transform duration-150">&rarr;</span>
-            </button>
-          </div>
+          <p className="mx-auto max-w-2xl text-sm leading-7 text-slate-400 sm:text-base sm:leading-8">
+            Connect with active vendors, explore available resources, and help build a more sustainable regional ecosystem. Every connection brings us closer to reducing waste and maximizing community impact.
+          </p>
         </div>
-      </section>
+
+        {/* Feature Highlights */}
+        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-3 pt-1 text-left sm:grid-cols-3 sm:gap-4">
+
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-emerald-400/20 hover:bg-emerald-400/[0.035] sm:flex-col sm:items-center sm:gap-2 sm:py-4 sm:text-center">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-emerald-400/15 bg-emerald-400/[0.08] text-emerald-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-[18px] w-[18px]">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 13v.01M9 17v.01M15 13v.01M15 17v.01" />
+              </svg>
+            </span>
+            <span className="text-xs font-semibold tracking-wide text-slate-300">Active Vendors</span>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-cyan-400/20 hover:bg-cyan-400/[0.035] sm:flex-col sm:items-center sm:gap-2 sm:py-4 sm:text-center">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-400/15 bg-cyan-400/[0.08] text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-[18px] w-[18px]">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7h-9m9 0-3-3m3 3-3 3M4 17h9m-9 0 3-3m-3 3 3 3M4 7h2m-2 10h2" />
+              </svg>
+            </span>
+            <span className="text-xs font-semibold tracking-wide text-slate-300">Resource Sharing</span>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-teal-400/20 hover:bg-teal-400/[0.035] sm:flex-col sm:items-center sm:gap-2 sm:py-4 sm:text-center">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-teal-400/15 bg-teal-400/[0.08] text-teal-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-[18px] w-[18px]">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3 14.8 8.7 21 9.6l-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+              </svg>
+            </span>
+            <span className="text-xs font-semibold tracking-wide text-slate-300">Sustainable Impact</span>
+          </div>
+
+        </div>
+
+        {/* CTA */}
+        <div className="flex flex-col items-center gap-3 pt-3">
+          <button
+            onClick={handleRedirect}
+            type="button"
+            className="group/btn relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-emerald-300/30 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-7 py-4 text-sm font-extrabold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.16)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_38px_rgba(16,185,129,0.25)] active:translate-y-0 active:scale-[0.98] sm:w-auto sm:min-w-[240px]"
+          >
+            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+            <span className="relative">View All Vendors</span>
+            <span className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-black/[0.08] transition-all duration-300 group-hover/btn:translate-x-1 group-hover/btn:bg-black/[0.12]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+              </svg>
+            </span>
+          </button>
+
+          <p className="text-[10px] font-medium tracking-wide text-slate-500 sm:text-[11px]">
+            Building stronger communities through smarter resource sharing.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       {/* 🥧 Claim Status Pie Chart Section */}
-      <section className="relative py-20 px-4 sm:px-12 bg-gradient-to-b from-zinc-950 to-slate-950 border-t border-white/[0.04]">
-        <div className="max-w-3xl mx-auto space-y-10">
+<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-gradient-to-b from-[#090c15] via-[#0b1020] to-[#080b12] px-4 py-16 sm:px-8 sm:py-20">
+  {/* Background Grid */}
+  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.025)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_80%)]" />
 
-          {/* Header Elements */}
-          <div className="text-center space-y-2">
-            <div className="flex justify-center">
-              <span className="inline-flex items-center gap-1.5 bg-emerald-500/5 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
-                Live Metric Stream
-              </span>
+  {/* Ambient Glows */}
+  <div className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-emerald-500/[0.06] blur-[100px]" />
+  <div className="pointer-events-none absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-blue-500/[0.07] blur-[100px]" />
+
+  <div className="relative z-10 mx-auto max-w-4xl space-y-9 sm:space-y-11">
+
+    {/* Header */}
+    <div className="space-y-4 text-center">
+      <div className="flex justify-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-3.5 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-300 sm:text-[11px]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+          </span>
+          Live Metric Stream
+        </span>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
+          Claim Status <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">Distribution</span>
+        </h2>
+        <p className="mx-auto max-w-lg text-xs leading-6 text-slate-400 sm:text-sm">
+          Visualize claim progress across different stages and get a clearer picture of your operational activity.
+        </p>
+      </div>
+    </div>
+
+    {/* Analytics Card */}
+    <div className="group relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-white/[0.045] via-white/[0.02] to-white/[0.01] p-4 shadow-2xl shadow-black/20 backdrop-blur-xl transition-all duration-500 hover:border-white/[0.12] sm:p-7 lg:p-8">
+
+      {/* Top Accent */}
+      <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
+      <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-emerald-500/[0.035] blur-[80px] transition-colors duration-500 group-hover:bg-emerald-500/[0.07]" />
+
+      <div className="relative">
+
+        {/* Card Header */}
+        <div className="mb-5 flex flex-col gap-3 border-b border-white/[0.06] pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/[0.08] text-emerald-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M7 14l4-4 4 4 6-7" />
+              </svg>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white select-none">
-              Claim Status Distribution
-            </h2>
+            <div>
+              <h3 className="text-sm font-bold text-white sm:text-base">Claims Analytics</h3>
+              <p className="mt-1 text-[11px] text-slate-500">Overview by current status</p>
+            </div>
           </div>
 
-          {/* Recharts Wrapper Card */}
-          <div className="bg-white/[0.01] border border-white/[0.06] p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-xl min-h-[360px] flex items-center justify-center">
-            {pieData && pieData.length === 0 ? (
-              <div className="text-center text-slate-500 text-xs italic py-12 space-y-2">
-                <span>📊</span>
-                <p>No interactive claim metrics logged yet to draw analytics visuals.</p>
-              </div>
-            ) : (
-              <div className="w-full h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="42%"
-                      outerRadius={100}
-                      innerRadius={65}
-                      paddingAngle={4}
-                      dataKey="value"
-                      label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="#020617" strokeWidth={2} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#020617",
-                        borderRadius: "12px",
-                        borderColor: "rgba(255,255,255,0.08)",
-                        fontSize: "12px"
-                      }}
-                      itemStyle={{ color: "#fff" }}
-                    />
-                    <Legend
-                      layout="horizontal"
-                      verticalAlign="bottom"
-                      align="center"
-                      iconType="circle"
-                      wrapperStyle={{ fontSize: "11px", color: "#94a3b8", paddingTop: "16px" }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </div>
-
+          <span className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-[10px] font-semibold tracking-wide text-slate-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Status Breakdown
+          </span>
         </div>
-      </section>
+
+        {/* Chart / Empty State */}
+        {pieData && pieData.length === 0 ? (
+          <div className="flex min-h-[300px] flex-col items-center justify-center px-5 py-12 text-center">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.025] shadow-inner shadow-white/[0.02]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-slate-500">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 3.05A9 9 0 1 0 20.95 13H11V3.05Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14 3.5V10h6.5A9 9 0 0 0 14 3.5Z" />
+              </svg>
+            </div>
+            <h4 className="text-sm font-bold text-slate-200">No claim data available</h4>
+            <p className="mt-2 max-w-xs text-xs leading-6 text-slate-500">
+              Your analytics will appear here once claim activity has been recorded.
+            </p>
+            <span className="mt-5 rounded-full border border-white/[0.06] bg-white/[0.025] px-3 py-1.5 text-[10px] font-medium text-slate-500">
+              Waiting for activity
+            </span>
+          </div>
+        ) : (
+          <div className="w-full">
+            <div className="h-[320px] w-full sm:h-[360px] lg:h-[380px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="43%"
+                    outerRadius="72%"
+                    innerRadius="53%"
+                    paddingAngle={4}
+                    dataKey="value"
+                    stroke="none"
+                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                        stroke="#0b1020"
+                        strokeWidth={3}
+                        className="transition-opacity duration-300 hover:opacity-80"
+                      />
+                    ))}
+                  </Pie>
+
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#0b1020",
+                      borderRadius: "14px",
+                      border: "1px solid rgba(255,255,255,0.10)",
+                      padding: "12px 15px",
+                      boxShadow: "0 12px 35px rgba(0,0,0,0.35)",
+                      fontSize: "12px",
+                    }}
+                    labelStyle={{
+                      color: "#e2e8f0",
+                      fontWeight: 700,
+                      marginBottom: "4px",
+                    }}
+                    itemStyle={{
+                      color: "#cbd5e1",
+                      fontSize: "12px",
+                    }}
+                    cursor={false}
+                  />
+
+                  <Legend
+                    layout="horizontal"
+                    verticalAlign="bottom"
+                    align="center"
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{
+                      fontSize: "11px",
+                      color: "#94a3b8",
+                      paddingTop: "18px",
+                      lineHeight: "24px",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/[0.06] pt-4">
+          <span className="text-[10px] font-medium text-slate-500 sm:text-[11px]">
+            Claim status overview
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 sm:text-[11px]">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
+            Distribution View
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 
 
@@ -773,105 +1304,326 @@ const NgoDashboard = () => {
 
 
       {/* 📍 Nearest Vendors Call-to-Action */}
-      <section className="relative py-16 lg:py-24 px-6 sm:px-12 lg:px-8 bg-gradient-to-br from-slate-950 via-[#0f111a] to-zinc-950 overflow-hidden border-t border-white/[0.05]">
-        {/* Ambient Geometric Texture Overlay */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-mosaic.png')] opacity-10 pointer-events-none" />
+<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-gradient-to-b from-[#080d17] via-[#0c1220] to-[#090b13] px-4 py-20 sm:px-8 sm:py-24 lg:px-8">
 
-        {/* Radial Emerald Base Glow Ring */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-500/[0.04] rounded-full blur-3xl pointer-events-none" />
+  {/* Background Grid */}
+  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_75%)]" />
 
-        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6 group">
+  {/* Ambient Lighting */}
+  <div className="pointer-events-none absolute -left-32 top-0 h-80 w-80 rounded-full bg-emerald-500/[0.09] blur-[110px]" />
+  <div className="pointer-events-none absolute -right-32 bottom-0 h-80 w-80 rounded-full bg-cyan-500/[0.07] blur-[110px]" />
+  <div className="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent" />
 
-          {/* Micro Badge Header */}
-          <div className="flex justify-center">
-            <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Proximity Engine
+  <div className="relative z-10 mx-auto max-w-5xl">
+
+    {/* Main Feature Panel */}
+    <div className="group relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-gradient-to-br from-white/[0.045] via-white/[0.02] to-white/[0.01] px-5 py-10 shadow-2xl shadow-black/30 backdrop-blur-xl transition-all duration-500 hover:border-emerald-400/20 sm:px-10 sm:py-14 lg:px-16 lg:py-16">
+
+      {/* Decorative Glow */}
+      <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-emerald-400/[0.06] blur-[90px] transition-all duration-700 group-hover:bg-emerald-400/[0.11]" />
+      <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
+
+      <div className="relative mx-auto max-w-3xl space-y-7 text-center">
+
+        {/* Badge */}
+        <div className="flex justify-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.07] px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.2em] text-emerald-300 sm:text-[11px]">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
             </span>
-          </div>
-
-          {/* Section Typography Headers */}
-          <div className="space-y-3">
-            <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">
-              Find Nearest Vendors
-            </h3>
-            <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto leading-relaxed">
-              Execute a real-time city-wide coordinate scan to locate active supplier nodes closest to you. Cut down transit footprints instantly by securing localized stock.
-            </p>
-          </div>
-
-          {/* Action Routing Trigger */}
-          <div className="pt-2">
-            <Link
-              to="/near"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-950/40 transition-all duration-150"
-            >
-              <span>Discover Nearby Vendors</span>
-              <span className="text-xs tracking-normal opacity-70 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
-            </Link>
-          </div>
-
+            Proximity Engine
+            <span className="h-1 w-1 rounded-full bg-emerald-300/50" />
+            <span className="font-semibold tracking-wider text-slate-400">Location Discovery</span>
+          </span>
         </div>
-      </section>
 
+        {/* Heading */}
+        <div className="space-y-4">
+          <h3 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+            Find Vendors
+            <span className="mt-1 block bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
+              Closer to You
+            </span>
+          </h3>
 
+          <p className="mx-auto max-w-2xl text-sm leading-7 text-slate-400 sm:text-base sm:leading-8">
+            Discover nearby suppliers, explore locally available resources, and reduce unnecessary transportation. Find the right stock closer to your location and make every connection count.
+          </p>
+        </div>
 
+        {/* Feature Highlights */}
+        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-3 pt-1 sm:grid-cols-3 sm:gap-4">
 
-      <section className="relative py-20 lg:py-28 px-6 sm:px-12 lg:px-24 bg-gradient-to-br from-slate-950 via-[#0f111a] to-zinc-950 text-white overflow-hidden border-t border-white/[0.05]">
-        {/* Ambient Background Grid/Texture */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none" />
-
-        {/* Left Side Glow */}
-        <div className="absolute -left-16 top-1/4 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-16 relative z-10">
-
-          {/* Text Context Column */}
-          <div className="w-full md:w-1/2 text-center md:text-left space-y-6">
-            <div className="space-y-3">
-              <span className="inline-flex bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
-                Logistics Dispatch Hub
-              </span>
-              <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-                Book a Volunteer <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">
-                  for Transportation
-                </span>
-              </h2>
+          {/* Location Discovery */}
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-emerald-400/20 hover:bg-emerald-400/[0.035] sm:flex-col sm:items-center sm:gap-3 sm:py-5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/[0.08] text-emerald-300 transition-transform duration-300 group-hover:scale-105">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
             </div>
-
-            <p className="text-slate-400 text-base sm:text-lg max-w-xl mx-auto md:mx-0 leading-relaxed">
-              Lacking independent heavy transport mechanisms to complete your claims pick-ups? Tap into our verified community volunteer pool to schedule secure, end-to-end stock collection transits.
-            </p>
-
-            <div className="pt-2">
-              <Link
-                to="/ngo/bookvolunteer"
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-cyan-600 hover:bg-cyan-500 active:scale-[0.98] text-white font-bold text-sm rounded-xl shadow-lg shadow-cyan-950/40 transition-all duration-150"
-              >
-                <span>Schedule Freight Volunteer</span>
-                <span className="text-xs transition-transform group-hover:translate-x-0.5">&rarr;</span>
-              </Link>
+            <div className="text-left sm:text-center">
+              <h4 className="text-xs font-bold text-slate-200">Location-Based</h4>
+              <p className="mt-1 text-[10px] leading-5 text-slate-500">Discover nearby suppliers</p>
             </div>
           </div>
 
-          {/* Graphic Asset Showcase Column */}
-          <div className="w-full md:w-1/2 flex justify-center relative group">
-            {/* Decorative Outer Aura Glow Ring */}
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-indigo-500 rounded-3xl blur-2xl opacity-10 group-hover:opacity-20 transition duration-500" />
+          {/* Local Inventory */}
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-cyan-400/20 hover:bg-cyan-400/[0.035] sm:flex-col sm:items-center sm:gap-3 sm:py-5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/15 bg-cyan-400/[0.08] text-cyan-300 transition-transform duration-300 group-hover:scale-105">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m3 7 9-4 9 4-9 4-9-4Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="m3 12 9 4 9-4M3 17l9 4 9-4" />
+              </svg>
+            </div>
+            <div className="text-left sm:text-center">
+              <h4 className="text-xs font-bold text-slate-200">Local Resources</h4>
+              <p className="mt-1 text-[10px] leading-5 text-slate-500">Explore available supplies</p>
+            </div>
+          </div>
 
-            <div className="relative rounded-3xl bg-slate-950 border border-white/[0.06] p-4 sm:p-6 shadow-2xl w-full max-w-md md:max-w-lg transition duration-300 group-hover:border-white/10">
-              <img
-                src="https://i.pinimg.com/originals/c4/9a/20/c49a207e0f89c9290d98fd43a87a8cb0.gif"
-                alt="Logistics asset distribution flow motion illustration graphic"
-                className="w-full h-auto rounded-2xl mix-blend-screen opacity-90 object-contain"
-                loading="lazy"
-              />
+          {/* Sustainable Logistics */}
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-teal-400/20 hover:bg-teal-400/[0.035] sm:flex-col sm:items-center sm:gap-3 sm:py-5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-teal-400/15 bg-teal-400/[0.08] text-teal-300 transition-transform duration-300 group-hover:scale-105">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" />
+                <circle cx="7.5" cy="19" r="2" />
+                <circle cx="17.5" cy="19" r="2" />
+              </svg>
+            </div>
+            <div className="text-left sm:text-center">
+              <h4 className="text-xs font-bold text-slate-200">Less Travel</h4>
+              <p className="mt-1 text-[10px] leading-5 text-slate-500">Support local sustainability</p>
             </div>
           </div>
 
         </div>
-      </section>
+
+        {/* CTA */}
+        <div className="flex flex-col items-center gap-3 pt-3">
+          <Link
+            to="/near"
+            className="group/btn relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-emerald-300/30 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-7 py-4 text-sm font-extrabold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.16)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_38px_rgba(16,185,129,0.25)] active:translate-y-0 active:scale-[0.98] sm:w-auto sm:min-w-[260px]"
+          >
+            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="relative h-5 w-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+              <circle cx="12" cy="10" r="2.5" />
+            </svg>
+
+            <span className="relative">Discover Nearby Vendors</span>
+
+            <span className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-black/[0.08] transition-all duration-300 group-hover/btn:translate-x-1 group-hover/btn:bg-black/[0.12]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+              </svg>
+            </span>
+          </Link>
+
+          <p className="text-[10px] font-medium tracking-wide text-slate-500 sm:text-[11px]">
+            Smarter sourcing. Shorter journeys. A greener future.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-gradient-to-b from-[#080d18] via-[#0b1120] to-[#090b13] px-4 py-20 text-white sm:px-8 sm:py-24 lg:px-12 lg:py-28">
+
+  {/* Background Grid */}
+  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.03)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_80%)]" />
+
+  {/* Ambient Glows */}
+  <div className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-cyan-500/[0.09] blur-[120px]" />
+  <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-indigo-500/[0.09] blur-[120px]" />
+  <div className="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent" />
+
+  <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-20">
+
+    {/* Content Column */}
+    <div className="space-y-7 text-center lg:text-left">
+
+      {/* Badge */}
+      <div className="flex justify-center lg:justify-start">
+        <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/[0.07] px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-cyan-300 sm:text-[11px]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-50" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
+          </span>
+          Logistics Dispatch Hub
+        </span>
+      </div>
+
+      {/* Heading */}
+      <div className="space-y-5">
+        <h2 className="text-3xl font-black leading-[1.15] tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-[3.5rem]">
+          Book a Volunteer
+          <span className="mt-2 block bg-gradient-to-r from-cyan-300 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
+            for Transportation
+          </span>
+        </h2>
+
+        <p className="mx-auto max-w-xl text-sm leading-7 text-slate-400 sm:text-base sm:leading-8 lg:mx-0">
+          Need help transporting your claimed supplies? Connect with community volunteers to coordinate pickups and deliveries, simplify logistics, and get essential resources where they are needed most.
+        </p>
+      </div>
+
+      {/* Feature Highlights */}
+      <div className="mx-auto grid max-w-xl grid-cols-1 gap-3 text-left sm:grid-cols-3 lg:mx-0">
+
+        <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3.5 py-3 transition-all duration-300 hover:border-cyan-400/20 hover:bg-cyan-400/[0.035] sm:flex-col sm:items-start sm:gap-3 sm:py-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-400/15 bg-cyan-400/[0.08] text-cyan-300">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="m9 12 2 2 4-4" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-200">Verified Support</p>
+            <p className="mt-1 text-[10px] leading-5 text-slate-500">Community volunteers</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3.5 py-3 transition-all duration-300 hover:border-indigo-400/20 hover:bg-indigo-400/[0.035] sm:flex-col sm:items-start sm:gap-3 sm:py-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-indigo-400/15 bg-indigo-400/[0.08] text-indigo-300">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" />
+              <circle cx="7.5" cy="19" r="2" />
+              <circle cx="17.5" cy="19" r="2" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-200">Easy Coordination</p>
+            <p className="mt-1 text-[10px] leading-5 text-slate-500">Organized pickups</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3.5 py-3 transition-all duration-300 hover:border-violet-400/20 hover:bg-violet-400/[0.035] sm:flex-col sm:items-start sm:gap-3 sm:py-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-violet-400/15 bg-violet-400/[0.08] text-violet-300">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+              <circle cx="12" cy="12" r="9" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 2" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-200">Flexible Scheduling</p>
+            <p className="mt-1 text-[10px] leading-5 text-slate-500">Plan your collection</p>
+          </div>
+        </div>
+
+      </div>
+
+      {/* CTA */}
+      <div className="flex flex-col items-center gap-4 pt-1 lg:items-start">
+        <Link
+          to="/ngo/bookvolunteer"
+          className="group/btn relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 px-7 py-4 text-sm font-extrabold text-slate-950 shadow-[0_8px_30px_rgba(34,211,238,0.13)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_38px_rgba(34,211,238,0.23)] active:translate-y-0 active:scale-[0.98] sm:w-auto sm:min-w-[270px]"
+        >
+          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="relative h-5 w-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v8m-4-4h8" />
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+
+          <span className="relative">Schedule a Volunteer</span>
+
+          <span className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-black/[0.08] transition-transform duration-300 group-hover/btn:translate-x-1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+            </svg>
+          </span>
+        </Link>
+
+        <p className="text-[10px] font-medium tracking-wide text-slate-500 sm:text-[11px]">
+          Connecting resources, volunteers, and communities.
+        </p>
+      </div>
+    </div>
+
+    {/* Visual Showcase */}
+    <div className="group relative mx-auto w-full max-w-xl lg:max-w-none">
+
+      {/* Outer Aura */}
+      <div className="pointer-events-none absolute -inset-5 rounded-[36px] bg-gradient-to-br from-cyan-500/[0.12] via-blue-500/[0.05] to-indigo-500/[0.12] opacity-70 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+
+      {/* Image Frame */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.10] bg-gradient-to-br from-white/[0.06] to-white/[0.015] p-2 shadow-2xl shadow-black/40 backdrop-blur-xl transition-all duration-500 group-hover:border-cyan-400/20 sm:p-3">
+
+        {/* Image Top Bar */}
+        <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-3 py-3 sm:px-4">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/15 bg-cyan-400/[0.08] text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" />
+                <circle cx="7.5" cy="19" r="2" />
+                <circle cx="17.5" cy="19" r="2" />
+              </svg>
+            </span>
+            <div>
+              <p className="text-xs font-bold text-slate-200">Volunteer Logistics</p>
+              <p className="mt-0.5 text-[10px] text-slate-500">Collection & delivery workflow</p>
+            </div>
+          </div>
+
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/15 bg-cyan-400/[0.06] px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300">
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+            Dispatch
+          </span>
+        </div>
+
+        {/* Existing Graphic */}
+        <div className="relative flex min-h-[260px] items-center justify-center overflow-hidden rounded-2xl bg-[#080d18] sm:min-h-[340px]">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-400/[0.04] via-transparent to-indigo-400/[0.07]" />
+
+          <img
+            src="https://i.pinimg.com/originals/c4/9a/20/c49a207e0f89c9290d98fd43a87a8cb0.gif"
+            alt="Logistics asset distribution flow motion illustration graphic"
+            className="relative z-10 h-auto max-h-[420px] w-full object-contain opacity-90 transition-all duration-700 group-hover:scale-[1.025] group-hover:opacity-100"
+            loading="lazy"
+          />
+        </div>
+
+        {/* Image Footer */}
+        <div className="flex items-center justify-between gap-3 px-3 py-3 sm:px-4">
+          <div>
+            <p className="text-[11px] font-semibold text-slate-300">From pickup to delivery</p>
+            <p className="mt-1 text-[10px] text-slate-500">Coordinating community-powered transport</p>
+          </div>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.025] text-slate-400">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7 17 17 7M7 7h10v10" />
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Decorative Corner Accents */}
+      <div className="pointer-events-none absolute -bottom-2 -left-2 h-12 w-12 rounded-bl-2xl border-b border-l border-cyan-400/30" />
+      <div className="pointer-events-none absolute -right-2 -top-2 h-12 w-12 rounded-tr-2xl border-r border-t border-indigo-400/30" />
+
+    </div>
+  </div>
+</section>
+
 
 
 

@@ -6,6 +6,29 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { Leaf, ArrowDown, MessageSquare } from "lucide-react";
+import {  Activity } from "lucide-react";
+
+import {  ArrowRight, BarChart3 } from 'lucide-react';
+
+import {
+  ShieldCheck,
+  Truck,
+  ChartNoAxesColumn,
+  Info,
+} from "lucide-react";
+
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  HeartHandshake,
+  Recycle,
+  Sparkles,
+  Sprout,
+  Globe2,
+} from "lucide-react";
+
+
 import {
   PackageCheck,
   Handshake,
@@ -37,6 +60,9 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { playClickSound, playSuccessSound } from "../utils/audio";
 import ItemCardWithCursor from "../components/items/ItemCardWithCursor";
+
+
+const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6']; // Example Tailwind colors
 
 const VendorDashboard = () => {
   const { token, logout: authLogout } = useAuth();
@@ -166,111 +192,359 @@ const VendorDashboard = () => {
       <Toaster position="top-right" />
 
       {/* Responsive Hero Banner Space */}
-      <section
-        className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.75), rgba(15, 17, 26, 1)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200')" }}
-      >
-        <div className="max-w-4xl mx-auto text-center px-6 space-y-5">
-          <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">
-            Supplier Operations Portal
+
+<section
+  className="relative isolate flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-slate-950 px-4 py-20 sm:px-6 lg:px-8"
+  style={{
+    backgroundImage: `
+      linear-gradient(90deg, rgba(2, 6, 23, 0.96) 0%, rgba(2, 6, 23, 0.82) 48%, rgba(2, 6, 23, 0.48) 100%),
+      linear-gradient(0deg, rgba(2, 6, 23, 0.9), transparent 45%),
+      url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=85&w=2000')
+    `,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  }}
+>
+  {/* Ambient background effects */}
+  <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+    <div className="absolute -left-32 top-10 h-80 w-80 rounded-full bg-emerald-500/15 blur-[110px]" />
+    <div className="absolute -right-24 top-1/4 h-96 w-96 rounded-full bg-teal-400/10 blur-[130px]" />
+    <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-green-500/10 blur-[100px]" />
+
+    {/* Subtle grid */}
+    <div
+      className="absolute inset-0 opacity-[0.07]"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)",
+        backgroundSize: "64px 64px",
+        maskImage:
+          "linear-gradient(to bottom, black, transparent 90%)",
+      }}
+    />
+
+    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+  </div>
+
+  {/* Main content */}
+  <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10">
+    <div className="mx-auto w-full max-w-3xl text-center lg:mx-0 lg:text-left">
+      {/* Eyebrow badge */}
+      <div className="mb-7 inline-flex items-center gap-3 rounded-full border border-emerald-400/20 bg-slate-950/50 px-4 py-2 shadow-lg shadow-emerald-950/20 backdrop-blur-xl">
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
+        </span>
+
+        <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300 sm:text-xs">
+          Supplier Operations Portal
+        </span>
+
+        <span className="h-4 w-px bg-white/15" />
+
+        <span className="text-xs font-medium text-slate-300">
+          Built for impact
+        </span>
+      </div>
+
+      {/* Headline */}
+      <h1 className="text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5.25rem]">
+        Give Waste a
+        <span className="mt-2 block bg-gradient-to-r from-emerald-300 via-teal-300 to-green-200 bg-clip-text pb-2 text-transparent">
+          Second Chance.
+        </span>
+      </h1>
+
+      {/* Description */}
+      <p className="mx-auto mt-7 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg lg:mx-0 lg:text-xl">
+        Turn surplus inventory into something meaningful. Connect your
+        business with communities in need and make every resource count
+        toward a{" "}
+        <span className="font-semibold text-emerald-300">
+          zero-waste future.
+        </span>
+      </p>
+
+      {/* Supporting value propositions */}
+      <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-slate-300 lg:justify-start">
+        <span className="flex items-center gap-2">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+            <CheckCircle2 className="h-3.5 w-3.5" />
           </span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
-            Give Waste a Second Chance
-          </h2>
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Empowering vendors to transform surplus inventory into meaningful contributions, fostering community well-being and driving a zero-waste future.
+          Reduce surplus waste
+        </span>
+
+        <span className="flex items-center gap-2">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+          </span>
+          Support local communities
+        </span>
+      </div>
+
+      {/* Actions */}
+      <div className="mt-9 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
+        <button
+          onClick={() => {
+            document
+              .getElementById("contact")
+              ?.scrollIntoView({ behavior: "smooth" });
+          }}
+          className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-300 px-7 py-4 font-bold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(16,185,129,0.35)] focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+        >
+          <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 group-hover:translate-x-full" />
+          <span className="relative">Let's Talk</span>
+          <MessageSquare className="relative h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+        </button>
+
+        <button
+          onClick={handlereadmore}
+          className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/[0.06] px-7 py-4 font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-emerald-400/10 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+        >
+          Explore Our Mission
+          <ArrowDown className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-y-1" />
+        </button>
+      </div>
+
+      {/* Impact indicators */}
+      <div className="mt-12 grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-7 text-left">
+        <div className="px-3 first:pl-0 sm:px-5">
+          <div className="flex items-center gap-2 text-emerald-300">
+            <Leaf className="h-4 w-4" />
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              Planet
+            </span>
+          </div>
+          <p className="mt-2 text-sm font-semibold text-white sm:text-base">
+            Less waste
           </p>
-          <div className="flex gap-4 justify-center pt-2">
-            <button className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-xl shadow-lg shadow-emerald-950/40 transition">
-              Let&apos;s Talk 💬
-            </button>
-            <button
-              onClick={handlereadmore}
-              className="border border-slate-700 text-slate-200 font-semibold px-6 py-3 rounded-xl hover:bg-white/5 transition"
-            >
-              Read More
-            </button>
+          <p className="mt-1 text-xs text-slate-400">
+            Better resource use
+          </p>
+        </div>
+
+        <div className="px-3 sm:px-5">
+          <div className="flex items-center gap-2 text-teal-300">
+            <HeartHandshake className="h-4 w-4" />
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              People
+            </span>
+          </div>
+          <p className="mt-2 text-sm font-semibold text-white sm:text-base">
+            Stronger communities
+          </p>
+          <p className="mt-1 text-xs text-slate-400">
+            Surplus with purpose
+          </p>
+        </div>
+
+        <div className="px-3 sm:px-5">
+          <div className="flex items-center gap-2 text-green-300">
+            <Recycle className="h-4 w-4" />
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              Future
+            </span>
+          </div>
+          <p className="mt-2 text-sm font-semibold text-white sm:text-base">
+            Circular thinking
+          </p>
+          <p className="mt-1 text-xs text-slate-400">
+            A sustainable tomorrow
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Right-side visual card */}
+    <div className="relative mx-auto w-full max-w-md lg:ml-auto lg:mr-0">
+      <div className="absolute -inset-5 rounded-[2.5rem] bg-gradient-to-br from-emerald-400/20 via-transparent to-teal-300/10 blur-2xl" />
+
+      <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-slate-950/55 p-3 shadow-2xl shadow-black/30 backdrop-blur-2xl">
+        <div className="relative overflow-hidden rounded-[1.5rem]">
+          <img
+            src="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=85&w=1000"
+            alt="Wildlife in a natural green landscape"
+            className="h-64 w-full object-cover transition-transform duration-700 hover:scale-105 sm:h-80"
+            loading="lazy"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent" />
+
+          <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/50 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-lg">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
+            Small actions. Real change.
+          </div>
+
+          <div className="absolute inset-x-5 bottom-5">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300/20 bg-emerald-400/15 text-emerald-300 backdrop-blur-md">
+              <Sprout className="h-5 w-5" />
+            </div>
+
+            <h3 className="text-2xl font-bold tracking-tight text-white">
+              Waste less.
+              <span className="block text-emerald-300">
+                Give more.
+              </span>
+            </h3>
+
+            <p className="mt-2 max-w-xs text-sm leading-6 text-slate-300">
+              A better tomorrow starts with what we choose to do today.
+            </p>
           </div>
         </div>
-      </section>
+
+        {/* Bottom card footer */}
+        <div className="flex items-center justify-between gap-3 px-3 py-4 sm:px-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">
+              <Globe2 className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">
+                Every resource matters
+              </p>
+              <p className="mt-1 text-xs text-slate-400">
+                Join the zero-waste movement
+              </p>
+            </div>
+          </div>
+
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
+            <ArrowUpRight className="h-4 w-4" />
+          </div>
+        </div>
+      </div>
+
+      {/* Floating accent */}
+      <div className="absolute -right-3 top-1/3 hidden items-center gap-3 rounded-2xl border border-white/15 bg-slate-950/80 p-3 shadow-xl backdrop-blur-xl sm:flex lg:-right-8">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
+          <Recycle className="h-5 w-5" />
+        </div>
+        <div>
+          <p className="text-xs font-bold text-white">Reuse. Redistribute.</p>
+          <p className="mt-1 text-[11px] text-slate-400">Make an impact</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
 
       {/* 🌿 Why Vendors Matter Value Proposition Grid */}
-      <section className="relative py-16 lg:py-24 px-4 sm:px-12 lg:px-8 bg-gradient-to-b from-slate-950 via-[#0a0c14] to-zinc-950 border-y border-white/[0.04]">
-        <div className="max-w-6xl mx-auto space-y-12">
-          {/* Section Header */}
-          <div className="text-center space-y-2">
-            <div className="flex justify-center">
-              <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+     <section className="relative py-20 lg:py-32 px-4 sm:px-12 lg:px-8 bg-[#020617] overflow-hidden border-y border-slate-800/50">
+      {/* Ambient Background Glows */}
+      <div className="absolute top-0 left-1/4 w-[40rem] h-[40rem] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+      <div className="absolute bottom-0 right-1/4 w-[30rem] h-[30rem] bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+
+      <div className="relative z-10 max-w-6xl mx-auto space-y-16">
+        
+        {/* Section Header */}
+        <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            {/* Upgraded Premium Badge */}
+            <div className="inline-flex items-center justify-center gap-2 bg-emerald-500/10 border border-emerald-500/30 backdrop-blur-md px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="text-[11px] font-black tracking-[0.2em] uppercase text-emerald-400">
                 Eco-Impact Vision
               </span>
             </div>
-            <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="text-4xl sm:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-500 drop-shadow-sm">
               Why Vendors Matter
             </h3>
-            <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+            <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
               Vendors are the backbone of the zero-waste ecosystem. Every surplus item listed transforms potential waste into vital community support.
             </p>
           </div>
-
-          {/* Feature Matrix */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {/* Card 1: Preventing Landfill Waste */}
-            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-emerald-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
-              <div className="absolute inset-0 bg-emerald-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
-              <span className="bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-2xl text-emerald-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
-                <PackageCheck size={22} />
-              </span>
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors duration-200">
-                  Direct Waste Diversion
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
-                  By listing surplus food and items, commercial suppliers intercept quality goods before disposal, significantly lowering local landfill mass.
-                </p>
-              </div>
-            </article>
-
-            {/* Card 2: Empowering Non-Profits */}
-            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-amber-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
-              <div className="absolute inset-0 bg-amber-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
-              <span className="bg-amber-500/10 border border-amber-500/20 p-3.5 rounded-2xl text-amber-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
-                <Handshake size={22} />
-              </span>
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-amber-400 transition-colors duration-200">
-                  Community Support
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
-                  Your excess stock gives non-profit networks instant access to essentials, helping feed families and support local community centers.
-                </p>
-              </div>
-            </article>
-
-            {/* Card 3: ESG & Circular Economy */}
-            <article className="group bg-white/[0.01] backdrop-blur-xl border border-white/[0.06] hover:border-cyan-500/30 p-6 sm:p-8 rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-start text-left relative overflow-hidden">
-              <div className="absolute inset-0 bg-cyan-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
-              <span className="bg-cyan-500/10 border border-cyan-500/20 p-3.5 rounded-2xl text-cyan-400 block mb-5 shadow-inner transition duration-300 group-hover:scale-105">
-                <Zap size={22} />
-              </span>
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold tracking-tight text-white group-hover:text-cyan-400 transition-colors duration-200">
-                  Circular Brand Equity
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
-                  Demonstrate active sustainability leadership, reduce carbon footprints, and earn trust with eco-conscious consumers in your community.
-                </p>
-              </div>
-            </article>
-          </div>
         </div>
-      </section>
+
+        {/* Feature Matrix */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative">
+          
+          {/* Card 1: Preventing Landfill Waste */}
+          <article className="group relative bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 hover:border-emerald-500/50 p-8 rounded-[2rem] shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)] flex flex-col items-start text-left overflow-hidden">
+            {/* Internal Hover Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            
+            <span className="relative bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl text-emerald-400 block mb-6 shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:bg-emerald-500/20">
+              <PackageCheck size={28} strokeWidth={1.5} />
+            </span>
+            
+            <div className="space-y-3 relative z-10">
+              <h4 className="text-xl sm:text-2xl font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors duration-300">
+                Direct Waste Diversion
+              </h4>
+              <p className="text-sm text-slate-400 leading-relaxed font-normal group-hover:text-slate-300 transition-colors duration-300">
+                By listing surplus food and items, commercial suppliers intercept quality goods before disposal, significantly lowering local landfill mass.
+              </p>
+            </div>
+          </article>
+
+          {/* Card 2: Empowering Non-Profits */}
+          <article className="group relative bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 hover:border-amber-500/50 p-8 rounded-[2rem] shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] flex flex-col items-start text-left overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            
+            <span className="relative bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl text-amber-400 block mb-6 shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:bg-amber-500/20">
+              <Handshake size={28} strokeWidth={1.5} />
+            </span>
+            
+            <div className="space-y-3 relative z-10">
+              <h4 className="text-xl sm:text-2xl font-bold tracking-tight text-white group-hover:text-amber-400 transition-colors duration-300">
+                Community Support
+              </h4>
+              <p className="text-sm text-slate-400 leading-relaxed font-normal group-hover:text-slate-300 transition-colors duration-300">
+                Your excess stock gives non-profit networks instant access to essentials, helping feed families and support local community centers.
+              </p>
+            </div>
+          </article>
+
+          {/* Card 3: ESG & Circular Economy */}
+          <article className="group relative bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 hover:border-cyan-500/50 p-8 rounded-[2rem] shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(6,182,212,0.15)] flex flex-col items-start text-left overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            
+            <span className="relative bg-cyan-500/10 border border-cyan-500/20 p-4 rounded-2xl text-cyan-400 block mb-6 shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:bg-cyan-500/20">
+              <Zap size={28} strokeWidth={1.5} />
+            </span>
+            
+            <div className="space-y-3 relative z-10">
+              <h4 className="text-xl sm:text-2xl font-bold tracking-tight text-white group-hover:text-cyan-400 transition-colors duration-300">
+                Circular Brand Equity
+              </h4>
+              <p className="text-sm text-slate-400 leading-relaxed font-normal group-hover:text-slate-300 transition-colors duration-300">
+                Demonstrate active sustainability leadership, reduce carbon footprints, and earn trust with eco-conscious consumers in your community.
+              </p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+
+
+
+
+
+
+
+
 
       {/* Active Inventory Grid Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/[0.04] pb-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-              📦 My Listed Items 
+              📦 My Listed Items
             </h2>
             <p className="text-sm text-slate-400 mt-1">
               Showing your surplus inventory items.
@@ -310,11 +584,11 @@ const VendorDashboard = () => {
                     animate={
                       disintegratingId === item._id
                         ? {
-                            opacity: [1, 0.6, 0],
-                            scale: [1, 0.9, 0.5],
-                            filter: ["blur(0px)", "blur(12px)", "blur(24px)"],
-                            rotate: [0, -3, 3, 0],
-                          }
+                          opacity: [1, 0.6, 0],
+                          scale: [1, 0.9, 0.5],
+                          filter: ["blur(0px)", "blur(12px)", "blur(24px)"],
+                          rotate: [0, -3, 3, 0],
+                        }
                         : { opacity: 1, scale: 1, y: 0 }
                     }
                     transition={
@@ -330,119 +604,123 @@ const VendorDashboard = () => {
                     }}
                     className="group bg-slate-900/40 backdrop-blur-sm border border-white/[0.06] p-4 rounded-3xl shadow-xl hover:border-emerald-500/30 hover:shadow-emerald-950/20 transition-all duration-300 flex flex-col justify-between relative overflow-visible h-full"
                   >
-                  {/* Particle Disintegration Explosion Overlay */}
-                  {disintegratingId === item._id && (
-                    <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center overflow-visible">
-                      {Array.from({ length: 42 }).map((_, pIdx) => {
-                        const angle = (pIdx / 42) * 360 + (pIdx % 5) * 15;
-                        const distance = 90 + (pIdx % 7) * 20;
-                        const x = Math.cos((angle * Math.PI) / 180) * distance;
-                        const y = Math.sin((angle * Math.PI) / 180) * distance;
-                        const colors = ["#10b981", "#2dd4bf", "#38bdf8", "#facc15", "#f43f5e", "#a855f7", "#34d399"];
-                        const particleColor = colors[pIdx % colors.length];
-                        const particleSize = 4 + (pIdx % 6) * 2;
+                    {/* Particle Disintegration Explosion Overlay */}
+                    {disintegratingId === item._id && (
+                      <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center overflow-visible">
+                        {Array.from({ length: 42 }).map((_, pIdx) => {
+                          const angle = (pIdx / 42) * 360 + (pIdx % 5) * 15;
+                          const distance = 90 + (pIdx % 7) * 20;
+                          const x = Math.cos((angle * Math.PI) / 180) * distance;
+                          const y = Math.sin((angle * Math.PI) / 180) * distance;
+                          const colors = ["#10b981", "#2dd4bf", "#38bdf8", "#facc15", "#f43f5e", "#a855f7", "#34d399"];
+                          const particleColor = colors[pIdx % colors.length];
+                          const particleSize = 4 + (pIdx % 6) * 2;
 
-                        return (
-                          <motion.span
-                            key={pIdx}
-                            initial={{ x: 0, y: 0, opacity: 1, scale: 1.2, rotate: 0 }}
-                            animate={{
-                              x: x,
-                              y: y,
-                              opacity: 0,
-                              scale: 0,
-                              rotate: (pIdx % 2 === 0 ? 1 : -1) * 360,
-                            }}
-                            transition={{
-                              duration: 0.65,
-                              ease: [0.22, 1, 0.36, 1],
-                            }}
-                            style={{
-                              position: "absolute",
-                              width: `${particleSize}px`,
-                              height: `${particleSize}px`,
-                              backgroundColor: particleColor,
-                              borderRadius: pIdx % 2 === 0 ? "50%" : "3px",
-                              boxShadow: `0 0 12px ${particleColor}`,
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-                  <div>
-                    <div className="relative rounded-2xl overflow-hidden aspect-video w-full mb-4 border border-white/[0.04] bg-slate-950">
-                      <img
-                        src={item.itemImage?.url || "https://via.placeholder.com/300"}
-                        alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      {(item.isUrgent || (item.expiryDate && (new Date(item.expiryDate).getTime() - Date.now() <= 12 * 60 * 60 * 1000))) && (
-                        <span className="absolute top-2 left-2 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 shadow-md flex items-center gap-1 animate-pulse">
-                          <Zap size={10} className="fill-slate-950" /> URGENT
+                          return (
+                            <motion.span
+                              key={pIdx}
+                              initial={{ x: 0, y: 0, opacity: 1, scale: 1.2, rotate: 0 }}
+                              animate={{
+                                x: x,
+                                y: y,
+                                opacity: 0,
+                                scale: 0,
+                                rotate: (pIdx % 2 === 0 ? 1 : -1) * 360,
+                              }}
+                              transition={{
+                                duration: 0.65,
+                                ease: [0.22, 1, 0.36, 1],
+                              }}
+                              style={{
+                                position: "absolute",
+                                width: `${particleSize}px`,
+                                height: `${particleSize}px`,
+                                backgroundColor: particleColor,
+                                borderRadius: pIdx % 2 === 0 ? "50%" : "3px",
+                                boxShadow: `0 0 12px ${particleColor}`,
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                    <div>
+                      <div className="relative rounded-2xl overflow-hidden aspect-video w-full mb-4 border border-white/[0.04] bg-slate-950">
+                        <img
+                          src={item.itemImage?.url || "https://via.placeholder.com/300"}
+                          alt={item.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {(item.isUrgent || (item.expiryDate && (new Date(item.expiryDate).getTime() - Date.now() <= 12 * 60 * 60 * 1000))) && (
+                          <span className="absolute top-2 left-2 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 shadow-md flex items-center gap-1 animate-pulse">
+                            <Zap size={10} className="fill-slate-950" /> URGENT
+                          </span>
+                        )}
+                        <span className={`absolute top-2 right-2 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-lg backdrop-blur-md shadow-md ${item.status === "claimed"
+                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                          : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                          }`}>
+                          {item.status}
                         </span>
+                      </div>
+
+                      <div className="space-y-1.5 px-1">
+                        <h3 className="text-lg font-bold text-slate-100 truncate" title={item.name}>
+                          {item.name}
+                        </h3>
+                        <p className="text-xs text-slate-400 line-clamp-2 min-h-[2rem]" title={item.description || "No description provided"}>
+                          {item.description || "No description provided"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-white/[0.04] space-y-2 text-[11px] text-slate-300 px-1">
+                      <div className="flex items-center gap-1.5 text-slate-400 truncate">
+                        <MapPin size={12} className="shrink-0 text-emerald-400" />
+                        <span>{item.location || "Unknown Location"}</span>
+                      </div>
+
+                      {item.expiryDate && (
+                        <div className="flex items-center gap-1.5 text-amber-400 font-medium text-[10px]">
+                          <Clock size={11} className="shrink-0" />
+                          <span>Expires: {new Date(item.expiryDate).toLocaleDateString()} {new Date(item.expiryDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
                       )}
-                      <span className={`absolute top-2 right-2 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-lg backdrop-blur-md shadow-md ${item.status === "claimed"
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                        : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        }`}>
-                        {item.status}
-                      </span>
-                    </div>
 
-                    <div className="space-y-1.5 px-1">
-                      <h3 className="text-lg font-bold text-slate-100 truncate" title={item.name}>
-                        {item.name}
-                      </h3>
-                      <p className="text-xs text-slate-400 line-clamp-2 min-h-[2rem]" title={item.description || "No description provided"}>
-                        {item.description || "No description provided"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-white/[0.04] space-y-2 text-[11px] text-slate-300 px-1">
-                    <div className="flex items-center gap-1.5 text-slate-400 truncate">
-                      <MapPin size={12} className="shrink-0 text-emerald-400" />
-                      <span>{item.location || "Unknown Location"}</span>
-                    </div>
-
-                    {item.expiryDate && (
-                      <div className="flex items-center gap-1.5 text-amber-400 font-medium text-[10px]">
-                        <Clock size={11} className="shrink-0" />
-                        <span>Expires: {new Date(item.expiryDate).toLocaleDateString()} {new Date(item.expiryDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <div className="grid grid-cols-2 gap-2 text-slate-400 bg-white/[0.01] p-2 rounded-xl border border-white/[0.02]">
+                        <div>Qty: <span className="font-bold text-slate-200">{item.quantity || 0}</span></div>
+                        <div className="truncate">Type: <span className="font-bold text-slate-200">{item.category}</span></div>
+                        <div className="col-span-2 truncate">Mode: <span className="font-bold text-slate-200">{item.mode}</span></div>
                       </div>
-                    )}
 
-                    <div className="grid grid-cols-2 gap-2 text-slate-400 bg-white/[0.01] p-2 rounded-xl border border-white/[0.02]">
-                      <div>Qty: <span className="font-bold text-slate-200">{item.quantity || 0}</span></div>
-                      <div className="truncate">Type: <span className="font-bold text-slate-200">{item.category}</span></div>
-                      <div className="col-span-2 truncate">Mode: <span className="font-bold text-slate-200">{item.mode}</span></div>
-                    </div>
+                      {item.claimStatus && (
+                        <div className="text-[10px] bg-slate-950/60 border border-white/[0.04] px-2 py-1 rounded-md w-fit italic text-slate-400">
+                          Pipeline Phase: {item.claimStatus}
+                        </div>
+                      )}
 
-                    {item.claimStatus && (
-                      <div className="text-[10px] bg-slate-950/60 border border-white/[0.04] px-2 py-1 rounded-md w-fit italic text-slate-400">
-                        Pipeline Phase: {item.claimStatus}
+                      <div className="mt-4 pt-2 flex gap-2">
+                        <Link
+                          to={`/vendor/updateitem/${item._id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 inline-flex items-center justify-center gap-1 bg-white/[0.04] hover:bg-emerald-600 border border-white/[0.08] hover:border-emerald-500 text-slate-200 hover:text-white text-xs font-semibold py-2 rounded-xl transition"
+                        >
+                          <Edit3 size={12} /> Edit
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            confirmDelete(item._id);
+                          }}
+                          className="flex-1 inline-flex items-center justify-center gap-1 bg-white/[0.02] hover:bg-rose-950/40 border border-white/[0.06] hover:border-rose-500/40 text-slate-400 hover:text-rose-400 text-xs font-semibold py-2 rounded-xl transition"
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
                       </div>
-                    )}
-
-                    <div className="mt-4 pt-2 flex gap-2">
-                      <Link
-                        to={`/vendor/updateitem/${item._id}`}
-                        className="flex-1 inline-flex items-center justify-center gap-1 bg-white/[0.04] hover:bg-emerald-600 border border-white/[0.08] hover:border-emerald-500 text-slate-200 hover:text-white text-xs font-semibold py-2 rounded-xl transition"
-                      >
-                        <Edit3 size={12} /> Edit
-                      </Link>
-                      <button
-                        onClick={() => confirmDelete(item._id)}
-                        className="flex-1 inline-flex items-center justify-center gap-1 bg-white/[0.02] hover:bg-rose-950/40 border border-white/[0.06] hover:border-rose-500/40 text-slate-400 hover:text-rose-400 text-xs font-semibold py-2 rounded-xl transition"
-                      >
-                        <Trash2 size={12} /> Delete
-                      </button>
                     </div>
-                  </div>
-                </motion.div>
-              </ItemCardWithCursor>
-            ))}
+                  </motion.div>
+                </ItemCardWithCursor>
+              ))}
             </AnimatePresence>
           </div>
         ) : (
@@ -463,85 +741,472 @@ const VendorDashboard = () => {
         </div>
       </main>
 
-      {/* Analytical Aggregate Block Metrics */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/[0.05]">
-        <header className="text-center space-y-2 mb-12">
-          <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Operational Activity Overview
-          </h3>
-          <p className="text-sm text-slate-400 max-w-md mx-auto">
-            Live balance sheets generated from your ecosystem supply interactions.
-          </p>
-        </header>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <StatCard icon={PackageCheck} value={totalItems} label="Total Items Listed" accentClass="text-emerald-400" borderClass="hover:border-emerald-500/20" />
-          <StatCard icon={Handshake} value={claimedItems} label="Claimed Items" accentClass="text-amber-400" borderClass="hover:border-amber-500/20" />
-          <StatCard icon={PackageX} value={unclaimedItems} label="Unclaimed Items" accentClass="text-blue-400" borderClass="hover:border-blue-500/20" />
-          <StatCard icon={Layers} value={totalQuantity} label="Total Unit Volume" accentClass="text-pink-400" borderClass="hover:border-pink-500/20" />
+
+
+
+
+      {/* Analytical Aggregate Block Metrics */}
+
+<section className="relative z-10 mx-auto max-w-7xl overflow-hidden border-t border-white/[0.08] px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+
+  {/* Ambient background */}
+  <div className="pointer-events-none absolute left-1/4 top-20 -z-10 h-72 w-72 rounded-full bg-emerald-500/[0.06] blur-[110px]" />
+  <div className="pointer-events-none absolute bottom-0 right-0 -z-10 h-72 w-72 rounded-full bg-cyan-500/[0.05] blur-[110px]" />
+
+  {/* Header */}
+  <header className="mb-12 flex flex-col items-center text-center sm:mb-14">
+    <div className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-4 py-2 shadow-lg shadow-emerald-950/10 backdrop-blur-xl">
+      <span className="relative flex h-2 w-2">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+        <span className="relative h-2 w-2 rounded-full bg-emerald-400" />
+      </span>
+      <Activity size={14} className="text-emerald-300" />
+      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300 sm:text-xs">
+        Operational Insights
+      </span>
+    </div>
+
+    <h3 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+      Your Impact,{" "}
+      <span className="bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent">
+        In Numbers.
+      </span>
+    </h3>
+
+    <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
+      A clear snapshot of your ecosystem's inventory, claims, and
+      resource distribution. Every item represents an opportunity
+      to make a difference.
+    </p>
+
+    <div className="mt-6 flex items-center gap-3">
+      <span className="h-px w-10 bg-gradient-to-r from-transparent to-emerald-400/60" />
+      <Leaf size={15} className="text-emerald-400" />
+      <span className="text-xs font-medium tracking-wide text-slate-500">
+        Progress toward a zero-waste future
+      </span>
+      <span className="h-px w-10 bg-gradient-to-l from-transparent to-emerald-400/60" />
+    </div>
+  </header>
+
+  {/* Stats grid */}
+  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+
+    {/* Total Items Listed */}
+    <div className="group relative isolate overflow-hidden rounded-3xl border border-emerald-400/15 bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/35 hover:shadow-2xl hover:shadow-emerald-950/30 sm:p-7">
+      <div className="pointer-events-none absolute -right-12 -top-12 -z-10 h-40 w-40 rounded-full bg-emerald-400/[0.08] blur-3xl transition-all duration-500 group-hover:bg-emerald-400/[0.15]" />
+
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-slate-300">
+            Total Items Listed
+          </p>
+          <p className="mt-1.5 text-xs text-slate-500">
+            Inventory overview
+          </p>
         </div>
-      </section>
+
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+          <PackageCheck size={22} strokeWidth={2} />
+        </div>
+      </div>
+
+      <div className="mt-8 flex items-end justify-between gap-3">
+        <h4 className="text-4xl font-black tracking-tight text-white tabular-nums sm:text-5xl">
+          {totalItems}
+        </h4>
+        <span className="mb-1 rounded-lg border border-emerald-400/15 bg-emerald-400/[0.06] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+          Listed
+        </span>
+      </div>
+
+      <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+        <div className="h-full w-full rounded-full bg-gradient-to-r from-emerald-500/80 to-emerald-300/30 transition-transform duration-700 group-hover:scale-x-105" />
+      </div>
+    </div>
+
+    {/* Claimed Items */}
+    <div className="group relative isolate overflow-hidden rounded-3xl border border-amber-400/15 bg-gradient-to-br from-amber-950/30 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400/35 hover:shadow-2xl hover:shadow-amber-950/20 sm:p-7">
+      <div className="pointer-events-none absolute -right-12 -top-12 -z-10 h-40 w-40 rounded-full bg-amber-400/[0.07] blur-3xl transition-all duration-500 group-hover:bg-amber-400/[0.13]" />
+
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-slate-300">
+            Claimed Items
+          </p>
+          <p className="mt-1.5 text-xs text-slate-500">
+            Items claimed by recipients
+          </p>
+        </div>
+
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-400/20 bg-amber-400/10 text-amber-300 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+          <Handshake size={22} strokeWidth={2} />
+        </div>
+      </div>
+
+      <div className="mt-8 flex items-end justify-between gap-3">
+        <h4 className="text-4xl font-black tracking-tight text-white tabular-nums sm:text-5xl">
+          {claimedItems}
+        </h4>
+        <span className="mb-1 rounded-lg border border-amber-400/15 bg-amber-400/[0.06] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+          Claimed
+        </span>
+      </div>
+
+      <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+        <div className="h-full w-full rounded-full bg-gradient-to-r from-amber-500/80 to-amber-300/30 transition-transform duration-700 group-hover:scale-x-105" />
+      </div>
+    </div>
+
+    {/* Unclaimed Items */}
+    <div className="group relative isolate overflow-hidden rounded-3xl border border-blue-400/15 bg-gradient-to-br from-blue-950/35 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-blue-400/35 hover:shadow-2xl hover:shadow-blue-950/25 sm:p-7">
+      <div className="pointer-events-none absolute -right-12 -top-12 -z-10 h-40 w-40 rounded-full bg-blue-400/[0.07] blur-3xl transition-all duration-500 group-hover:bg-blue-400/[0.13]" />
+
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-slate-300">
+            Unclaimed Items
+          </p>
+          <p className="mt-1.5 text-xs text-slate-500">
+            Inventory not yet claimed
+          </p>
+        </div>
+
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-400/20 bg-blue-400/10 text-blue-300 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+          <PackageX size={22} strokeWidth={2} />
+        </div>
+      </div>
+
+      <div className="mt-8 flex items-end justify-between gap-3">
+        <h4 className="text-4xl font-black tracking-tight text-white tabular-nums sm:text-5xl">
+          {unclaimedItems}
+        </h4>
+        <span className="mb-1 rounded-lg border border-blue-400/15 bg-blue-400/[0.06] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-300">
+          Available
+        </span>
+      </div>
+
+      <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+        <div className="h-full w-full rounded-full bg-gradient-to-r from-blue-500/80 to-blue-300/30 transition-transform duration-700 group-hover:scale-x-105" />
+      </div>
+    </div>
+
+    {/* Total Unit Volume */}
+    <div className="group relative isolate overflow-hidden rounded-3xl border border-pink-400/15 bg-gradient-to-br from-pink-950/30 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-pink-400/35 hover:shadow-2xl hover:shadow-pink-950/20 sm:p-7">
+      <div className="pointer-events-none absolute -right-12 -top-12 -z-10 h-40 w-40 rounded-full bg-pink-400/[0.07] blur-3xl transition-all duration-500 group-hover:bg-pink-400/[0.13]" />
+
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-slate-300">
+            Total Unit Volume
+          </p>
+          <p className="mt-1.5 text-xs text-slate-500">
+            Combined listed quantity
+          </p>
+        </div>
+
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-pink-400/20 bg-pink-400/10 text-pink-300 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+          <Layers size={22} strokeWidth={2} />
+        </div>
+      </div>
+
+      <div className="mt-8 flex items-end justify-between gap-3">
+        <h4 className="text-4xl font-black tracking-tight text-white tabular-nums sm:text-5xl">
+          {totalQuantity}
+        </h4>
+        <span className="mb-1 rounded-lg border border-pink-400/15 bg-pink-400/[0.06] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-pink-300">
+          Quantity
+        </span>
+      </div>
+
+      <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+        <div className="h-full w-full rounded-full bg-gradient-to-r from-pink-500/80 to-pink-300/30 transition-transform duration-700 group-hover:scale-x-105" />
+      </div>
+    </div>
+
+  </div>
+
+  {/* Footer note */}
+  <div className="mt-7 flex flex-col gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex items-center gap-3">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/[0.08] text-emerald-300">
+        <Leaf size={17} />
+      </div>
+      <p className="text-sm leading-6 text-slate-400">
+        Every listing creates an opportunity to put resources to better use.
+      </p>
+    </div>
+
+    <span className="text-xs font-medium text-slate-500">
+      Values reflect the data currently available
+    </span>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
 
       {/* Interactive Distribution Graphics & NGO Directory Route */}
-      <section className="bg-slate-900/30 border-t border-white/[0.05] py-20 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto rounded-3xl mb-12">
 
-        {/* Module Area: NGO Directory Router Card */}
-        <div className="bg-white/[0.01] border border-white/[0.05] rounded-3xl p-6 sm:p-8 flex flex-col justify-between items-start space-y-6 hover:border-emerald-500/30 transition duration-300 relative group overflow-hidden">
-          <div className="absolute inset-0 bg-emerald-500/[0.01] opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none" />
-          <div className="space-y-3">
-            <span className="bg-emerald-500/10 text-emerald-400 p-3.5 rounded-2xl inline-block border border-emerald-500/10">
-              <Building2 size={24} />
-            </span>
-            <h3 className="text-2xl font-extrabold text-white">Collaborating NGO Network</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Query verified regional non-profit structures logged onto the zero-waste framework. Match your logistics capability with active demand networks to maximize asset delivery speed.
-            </p>
+<section className="relative mx-auto mb-12 max-w-7xl overflow-hidden rounded-[2rem] border border-white/[0.08] bg-gradient-to-br from-slate-900/90 via-slate-950 to-slate-900/80 px-4 py-8 shadow-2xl shadow-black/20 sm:px-6 sm:py-10 lg:px-8">
+  {/* Ambient background */}
+  <div className="pointer-events-none absolute -left-32 -top-32 h-80 w-80 rounded-full bg-emerald-500/[0.08] blur-[110px]" />
+  <div className="pointer-events-none absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-amber-400/[0.06] blur-[110px]" />
+
+  {/* Section header */}
+  <div className="relative mb-8 flex flex-col justify-between gap-4 border-b border-white/[0.08] pb-7 sm:flex-row sm:items-end">
+    <div>
+      <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/[0.07] px-3 py-1.5">
+        <Sparkles size={14} className="text-emerald-300" />
+        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300">
+          Network & Analytics
+        </span>
+      </div>
+
+      <h2 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+        Operations Overview
+      </h2>
+
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
+        Connect with community partners and understand how your inventory
+        claims are distributed across the pipeline.
+      </p>
+    </div>
+
+    <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 text-xs font-medium text-slate-300">
+      <Activity size={15} className="text-emerald-400" />
+      <span>Inventory insights</span>
+    </div>
+  </div>
+
+  <div className="relative grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2 lg:gap-7">
+
+    {/* NGO directory card */}
+    <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-emerald-400/15 bg-gradient-to-br from-emerald-950/35 via-slate-900/80 to-slate-950 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/30 hover:shadow-xl hover:shadow-emerald-950/30 sm:p-8">
+
+      {/* Card glow */}
+      <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-400/[0.08] blur-[80px] transition-colors duration-500 group-hover:bg-emerald-400/[0.14]" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-px w-1/2 bg-gradient-to-r from-emerald-400/60 to-transparent" />
+
+      <div className="relative z-10">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 shadow-inner shadow-emerald-300/[0.05] transition-transform duration-300 group-hover:scale-105">
+            <Building2 size={27} strokeWidth={2} />
           </div>
-          <button
-            onClick={handlebutton}
-            className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-lg shadow-emerald-950/20"
-          >
-            View All Partner NGOs →
-          </button>
+
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <Globe2 size={12} className="text-emerald-400" />
+            Community network
+          </span>
         </div>
 
-        {/* Module Area: Distribution Chart Graphic Visualizer */}
-        <div className="bg-slate-950 border border-white/[0.06] p-6 rounded-3xl shadow-xl flex flex-col justify-between min-h-[340px]">
-          <h4 className="text-sm font-bold tracking-wide text-slate-400 flex items-center gap-2 mb-4">
-            <ChartIcon size={16} className="text-amber-400" /> Pipeline Claims Stratification
+        <div className="mt-7 space-y-3">
+          <h3 className="max-w-md text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl">
+            Collaborating NGO Network
+          </h3>
+
+          <p className="max-w-lg text-sm leading-7 text-slate-400 sm:text-base">
+            Discover verified regional nonprofit partners, coordinate
+            transport capabilities, and connect surplus inventory with
+            communities that need it most.
+          </p>
+        </div>
+
+        {/* Value proposition rows */}
+        <div className="mt-7 space-y-3">
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.025] p-3.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-300">
+              <ShieldCheck size={17} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-200">
+                Trusted partnerships
+              </p>
+              <p className="mt-0.5 text-xs leading-5 text-slate-500">
+                Find verified organizations in your network
+              </p>
+            </div>
+            <ArrowUpRight size={16} className="ml-auto shrink-0 text-slate-600" />
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.025] p-3.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-400/10 text-teal-300">
+              <Truck size={17} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-200">
+                Smarter coordination
+              </p>
+              <p className="mt-0.5 text-xs leading-5 text-slate-500">
+                Match transport capacity with delivery needs
+              </p>
+            </div>
+            <ArrowUpRight size={16} className="ml-auto shrink-0 text-slate-600" />
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-8 border-t border-white/[0.08] pt-6">
+        <button
+          onClick={handlebutton}
+          aria-label="View All Partner NGOs"
+          className="group/btn inline-flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 px-5 py-4 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-950/30 transition-all duration-300 hover:brightness-110 hover:shadow-emerald-900/40 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950 sm:w-auto"
+        >
+          <Building2 size={17} />
+          <span>Explore Partner NGOs</span>
+          <ArrowRight size={17} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
+        </button>
+
+        <p className="mt-3 text-xs leading-5 text-slate-500">
+          Build stronger connections. Deliver greater impact.
+        </p>
+      </div>
+    </div>
+
+    {/* Distribution analytics card */}
+    <div className="relative flex min-h-[420px] flex-col overflow-hidden rounded-3xl border border-white/[0.08] bg-slate-950/65 p-6 shadow-xl shadow-black/10 sm:p-8">
+
+      <div className="pointer-events-none absolute right-0 top-0 h-48 w-48 rounded-full bg-amber-400/[0.045] blur-[80px]" />
+
+      {/* Chart heading */}
+      <div className="relative z-10 flex items-start justify-between gap-4">
+        <div>
+          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl border border-amber-400/15 bg-amber-400/[0.08] text-amber-300">
+            <BarChart3 size={21} />
+          </div>
+
+          <h3 className="text-lg font-bold tracking-tight text-white sm:text-xl">
+            Pipeline Distribution
+          </h3>
+
+          <p className="mt-1.5 text-sm leading-6 text-slate-400">
+            Breakdown of inventory claims by category
+          </p>
+        </div>
+
+        <div className="shrink-0 rounded-lg border border-white/[0.07] bg-white/[0.03] px-3 py-2 text-xs font-medium text-slate-400">
+          <span className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+            Claims
+          </span>
+        </div>
+      </div>
+
+      {/* Chart area */}
+      {pieData.length === 0 ? (
+        <div className="relative mt-6 flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.10] bg-white/[0.015] px-5 py-12 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.07] bg-white/[0.03]">
+            <ChartIcon size={26} className="text-slate-500" />
+          </div>
+
+          <h4 className="mt-5 text-sm font-semibold text-slate-200">
+            No chart data available yet
           </h4>
 
-          {pieData.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs italic space-y-2">
-              <span>📊</span>
-              <p>Insufficient inventory data elements mapped to compile live chart visuals.</p>
-            </div>
-          ) : (
-            <div className="w-full h-[240px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="45%"
-                    outerRadius={75}
-                    innerRadius={50}
-                    paddingAngle={4}
-                    dataKey="value"
-                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="#020617" strokeWidth={2} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: "#020617", borderRadius: "12px", borderColor: "rgba(255,255,255,0.08)" }} />
-                  <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: "11px" }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+          <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500">
+            Once inventory claims are available, their distribution will
+            appear here.
+          </p>
         </div>
-      </section>
+      ) : (
+        <div className="relative mt-5 flex flex-1 flex-col">
+          <div className="relative min-h-[270px] flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="45%"
+                  outerRadius="72%"
+                  innerRadius="52%"
+                  paddingAngle={4}
+                  cornerRadius={5}
+                  dataKey="value"
+                  label={({ percent }) =>
+                    `${(percent * 100).toFixed(0)}%`
+                  }
+                  labelLine={false}
+                  stroke="none"
+                  style={{ outline: "none" }}
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                      stroke="#020617"
+                      strokeWidth={3}
+                      className="transition-opacity duration-200 hover:opacity-80"
+                    />
+                  ))}
+                </Pie>
+
+                <Tooltip
+                  cursor={{ fill: "transparent" }}
+                  contentStyle={{
+                    backgroundColor: "rgba(2, 6, 23, 0.96)",
+                    backdropFilter: "blur(12px)",
+                    borderRadius: "14px",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    color: "#f8fafc",
+                    padding: "12px 14px",
+                    boxShadow: "0 12px 30px rgba(0,0,0,0.35)",
+                  }}
+                  itemStyle={{ color: "#e2e8f0", fontSize: "12px" }}
+                  labelStyle={{
+                    color: "#94a3b8",
+                    fontSize: "11px",
+                    marginBottom: "4px",
+                  }}
+                />
+
+                <Legend
+                  verticalAlign="bottom"
+                  align="center"
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{
+                    fontSize: "12px",
+                    color: "#94a3b8",
+                    paddingTop: "16px",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-400/10 bg-amber-400/[0.04] p-3.5">
+            <Info size={16} className="mt-0.5 shrink-0 text-amber-300" />
+            <p className="text-xs leading-5 text-slate-400">
+              Hover over a chart segment to inspect its corresponding
+              category and value.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

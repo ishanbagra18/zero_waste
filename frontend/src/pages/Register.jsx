@@ -96,7 +96,16 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white relative flex items-center justify-center p-4 md:p-8 lg:p-12 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white relative flex items-center justify-center p-4 md:p-8 lg:p-12 overflow-x-hidden"
+    
+     style={{
+        // Replace this URL with your custom character background image path
+        // The linear-gradient adds a dark overlay so your form stays readable
+        backgroundImage: `linear-gradient(to right, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.7) 50%, rgba(2, 6, 23, 0.8) 100%), url('https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?q=80&w=2000&auto=format&fit=crop')`,
+        backgroundColor: "#020617", // fallback slate-950
+      }}
+    
+    >
       <Toaster position="top-right" reverseOrder={false} />
 
       {/* Ambient Glow Orbs */}

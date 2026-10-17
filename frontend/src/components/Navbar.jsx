@@ -54,8 +54,7 @@ export default function Navbar() {
 
   const isAuthPage =
     location.pathname === "/" ||
-    location.pathname === "/register" ||
-    location.pathname === "/forgotpassword";
+    location.pathname === "/register";
 
   if (isAuthPage) {
     return null;

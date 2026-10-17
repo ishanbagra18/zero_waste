@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -6,182 +7,406 @@ import {
   Search,
   Mail,
   MapPin,
-  HeartHandshake,
   RefreshCw,
   ArrowRight,
   ShieldCheck,
-  UserCheck,
-  Building2,
-  Clock,
+  Users,
+  Truck,
+  PackageCheck,
+  X,
+  ChevronRight,
+  UserRound,
+  ArrowUpRight,
 } from "lucide-react";
 import ParallaxHero from "../components/ParallaxHero";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+const FALLBACK_AVATAR =
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80";
+
 export default function BookVolunteer() {
   const navigate = useNavigate();
+
   const role = (localStorage.getItem("role") || "").toLowerCase();
-  const dashboardPath = role === "vendor" ? "/vendor/dashboard" : "/ngo/dashboard";
-  const dashboardLabel = role === "vendor" ? "Back to Vendor Dashboard" : "Back to NGO Dashboard";
+  const dashboardPath =
+    role === "vendor" ? "/vendor/dashboard" : "/ngo/dashboard";
+
+  const dashboardLabel =
+    role === "vendor" ? "Vendor Dashboard" : "NGO Dashboard";
 
   const [volunteers, setVolunteers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchVolunteers = () => {
+  const fetchVolunteers = useCallback(async () => {
     setLoading(true);
-    setError(null);
-    axios
-      .get(`${import.meta.env.VITE_API_BASE_URL}/api/users/allvolunteer`)
-      .then((res) => {
-        setVolunteers(res.data.Volunteer || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.response?.data?.message || "Failed to load volunteer directory.");
-        setLoading(false);
-      });
-  };
+    setError("");
+
+    try {
+      const res = await axios.get(
+        `${API_URL}/api/users/allvolunteer`
+      );
+
+      setVolunteers(
+        Array.isArray(res.data?.Volunteer)
+          ? res.data.Volunteer
+          : []
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Unable to load volunteers. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchVolunteers();
-  }, []);
+  }, [fetchVolunteers]);
 
-  const cleanSearchTerm = searchTerm.trim().toLowerCase();
-  const filteredVolunteers = volunteers.filter((v) => {
+  const filteredVolunteers = volunteers.filter((volunteer) => {
+    const query = searchTerm.trim().toLowerCase();
+
     return (
-      v.name?.toLowerCase().includes(cleanSearchTerm) ||
-      v.location?.toLowerCase().includes(cleanSearchTerm)
+      volunteer.name?.toLowerCase().includes(query) ||
+      volunteer.location?.toLowerCase().includes(query)
     );
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24">
-      {/* Hero Section */}
+    <div className="min-h-screen overflow-hidden bg-[#070b14] text-slate-100 selection:bg-emerald-400 selection:text-slate-950">
+      {/* Hero */}
       <ParallaxHero
         badgeText="Volunteer Logistics Network"
-       title={
-  <>
-    <span className="font-sans font-extrabold tracking-tight">
-      Book Active{" "}
-    </span>
-    <span className="font-sans font-extrabold tracking-tight text-emerald-400">
-      Logistics Volunteers
-    </span>
-  </>
-}
-        subtitle="Connect with dedicated regional volunteers for food pickup, freight transportation, and community distribution support."
+        title={
+          <>
+            <span className="font-sans font-extrabold tracking-tight">
+              Book Trusted{" "}
+            </span>
+            <span className="font-sans font-extrabold tracking-tight text-emerald-400">
+              Volunteers
+            </span>
+          </>
+        }
+        subtitle="Connect with volunteers in your region for food pickup, transportation, and last-mile community distribution."
         actionButtons={
           <button
             onClick={() => navigate(dashboardPath)}
-            className="px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-slate-300 font-semibold text-sm transition shadow-lg"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-white transition hover:border-emerald-400/40 hover:bg-white/10"
           >
             {dashboardLabel}
+            <ArrowUpRight size={16} />
           </button>
         }
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 space-y-8">
-        {/* Search Bar */}
-        <div className="p-4 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-2xl shadow-xl flex items-center justify-center max-w-xl mx-auto">
-          <div className="relative w-full">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input
-              type="text"
-              placeholder="Search volunteer by name or location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-500 transition"
-            />
-          </div>
-        </div>
+      <main className="relative z-10 mx-auto max-w-7xl space-y-8 px-4 pb-24 pt-8 sm:px-6 lg:px-8">
+        {/* Intro and stats */}
+        <motion.section
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="grid gap-4 lg:grid-cols-[1fr_auto]"
+        >
+          <div className="flex items-start gap-4">
+            <div className="hidden rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.08] p-3 sm:block">
+              <Truck className="h-6 w-6 text-emerald-400" />
+            </div>
 
-        {/* Content Area */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400">
+                Volunteer directory
+              </p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                Find your logistics partner
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+                Explore volunteer profiles and select someone who can
+                support your next pickup or delivery.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 self-start rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+            <div className="rounded-xl bg-emerald-400/10 p-2.5">
+              <Users className="h-5 w-5 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold tabular-nums text-white">
+                {loading ? "—" : volunteers.length}
+              </p>
+              <p className="text-xs text-slate-400">
+                Registered volunteers
+              </p>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Search toolbar */}
+        <section className="rounded-2xl border border-white/[0.08] bg-[#0d1320] p-3 shadow-xl shadow-black/10 sm:p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-500" />
+
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by volunteer name or location..."
+                aria-label="Search volunteers by name or location"
+                className="w-full rounded-xl border border-white/[0.08] bg-[#080d17] py-3.5 pl-11 pr-11 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/50 focus:ring-4 focus:ring-emerald-400/[0.06]"
+              />
+
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between gap-3 px-1 sm:justify-end sm:px-2">
+              <span className="text-xs text-slate-400">
+                {loading
+                  ? "Loading directory..."
+                  : `${filteredVolunteers.length} ${
+                      filteredVolunteers.length === 1
+                        ? "volunteer"
+                        : "volunteers"
+                    } found`}
+              </span>
+
+              <button
+                type="button"
+                onClick={fetchVolunteers}
+                disabled={loading}
+                title="Refresh volunteer directory"
+                aria-label="Refresh volunteer directory"
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-400/30 hover:text-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <RefreshCw
+                  size={14}
+                  className={loading ? "animate-spin" : ""}
+                />
+                Refresh
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Directory content */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-64 rounded-3xl bg-slate-900/60 border border-slate-800 animate-pulse" />
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div
+                key={item}
+                className="animate-pulse rounded-2xl border border-white/[0.07] bg-[#0d1320] p-5"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="h-16 w-16 rounded-2xl bg-white/[0.07]" />
+                  <div className="flex-1 space-y-3">
+                    <div className="h-4 w-2/3 rounded bg-white/[0.07]" />
+                    <div className="h-3 w-1/2 rounded bg-white/[0.05]" />
+                  </div>
+                </div>
+                <div className="mt-7 h-12 rounded-xl bg-white/[0.04]" />
+                <div className="mt-5 h-11 rounded-xl bg-white/[0.06]" />
+              </div>
             ))}
           </div>
         ) : error ? (
-          <div className="p-8 text-center rounded-3xl bg-slate-900/60 border border-slate-800 max-w-md mx-auto space-y-3">
-            <p className="text-sm font-semibold text-rose-400">{error}</p>
+          <div className="mx-auto max-w-lg rounded-3xl border border-rose-400/15 bg-rose-400/[0.04] px-6 py-12 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-400/10">
+              <RefreshCw className="h-6 w-6 text-rose-400" />
+            </div>
+            <h3 className="mt-5 text-lg font-bold text-white">
+              Directory unavailable
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              {error}
+            </p>
             <button
               onClick={fetchVolunteers}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white transition inline-flex items-center gap-2"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-emerald-300"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Retry Directory Search
+              <RefreshCw size={16} />
+              Try again
             </button>
           </div>
         ) : filteredVolunteers.length === 0 ? (
-          <div className="p-12 text-center rounded-3xl bg-slate-900/40 border border-slate-800 text-slate-400 text-sm italic">
-            No volunteers match your search term "{searchTerm}"
+          <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-16 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.04]">
+              {searchTerm ? (
+                <Search className="h-7 w-7 text-slate-500" />
+              ) : (
+                <Users className="h-7 w-7 text-slate-500" />
+              )}
+            </div>
+
+            <h3 className="mt-5 text-lg font-bold text-white">
+              {searchTerm
+                ? "No matching volunteers"
+                : "No volunteers available in the directory"}
+            </h3>
+
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-400">
+              {searchTerm
+                ? `We couldn't find a volunteer matching "${searchTerm}". Try a different name or location.`
+                : "There are no registered volunteer profiles to display right now."}
+            </p>
+
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="mt-5 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+              >
+                Clear search
+              </button>
+            )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredVolunteers.map((vol, idx) => (
-              <VolunteerCard key={vol._id} volunteer={vol} idx={idx} />
+          <motion.section
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.35 }}
+            className="grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3"
+          >
+            {filteredVolunteers.map((volunteer, idx) => (
+              <VolunteerCard
+                key={volunteer._id}
+                volunteer={volunteer}
+                idx={idx}
+              />
             ))}
+          </motion.section>
+        )}
+
+        {/* Trust footer */}
+        {!loading && !error && volunteers.length > 0 && (
+          <div className="flex flex-col items-center justify-center gap-2 border-t border-white/[0.06] pt-6 text-center sm:flex-row sm:gap-3">
+            <ShieldCheck className="h-4 w-4 text-emerald-400" />
+            <p className="text-xs leading-5 text-slate-500">
+              Review the volunteer's profile and confirm the booking
+              details before arranging transportation.
+            </p>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }
 
 function VolunteerCard({ volunteer, idx }) {
   return (
-    <Link
-      to={`/bookingform/${volunteer._id}`}
-      className="group block rounded-3xl p-6 bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 backdrop-blur-xl transition-all duration-300 shadow-xl hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between"
+    <motion.article
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.35,
+        delay: Math.min(idx * 0.06, 0.3),
+      }}
+      whileHover={{ y: -4 }}
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d1320] transition-colors duration-300 hover:border-emerald-400/30 hover:bg-[#101827]"
     >
-      <div className="space-y-4">
-        {/* Header Tag */}
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-            {volunteer.role || "Volunteer"}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+
+      <div className="flex-1 p-5 sm:p-6">
+        {/* Role */}
+        <div className="flex items-center justify-between gap-3">
+          <span className="inline-flex max-w-[70%] items-center gap-1.5 rounded-full border border-emerald-400/15 bg-emerald-400/[0.07] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+            <ShieldCheck size={12} />
+            <span className="truncate">
+              {volunteer.role || "Volunteer"}
+            </span>
           </span>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Available
-          </div>
+
+          <span className="text-[10px] font-medium text-slate-500">
+            Volunteer profile
+          </span>
         </div>
 
-        {/* Avatar & Info */}
-        <div className="flex items-center gap-4">
-          <img
-            src={volunteer.photo?.url || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80`}
-            alt={volunteer.name}
-            className="w-16 h-16 rounded-2xl object-cover border border-slate-700 bg-slate-950 shrink-0 group-hover:scale-105 transition-transform"
-            loading="lazy"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80";
-            }}
-          />
+        {/* Identity */}
+        <div className="mt-6 flex items-center gap-4">
+          <div className="relative shrink-0">
+            <img
+              src={volunteer.photo?.url || FALLBACK_AVATAR}
+              alt={volunteer.name || "Volunteer"}
+              loading="lazy"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = FALLBACK_AVATAR;
+              }}
+              className="h-[68px] w-[68px] rounded-2xl border border-white/10 bg-slate-800 object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            />
+            <div className="absolute -bottom-1.5 -right-1.5 rounded-lg border border-[#0d1320] bg-emerald-400 p-1">
+              <UserRound size={12} className="text-slate-950" />
+            </div>
+          </div>
+
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
-              {volunteer.name}
+            <h3 className="truncate text-lg font-bold tracking-tight text-white transition-colors group-hover:text-emerald-300">
+              {volunteer.name || "Unnamed volunteer"}
             </h3>
-            <p className="text-xs text-slate-400 flex items-center gap-1 truncate mt-1">
-              <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              {volunteer.location || "Regional Station"}
+
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-400">
+              <MapPin size={14} className="shrink-0 text-emerald-400" />
+              <span className="truncate">
+                {volunteer.location || "Location not provided"}
+              </span>
             </p>
           </div>
         </div>
 
-        {/* Contact Info Box */}
-        <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-1.5 text-xs text-slate-300">
-          <div className="flex items-center gap-2 truncate">
-            <Mail className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-            <span className="truncate">{volunteer.email}</span>
+        {/* Contact */}
+        <div className="mt-6 rounded-xl border border-white/[0.06] bg-black/15 p-3.5">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+            Contact information
+          </p>
+
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-400/[0.08]">
+              <Mail size={15} className="text-cyan-300" />
+            </div>
+            <span
+              title={volunteer.email || "Email not provided"}
+              className="truncate text-xs text-slate-300"
+            >
+              {volunteer.email || "Email not provided"}
+            </span>
           </div>
+        </div>
+
+        {/* Logistics capability cue */}
+        <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
+          <PackageCheck size={15} className="shrink-0 text-emerald-400" />
+          <span>Pickup & distribution coordination</span>
         </div>
       </div>
 
-      <div className="mt-6 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400">
-        <span>Request Freight Booking</span>
-        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-      </div>
-    </Link>
+      {/* CTA */}
+      <Link
+        to={`/bookingform/${volunteer._id}`}
+        className="mx-5 mb-5 flex items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/[0.07] px-4 py-3.5 text-sm font-bold text-emerald-300 transition hover:border-emerald-400/50 hover:bg-emerald-400 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 sm:mx-6 sm:mb-6"
+      >
+        <span>Request a booking</span>
+        <span className="flex items-center gap-1.5">
+          <span className="hidden text-xs font-medium sm:inline">
+            View details
+          </span>
+          <ChevronRight
+            size={17}
+            className="transition-transform group-hover:translate-x-0.5"
+          />
+        </span>
+      </Link>
+    </motion.article>
   );
 }
