@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
+import useDashboardEntrance from "../hooks/useDashboardEntrance";
 import { HeartHandshake } from "lucide-react";
 import volunteer3dHero from "../assets/volunteer_3d_hero.png";
 
@@ -55,6 +56,8 @@ import {
 } from "react-icons/fa";
 
 export default function Volunteerdashboard() {
+  const dashboardRef = useRef(null);
+  useDashboardEntrance(dashboardRef);
   const navigate = useNavigate();
   const token = localStorage.getItem("token") || "";
 
@@ -123,12 +126,13 @@ export default function Volunteerdashboard() {
   const COLORS = ["#facc15", "#38bdf8", "#10b981"];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24 relative font-sans antialiased">
+    <div ref={dashboardRef} className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-24 relative font-sans antialiased">
       <Toaster position="top-right" />
 
       {/* 🌟 1. Cinematic Hero Landing Banner */}
 
 <section
+  data-gsap-intro
   className="relative isolate flex min-h-[75vh] w-full items-center overflow-hidden border-b border-white/[0.08] bg-[#020617] sm:min-h-[85vh]"
   style={{
     backgroundImage: `
@@ -798,6 +802,7 @@ export default function Volunteerdashboard() {
 const StatCard = ({ icon: Icon, value, label, subtext, accent, border }) => (
   <motion.div
     whileHover={{ y: -3 }}
+    data-gsap-card
     className={`p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl shadow-xl space-y-3 transition-all ${border}`}
   >
     <div className="w-10 h-10 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center shadow-inner">

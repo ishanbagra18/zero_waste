@@ -1,7 +1,7 @@
 // added new navbar and a charchter called captain zerowaste
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
@@ -60,11 +60,14 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { playClickSound, playSuccessSound } from "../utils/audio";
 import ItemCardWithCursor from "../components/items/ItemCardWithCursor";
+import useDashboardEntrance from "../hooks/useDashboardEntrance";
 
 
 const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6']; // Example Tailwind colors
 
 const VendorDashboard = () => {
+  const dashboardRef = useRef(null);
+  useDashboardEntrance(dashboardRef);
   const { token, logout: authLogout } = useAuth();
   const role = localStorage.getItem("role") || "vendor";
 
@@ -188,12 +191,13 @@ const VendorDashboard = () => {
   const COLORS = ["#facc15", "#10b981"];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-[#0f111a] to-zinc-950 text-slate-100 font-sans antialiased selection:bg-emerald-500/30">
+    <div ref={dashboardRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-[#0f111a] to-zinc-950 text-slate-100 font-sans antialiased selection:bg-emerald-500/30">
       <Toaster position="top-right" />
 
       {/* Responsive Hero Banner Space */}
 
 <section
+  data-gsap-intro
   className="relative isolate flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-slate-950 px-4 py-20 sm:px-6 lg:px-8"
   style={{
     backgroundImage: `
@@ -794,7 +798,7 @@ const VendorDashboard = () => {
   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
     {/* Total Items Listed */}
-    <div className="group relative isolate overflow-hidden rounded-3xl border border-emerald-400/15 bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/35 hover:shadow-2xl hover:shadow-emerald-950/30 sm:p-7">
+    <motion.div data-gsap-card whileHover={{ y: -5, scale: 1.015 }} className="group relative isolate overflow-hidden rounded-3xl border border-emerald-400/15 bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/35 hover:shadow-2xl hover:shadow-emerald-950/30 sm:p-7">
       <div className="pointer-events-none absolute -right-12 -top-12 -z-10 h-40 w-40 rounded-full bg-emerald-400/[0.08] blur-3xl transition-all duration-500 group-hover:bg-emerald-400/[0.15]" />
 
       <div className="flex items-start justify-between gap-3">
@@ -824,10 +828,10 @@ const VendorDashboard = () => {
       <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/[0.06]">
         <div className="h-full w-full rounded-full bg-gradient-to-r from-emerald-500/80 to-emerald-300/30 transition-transform duration-700 group-hover:scale-x-105" />
       </div>
-    </div>
+    </motion.div>
 
     {/* Claimed Items */}
-    <div className="group relative isolate overflow-hidden rounded-3xl border border-amber-400/15 bg-gradient-to-br from-amber-950/30 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400/35 hover:shadow-2xl hover:shadow-amber-950/20 sm:p-7">
+    <motion.div data-gsap-card whileHover={{ y: -5, scale: 1.015 }} className="group relative isolate overflow-hidden rounded-3xl border border-amber-400/15 bg-gradient-to-br from-amber-950/30 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400/35 hover:shadow-2xl hover:shadow-amber-950/20 sm:p-7">
       <div className="pointer-events-none absolute -right-12 -top-12 -z-10 h-40 w-40 rounded-full bg-amber-400/[0.07] blur-3xl transition-all duration-500 group-hover:bg-amber-400/[0.13]" />
 
       <div className="flex items-start justify-between gap-3">
@@ -857,10 +861,10 @@ const VendorDashboard = () => {
       <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/[0.06]">
         <div className="h-full w-full rounded-full bg-gradient-to-r from-amber-500/80 to-amber-300/30 transition-transform duration-700 group-hover:scale-x-105" />
       </div>
-    </div>
+    </motion.div>
 
     {/* Unclaimed Items */}
-    <div className="group relative isolate overflow-hidden rounded-3xl border border-blue-400/15 bg-gradient-to-br from-blue-950/35 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-blue-400/35 hover:shadow-2xl hover:shadow-blue-950/25 sm:p-7">
+    <motion.div data-gsap-card whileHover={{ y: -5, scale: 1.015 }} className="group relative isolate overflow-hidden rounded-3xl border border-blue-400/15 bg-gradient-to-br from-blue-950/35 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-blue-400/35 hover:shadow-2xl hover:shadow-blue-950/25 sm:p-7">
       <div className="pointer-events-none absolute -right-12 -top-12 -z-10 h-40 w-40 rounded-full bg-blue-400/[0.07] blur-3xl transition-all duration-500 group-hover:bg-blue-400/[0.13]" />
 
       <div className="flex items-start justify-between gap-3">
@@ -890,10 +894,10 @@ const VendorDashboard = () => {
       <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/[0.06]">
         <div className="h-full w-full rounded-full bg-gradient-to-r from-blue-500/80 to-blue-300/30 transition-transform duration-700 group-hover:scale-x-105" />
       </div>
-    </div>
+    </motion.div>
 
     {/* Total Unit Volume */}
-    <div className="group relative isolate overflow-hidden rounded-3xl border border-pink-400/15 bg-gradient-to-br from-pink-950/30 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-pink-400/35 hover:shadow-2xl hover:shadow-pink-950/20 sm:p-7">
+    <motion.div data-gsap-card whileHover={{ y: -5, scale: 1.015 }} className="group relative isolate overflow-hidden rounded-3xl border border-pink-400/15 bg-gradient-to-br from-pink-950/30 via-slate-900/80 to-slate-950 p-6 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-pink-400/35 hover:shadow-2xl hover:shadow-pink-950/20 sm:p-7">
       <div className="pointer-events-none absolute -right-12 -top-12 -z-10 h-40 w-40 rounded-full bg-pink-400/[0.07] blur-3xl transition-all duration-500 group-hover:bg-pink-400/[0.13]" />
 
       <div className="flex items-start justify-between gap-3">
@@ -923,7 +927,7 @@ const VendorDashboard = () => {
       <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/[0.06]">
         <div className="h-full w-full rounded-full bg-gradient-to-r from-pink-500/80 to-pink-300/30 transition-transform duration-700 group-hover:scale-x-105" />
       </div>
-    </div>
+    </motion.div>
 
   </div>
 

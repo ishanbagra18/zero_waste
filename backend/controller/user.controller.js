@@ -461,11 +461,15 @@ export const toggleFavorite = async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    const index = user.favorites.indexOf(itemId);
-    let isFavorited = false;
+    const favoriteExists = user.favorites.some(
+      (favoriteId) => String(favoriteId) === itemId
+    );
+    let isFavorited;
 
-    if (index > -1) {
-      user.favorites.splice(index, 1);
+    if (favoriteExists) {
+      user.favorites = user.favorites.filter(
+        (favoriteId) => String(favoriteId) !== itemId
+      );
       isFavorited = false;
     } else {
       user.favorites.push(itemId);

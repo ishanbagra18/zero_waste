@@ -54,7 +54,12 @@ export default function Allitems() {
         headers: { Authorization: `Bearer ${token}` }
       }).then(res => {
         if (res.data?.favorites) {
-          setFavorites(res.data.favorites.map(f => typeof f === 'object' ? f._id : f));
+          setFavorites(
+            res.data.favorites
+              .map((favorite) => (typeof favorite === "object" ? favorite?._id : favorite))
+              .filter(Boolean)
+              .map(String)
+          );
         }
       }).catch(err => console.warn("Failed to load favorites", err.message));
     }
@@ -74,14 +79,14 @@ export default function Allitems() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (res.data?.isFavorited) {
-        setFavorites(prev => [...prev, itemId]);
+        setFavorites((prev) => prev.includes(itemId) ? prev : [...prev, itemId]);
         toast.success("Added to bookmarks ❤️");
       } else {
-        setFavorites(prev => prev.filter(id => id !== itemId));
+        setFavorites((prev) => prev.filter((id) => id !== itemId));
         toast("Removed from bookmarks 💔");
       }
     } catch (err) {
-      toast.error("Could not update bookmark");
+      toast.error(err.response?.data?.message || "Could not update bookmark");
     }
   };
 
