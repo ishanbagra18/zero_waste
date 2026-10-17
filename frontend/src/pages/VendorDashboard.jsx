@@ -100,6 +100,9 @@ const VendorDashboard = () => {
     }
   };
 
+
+  // improve the landing page of vendor dashboard
+
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   useEffect(() => {
