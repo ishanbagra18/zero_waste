@@ -26,6 +26,7 @@ import {
   HeartHandshake,
   Globe2,
   ChevronDown,
+  Sparkles,
 } from "lucide-react";
 
 
@@ -285,10 +286,8 @@ const NgoDashboard = () => {
     const drawX = w - drawW + (w * 0.04);
     const drawY = (h - drawH) / 2;
 
-    // 1. Fill canvas with page background color
-    const bgColor = '#0f0f1c';
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, w, h);
+    // 1. Clear canvas transparently so the background image, perspective grid, and ambient lighting show through
+    ctx.clearRect(0, 0, w, h);
 
     // 2. Draw the transparent plant frame cleanly
     ctx.drawImage(img, drawX, drawY, drawW, drawH);
@@ -394,25 +393,64 @@ const NgoDashboard = () => {
       </div>
     )}
 
-    {/* Plant animation canvas — keep the entire right side visible */}
+    {/* 🌿 1. Atmospheric Background Image Layer (Community Food Bank & Rescue Operations) */}
+    <div
+      className="pointer-events-none absolute inset-0 -z-30 overflow-hidden"
+      style={{
+        backgroundImage: `
+          linear-gradient(90deg, rgba(7, 11, 20, 0.97) 0%, rgba(7, 11, 20, 0.88) 46%, rgba(7, 11, 20, 0.58) 100%),
+          linear-gradient(0deg, #070b14 0%, transparent 45%),
+          url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=85&w=2000')
+        `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    />
+
+    {/* 🌌 2. Ambient Lighting Glow Meshes & Perspective Grid */}
+    <div className="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+      {/* Emerald aura left */}
+      <div className="absolute -left-36 top-10 h-[34rem] w-[34rem] rounded-full bg-emerald-500/[0.14] blur-[130px]" />
+      {/* Cyan/Teal halo right behind the growing plant, giving its leaves an ethereal highlight */}
+      <div className="absolute -right-28 top-1/4 h-[36rem] w-[36rem] rounded-full bg-teal-400/[0.12] blur-[140px]" />
+      {/* Deep green ambient pool bottom-center */}
+      <div className="absolute bottom-[-10rem] left-1/3 h-96 w-96 rounded-full bg-green-500/[0.08] blur-[120px]" />
+
+      {/* Perspective Matrix Grid */}
+      <div
+        className="absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.32) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.32) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+          maskImage:
+            "linear-gradient(to bottom, black 25%, transparent 95%)",
+        }}
+      />
+
+      {/* Top glowing boundary line */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+    </div>
+
+    {/* Plant animation canvas — keep the entire right side visible and transparent */}
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 z-0 h-full w-full"
+      className="absolute inset-0 z-0 h-full w-full pointer-events-none"
       style={{
         display: framesLoaded ? "block" : "none",
       }}
     />
 
-    {/* Background lighting — subtle and transparent on the plant side */}
+    {/* Background lighting & reading area veil — protects left text area while keeping plant area transparent */}
     <div className="pointer-events-none absolute inset-0 z-[1]">
       {/* Dark reading area on the left only */}
-      <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#070b14] via-[#070b14]/95 via-[42%] to-transparent sm:via-[38%] lg:w-[76%] lg:via-[#070b14]/85 lg:via-[48%] lg:to-transparent" />
+      <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#070b14] via-[#070b14]/94 via-[42%] to-transparent sm:via-[38%] lg:w-[74%] lg:via-[#070b14]/85 lg:via-[48%] lg:to-transparent" />
 
       {/* Slight bottom fade */}
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#070b14]/70 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#070b14]/75 to-transparent" />
 
       {/* Gentle glow behind the text, not over the plant */}
-      <div className="absolute -left-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-emerald-500/[0.07] blur-[130px]" />
+      <div className="absolute -left-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-emerald-500/[0.08] blur-[130px]" />
 
       {/* Very subtle top vignette */}
       <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#070b14]/30 to-transparent" />

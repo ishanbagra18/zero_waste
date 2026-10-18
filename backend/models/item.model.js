@@ -150,6 +150,37 @@ const itemSchema = new mongoose.Schema({
         },
     ],
 
+    conditionReport: {
+        reportedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
+        issueType: {
+            type: String,
+            enum: ["packaging_damage", "temperature_breach", "spoilage_risk", "quantity_mismatch", "other"],
+            default: null,
+        },
+        severity: {
+            type: String,
+            enum: ["minor_notice", "partial_damage", "major_unsafe"],
+            default: "minor_notice",
+        },
+        notes: {
+            type: String,
+            default: "",
+        },
+        reportedAt: {
+            type: Date,
+            default: null,
+        },
+        status: {
+            type: String,
+            enum: ["logged", "reviewed", "resolved"],
+            default: "logged",
+        },
+    },
+
 }, { timestamps: true });
 
 export const Item = mongoose.model("Item", itemSchema);

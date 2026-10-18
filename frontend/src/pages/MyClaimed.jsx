@@ -21,11 +21,13 @@ import {
   Building2,
   ChevronRight,
   AlertCircle,
+  AlertTriangle,
   HandHeart,
   PackageCheck,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import ParallaxHero from "../components/ParallaxHero";
+import DisputeFeedbackModal from "../components/items/DisputeFeedbackModal";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -41,6 +43,7 @@ export default function MyClaimed() {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedReportItem, setSelectedReportItem] = useState(null);
 
   const { token } = useAuth();
 
@@ -489,6 +492,7 @@ export default function MyClaimed() {
                 index={index}
                 getStatusBadge={getStatusBadge}
                 formatDate={formatDate}
+                onOpenReport={setSelectedReportItem}
               />
             ))}
           </motion.section>
@@ -505,11 +509,23 @@ export default function MyClaimed() {
           </div>
         )}
       </main>
+
+      {selectedReportItem && (
+        <DisputeFeedbackModal
+          isOpen={!!selectedReportItem}
+          onClose={() => setSelectedReportItem(null)}
+          item={selectedReportItem}
+          onSuccess={() => {
+            fetchMyClaimed();
+            setSelectedReportItem(null);
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function ClaimCard({ item, index, getStatusBadge, formatDate }) {
+function ClaimCard({ item, index, getStatusBadge, formatDate, onOpenReport }) {
   const badge = getStatusBadge(item.claimStatus);
   const StatusIcon = badge.icon;
 
@@ -679,6 +695,36 @@ function ClaimCard({ item, index, getStatusBadge, formatDate }) {
               <ChevronRight size={14} />
             </span>
           </div>
+
+          {/* Condition / Dispute Report Action */}
+          {item.conditionReport?.issueType ? (
+            <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-amber-400/20 bg-amber-400/10 px-3 py-2 text-xs text-amber-300">
+              <span className="flex items-center gap-1.5 font-medium truncate">
+                <AlertTriangle size={13} className="shrink-0 text-amber-400" />
+                Condition Logged: {item.conditionReport.issueType.replace("_", " ")}
+              </span>
+              {onOpenReport && (
+                <button
+                  type="button"
+                  onClick={() => onOpenReport(item)}
+                  className="shrink-0 text-[11px] font-bold text-amber-200 hover:text-white underline"
+                >
+                  Review
+                </button>
+              )}
+            </div>
+          ) : (
+            onOpenReport && (
+              <button
+                type="button"
+                onClick={() => onOpenReport(item)}
+                className="mt-3 w-full flex items-center justify-center gap-1.5 rounded-xl border border-white/[0.08] bg-slate-900/50 hover:bg-amber-500/10 hover:border-amber-400/30 px-3 py-2 text-xs font-semibold text-slate-400 hover:text-amber-300 transition"
+              >
+                <AlertTriangle size={13} className="text-amber-400" />
+                Log Condition / Quality Notice
+              </button>
+            )
+          )}
         </div>
       </div>
     </motion.article>

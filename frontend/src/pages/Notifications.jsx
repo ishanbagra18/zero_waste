@@ -3,15 +3,17 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { MdDelete, MdCheckCircle, MdCancel } from "react-icons/md";
-import { Bell, ArrowLeft, CheckCircle2, Clock, Trash2, KeyRound, ShieldCheck } from "lucide-react";
+import { Bell, ArrowLeft, CheckCircle2, Clock, Trash2, KeyRound, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useSocket } from "../context/SocketContext";
 import ParallaxHero from "../components/ParallaxHero";
+import DisputeFeedbackModal from "../components/items/DisputeFeedbackModal";
 
 const Notification = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [otpInputs, setOtpInputs] = useState({});
   const [ngoIdInputs, setNgoIdInputs] = useState({});
+  const [disputeModalData, setDisputeModalData] = useState(null);
 
   // Getting token and role from localStorage
   const token = localStorage.getItem("token") || "";
@@ -387,12 +389,30 @@ const Notification = () => {
                           placeholder={note.otpCode ? `OTP: ${note.otpCode}` : "Enter 6-digit OTP"}
                           className="rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2 text-white text-xs placeholder-slate-500 outline-none focus:border-emerald-500 font-mono tracking-wider"
                         />
-                        <button
-                          onClick={() => verifyDeliveryOtp(note.itemId, note._id)}
-                          className="inline-flex items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black transition shadow-md shadow-emerald-500/20"
-                        >
-                          <KeyRound className="w-3.5 h-3.5" /> Verify Delivery OTP
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => verifyDeliveryOtp(note.itemId, note._id)}
+                            className="flex-1 inline-flex items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-black transition shadow-md shadow-emerald-500/20"
+                          >
+                            <KeyRound className="w-3.5 h-3.5" /> Verify OTP
+                          </button>
+                          <button
+                            onClick={() =>
+                              setDisputeModalData({
+                                item: {
+                                  _id: typeof note.itemId === "object" ? note.itemId?._id : note.itemId,
+                                  name: typeof note.itemId === "object" ? note.itemId?.name : note.message,
+                                  vendor: typeof note.itemId === "object" ? note.itemId?.vendor : null,
+                                },
+                                notificationId: note._id,
+                              })
+                            }
+                            className="inline-flex items-center justify-center gap-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-2 rounded-xl text-xs font-bold transition"
+                            title="Report damaged, improper temp, or condition dispute"
+                          >
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" /> Condition Report
+                          </button>
+                        </div>
                       </div>
                     )}
 
@@ -473,6 +493,19 @@ const Notification = () => {
           </ul>
         )}
       </div>
+
+      {disputeModalData && (
+        <DisputeFeedbackModal
+          isOpen={!!disputeModalData}
+          onClose={() => setDisputeModalData(null)}
+          item={disputeModalData.item}
+          notificationId={disputeModalData.notificationId}
+          onSuccess={() => {
+            fetchNotifications();
+            setDisputeModalData(null);
+          }}
+        />
+      )}
     </div>
   );
 };

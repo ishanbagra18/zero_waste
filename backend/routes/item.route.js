@@ -1,5 +1,5 @@
 import express from 'express';
-import { claimItem, confirmPickup, createItem, deleteItem, getAllItems, getClaimedItems, getSingleItem, markItemDeliveryReached, myAllItems, updateItem, verifyDeliveryOtp } from '../controller/item.controller.js';
+import { claimItem, confirmPickup, createItem, deleteItem, getAllItems, getClaimedItems, getSingleItem, logConditionReport, markItemDeliveryReached, myAllItems, updateItem, verifyDeliveryOtp } from '../controller/item.controller.js';
 import { isAuthenticated, isVendor } from '../middleware/AuthUser.js';
 import { updateClaimStatus } from '../controller/item.controller.js';
 
@@ -19,6 +19,8 @@ router.patch("/:id/claim-status", isAuthenticated, isVendor("vendor", "NGO"), up
 router.patch("/:id/delivery-reached", isAuthenticated, isVendor("Volunteer"), markItemDeliveryReached);
 router.patch("/:id/pickup-confirmed", isAuthenticated, isVendor("Volunteer"), confirmPickup);
 router.patch("/:id/verify-otp", isAuthenticated, isVendor("NGO"), verifyDeliveryOtp);
+router.post("/:id/condition-report", isAuthenticated, isVendor("NGO"), logConditionReport);
+
 
 
 

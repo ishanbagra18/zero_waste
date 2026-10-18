@@ -788,7 +788,7 @@ export const confirmPickup = async (req, res) => {
 export const verifyDeliveryOtp = async (req, res) => {
   try {
     const itemId = req.params.id;
-    const { otp } = req.body;
+    const { otp, conditionReport } = req.body;
 
     if (!itemId || !otp) {
       return res.status(400).json({ message: "Item ID and OTP are required." });
@@ -821,6 +821,18 @@ export const verifyDeliveryOtp = async (req, res) => {
     item.deliveredAt = new Date();
     item.deliveryOtp = null;
     item.deliveryOtpExpiresAt = null;
+
+    if (conditionReport && conditionReport.issueType) {
+      item.conditionReport = {
+        reportedBy: req.user.userId,
+        issueType: conditionReport.issueType,
+        severity: conditionReport.severity || "minor_notice",
+        notes: conditionReport.notes || "",
+        reportedAt: new Date(),
+        status: "logged",
+      };
+    }
+
     await item.save();
 
     enqueueNotification({
@@ -834,7 +846,9 @@ export const verifyDeliveryOtp = async (req, res) => {
         organisation: req.user.organisation,
         location: req.user.location,
       },
-      message: `Delivery for item "${item.name}" has been verified with OTP and marked delivered.`,
+      message: conditionReport?.issueType
+        ? `Delivery for item "${item.name}" verified with OTP. Condition note: [${conditionReport.severity || "notice"}] ${conditionReport.issueType} - ${conditionReport.notes || "Recorded"}`
+        : `Delivery for item "${item.name}" has been verified with OTP and marked delivered.`,
     });
 
     return res.status(200).json({
@@ -846,5 +860,59 @@ export const verifyDeliveryOtp = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+export const logConditionReport = async (req, res) => {
+  try {
+    const itemId = req.params.id;
+    const { issueType, severity, notes } = req.body;
+
+    if (!itemId || !issueType) {
+      return res.status(400).json({ message: "Item ID and issue type are required." });
+    }
+
+    const item = await Item.findById(itemId);
+    if (!item) {
+      return res.status(404).json({ message: "Item not found." });
+    }
+
+    if (item.claimedBy?.toString() !== req.user.userId.toString()) {
+      return res.status(403).json({ message: "Only the claiming NGO can log a condition report." });
+    }
+
+    item.conditionReport = {
+      reportedBy: req.user.userId,
+      issueType,
+      severity: severity || "minor_notice",
+      notes: notes || "",
+      reportedAt: new Date(),
+      status: "logged",
+    };
+
+    await item.save();
+
+    enqueueNotification({
+      userId: item.vendor,
+      itemId: item._id,
+      notificationType: "claim_status_update",
+      actionStatus: "condition_reported",
+      userInfo: {
+        name: req.user.name,
+        email: req.user.email,
+        organisation: req.user.organisation,
+        location: req.user.location,
+      },
+      message: `Respectful condition report logged by ${req.user.name || "NGO"} for item "${item.name}": [${severity || "minor_notice"}] ${issueType} - ${notes || "No additional comments"}`,
+    });
+
+    return res.status(200).json({
+      message: "Condition report logged successfully.",
+      item,
+    });
+  } catch (error) {
+    console.error("🔥 Error logging condition report:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 

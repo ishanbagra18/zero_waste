@@ -17,11 +17,15 @@ import {
   Zap,
   Heart,
   Sparkles,
+  LayoutGrid,
+  Map as MapIcon,
+  Maximize2,
 } from "lucide-react";
 import { useData } from "../context/DataContext";
 import ParallaxHero from "../components/ParallaxHero";
 import { playClickSound } from "../utils/audio";
 import ItemCardWithCursor from "../components/items/ItemCardWithCursor";
+import AllItemsMap from "../components/items/AllItemsMap";
 
 export default function Allitems() {
   const { items, fetchItems } = useData();
@@ -35,6 +39,8 @@ export default function Allitems() {
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [favorites, setFavorites] = useState([]);
+  const [isMapView, setIsMapView] = useState(false);
+  const [isFullscreenMap, setIsFullscreenMap] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const navigate = useNavigate();
@@ -291,44 +297,102 @@ export default function Allitems() {
             </div>
           </div>
 
-          {/* Quick Preset Filter Pills */}
-          <div className="flex items-center gap-2 pt-2 border-t border-slate-800/80 overflow-x-auto">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider shrink-0">Quick Filters:</span>
-            
-            <button
-              onClick={() => setShowUrgentOnly(prev => !prev)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
-                showUrgentOnly ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-amber-500/40"
-              }`}
-            >
-              <Zap size={12} className={showUrgentOnly ? "fill-slate-950" : "text-amber-400"} />
-              <span>⚡ Urgent Pickups Only</span>
-            </button>
+          {/* Quick Preset Filter Pills & View Mode Switcher */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
+            <div className="flex items-center gap-2 overflow-x-auto">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider shrink-0">Quick Filters:</span>
+              
+              <button
+                onClick={() => setShowUrgentOnly(prev => !prev)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+                  showUrgentOnly ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-amber-500/40"
+                }`}
+              >
+                <Zap size={12} className={showUrgentOnly ? "fill-slate-950" : "text-amber-400"} />
+                <span>⚡ Urgent Pickups Only</span>
+              </button>
 
-            <button
-              onClick={() => setShowFreeOnly(prev => !prev)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
-                showFreeOnly ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-emerald-500/40"
-              }`}
-            >
-              <Sparkles size={12} className={showFreeOnly ? "fill-slate-950" : "text-emerald-400"} />
-              <span>💚 Free Donations</span>
-            </button>
+              <button
+                onClick={() => setShowFreeOnly(prev => !prev)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+                  showFreeOnly ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-emerald-500/40"
+                }`}
+              >
+                <Sparkles size={12} className={showFreeOnly ? "fill-slate-950" : "text-emerald-400"} />
+                <span>💚 Free Donations</span>
+              </button>
 
-            <button
-              onClick={() => setShowFavoritesOnly(prev => !prev)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
-                showFavoritesOnly ? "bg-rose-500 text-white shadow-md shadow-rose-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-rose-500/40"
-              }`}
-            >
-              <Heart size={12} className={showFavoritesOnly ? "fill-white" : "text-rose-400"} />
-              <span>❤️ Saved Wishlist ({favorites.length})</span>
-            </button>
+              <button
+                onClick={() => setShowFavoritesOnly(prev => !prev)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+                  showFavoritesOnly ? "bg-rose-500 text-white shadow-md shadow-rose-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-rose-500/40"
+                }`}
+              >
+                <Heart size={12} className={showFavoritesOnly ? "fill-white" : "text-rose-400"} />
+                <span>❤️ Saved Wishlist ({favorites.length})</span>
+              </button>
+            </div>
+
+            {/* Mode Switcher: Grid View vs Interactive Map Mode */}
+            <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0 bg-slate-950 p-1 rounded-2xl border border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setIsMapView(false);
+                  setIsFullscreenMap(false);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  !isMapView
+                    ? "bg-slate-800 text-white shadow-md border border-slate-700"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <LayoutGrid size={13} />
+                <span>Grid</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setIsMapView(true);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  isMapView
+                    ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-black"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <MapIcon size={13} />
+                <span>Interactive Map</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setIsMapView(true);
+                  setIsFullscreenMap(true);
+                }}
+                className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-emerald-400 hover:bg-slate-900 transition flex items-center gap-1"
+                title="Full-Screen Map Mode"
+              >
+                <Maximize2 size={13} />
+                <span className="hidden md:inline">Full-Screen</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Items Grid */}
-        {filteredItems.length === 0 ? (
+        {/* View Content: Interactive Map or Grid Items */}
+        {isMapView ? (
+          <AllItemsMap
+            items={filteredItems}
+            isFullscreen={isFullscreenMap}
+            onToggleFullscreen={() => setIsFullscreenMap((prev) => !prev)}
+          />
+        ) : filteredItems.length === 0 ? (
           <div className="p-12 text-center rounded-3xl bg-slate-900/40 border border-slate-800 max-w-md mx-auto space-y-3">
             <Package className="w-10 h-10 text-slate-600 mx-auto" />
             <p className="text-sm text-slate-400 italic">No surplus food items match your filter criteria.</p>

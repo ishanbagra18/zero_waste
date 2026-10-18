@@ -5,11 +5,11 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
+import gsap from "gsap";
 import { Leaf, ArrowDown, MessageSquare } from "lucide-react";
-import {  Activity } from "lucide-react";
-
-import {  ArrowRight, BarChart3 } from 'lucide-react';
+import { Activity } from "lucide-react";
+import { ArrowRight, BarChart3 } from 'lucide-react';
 
 import {
   ShieldCheck,
@@ -68,6 +68,121 @@ const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6']; // Example Tailwind
 const VendorDashboard = () => {
   const dashboardRef = useRef(null);
   useDashboardEntrance(dashboardRef);
+
+  const heroRef = useRef(null);
+  const orb1Ref = useRef(null);
+  const orb2Ref = useRef(null);
+  const orb3Ref = useRef(null);
+  const orb4Ref = useRef(null);
+
+  // Parallax Scroll Tracking for Hero
+  const { scrollYProgress: heroScrollY } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+
+  const smoothHeroProgress = useSpring(heroScrollY, {
+    stiffness: 90,
+    damping: 22,
+    restDelta: 0.001,
+  });
+
+  // Deep Background Layer Transforms
+  const bgImageY = useTransform(smoothHeroProgress, [0, 1], ["0%", "26%"]);
+  const bgImageScale = useTransform(smoothHeroProgress, [0, 1], [1, 1.18]);
+  const bgOpacity = useTransform(smoothHeroProgress, [0, 0.9], [1, 0.45]);
+  const bgMesh1Y = useTransform(smoothHeroProgress, [0, 1], [0, -140]);
+  const bgMesh2Y = useTransform(smoothHeroProgress, [0, 1], [0, 120]);
+  const gridY = useTransform(smoothHeroProgress, [0, 1], [0, 60]);
+
+  // Floating Orbs & Eco Badges (Midground)
+  const orb1Y = useTransform(smoothHeroProgress, [0, 1], [0, -180]);
+  const orb2Y = useTransform(smoothHeroProgress, [0, 1], [0, -260]);
+  const orb3Y = useTransform(smoothHeroProgress, [0, 1], [0, -120]);
+  const floatBadge1Y = useTransform(smoothHeroProgress, [0, 1], [0, -170]);
+  const floatBadge1Rotate = useTransform(smoothHeroProgress, [0, 1], [-2, 8]);
+  const floatBadge2Y = useTransform(smoothHeroProgress, [0, 1], [0, -230]);
+  const floatBadge2Rotate = useTransform(smoothHeroProgress, [0, 1], [4, -6]);
+
+  // Foreground Left Column (Headline & CTAs)
+  const contentY = useTransform(smoothHeroProgress, [0, 1], [0, 95]);
+  const contentOpacity = useTransform(smoothHeroProgress, [0, 0.85], [1, 0.2]);
+  const contentScale = useTransform(smoothHeroProgress, [0, 1], [1, 0.96]);
+
+  // Foreground Right Column (3D Interactive Visual Card)
+  const cardY = useTransform(smoothHeroProgress, [0, 1], [0, 160]);
+  const cardRotate = useTransform(smoothHeroProgress, [0, 1], [0, 4.5]);
+  const cardScale = useTransform(smoothHeroProgress, [0, 1], [1, 0.94]);
+  const cardFloatingBadgeY = useTransform(smoothHeroProgress, [0, 1], [0, -70]);
+
+  // Bottom Scroll Indicator
+  const scrollIndicatorOpacity = useTransform(smoothHeroProgress, [0, 0.15], [1, 0]);
+  const scrollIndicatorY = useTransform(smoothHeroProgress, [0, 0.15], [0, 18]);
+
+  // Mouse tilt tracking on hero visual card for 3D tactile interaction
+  const [cardMousePos, setCardMousePos] = useState({ x: 0, y: 0 });
+  const handleCardMouseMove = (e) => {
+    const { clientX, clientY, currentTarget } = e;
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const x = (clientX - left) / width - 0.5;
+    const y = (clientY - top) / height - 0.5;
+    setCardMousePos({ x, y });
+  };
+  const handleCardMouseLeave = () => {
+    setCardMousePos({ x: 0, y: 0 });
+  };
+
+  // GSAP subtle floating ambient glow orbs
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      if (orb1Ref.current) {
+        gsap.to(orb1Ref.current, {
+          y: "30px",
+          x: "22px",
+          duration: 6.5,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+      }
+      if (orb2Ref.current) {
+        gsap.to(orb2Ref.current, {
+          y: "-38px",
+          x: "-25px",
+          duration: 8,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: 0.8,
+        });
+      }
+      if (orb3Ref.current) {
+        gsap.to(orb3Ref.current, {
+          scale: 1.25,
+          opacity: 0.65,
+          duration: 7,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: 1.4,
+        });
+      }
+      if (orb4Ref.current) {
+        gsap.to(orb4Ref.current, {
+          y: "25px",
+          x: "-20px",
+          duration: 7.5,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: 2,
+        });
+      }
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   const { token, logout: authLogout } = useAuth();
   const role = localStorage.getItem("role") || "vendor";
 
@@ -197,244 +312,395 @@ const VendorDashboard = () => {
     <div ref={dashboardRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-[#0f111a] to-zinc-950 text-slate-100 font-sans antialiased selection:bg-emerald-500/30">
       <Toaster position="top-right" />
 
-      {/* Responsive Hero Banner Space */}
-
-<section
-  data-gsap-intro
-  className="relative isolate flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-slate-950 px-4 py-20 sm:px-6 lg:px-8"
-  style={{
-    backgroundImage: `
-      linear-gradient(90deg, rgba(2, 6, 23, 0.96) 0%, rgba(2, 6, 23, 0.82) 48%, rgba(2, 6, 23, 0.48) 100%),
-      linear-gradient(0deg, rgba(2, 6, 23, 0.9), transparent 45%),
-      url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=85&w=2000')
-    `,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-  }}
->
-  {/* Ambient background effects */}
-  <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-    <div className="absolute -left-32 top-10 h-80 w-80 rounded-full bg-emerald-500/15 blur-[110px]" />
-    <div className="absolute -right-24 top-1/4 h-96 w-96 rounded-full bg-teal-400/10 blur-[130px]" />
-    <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-green-500/10 blur-[100px]" />
-
-    {/* Subtle grid */}
-    <div
-      className="absolute inset-0 opacity-[0.07]"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)",
-        backgroundSize: "64px 64px",
-        maskImage:
-          "linear-gradient(to bottom, black, transparent 90%)",
-      }}
-    />
-
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
-  </div>
-
-  {/* Main content */}
-  <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10">
-    <div className="mx-auto w-full max-w-3xl text-center lg:mx-0 lg:text-left">
-      {/* Eyebrow badge */}
-      <div className="mb-7 inline-flex items-center gap-3 rounded-full border border-emerald-400/20 bg-slate-950/50 px-4 py-2 shadow-lg shadow-emerald-950/20 backdrop-blur-xl">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
-        </span>
-
-        <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300 sm:text-xs">
-          Supplier Operations Portal
-        </span>
-
-        <span className="h-4 w-px bg-white/15" />
-
-        <span className="text-xs font-medium text-slate-300">
-          Built for impact
-        </span>
-      </div>
-
-      {/* Headline */}
-      <h1 className="text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5.25rem]">
-        Give Waste a
-        <span className="mt-2 block bg-gradient-to-r from-emerald-300 via-teal-300 to-green-200 bg-clip-text pb-2 text-transparent">
-          Second Chance.
-        </span>
-      </h1>
-
-      {/* Description */}
-      <p className="mx-auto mt-7 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg lg:mx-0 lg:text-xl">
-        Turn surplus inventory into something meaningful. Connect your
-        business with communities in need and make every resource count
-        toward a{" "}
-        <span className="font-semibold text-emerald-300">
-          zero-waste future.
-        </span>
-      </p>
-
-      {/* Supporting value propositions */}
-      <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-slate-300 lg:justify-start">
-        <span className="flex items-center gap-2">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-          </span>
-          Reduce surplus waste
-        </span>
-
-        <span className="flex items-center gap-2">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-          </span>
-          Support local communities
-        </span>
-      </div>
-
-      {/* Actions */}
-      <div className="mt-9 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
-        <button
-          onClick={() => {
-            document
-              .getElementById("contact")
-              ?.scrollIntoView({ behavior: "smooth" });
-          }}
-          className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-300 px-7 py-4 font-bold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(16,185,129,0.35)] focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+      {/* 🌟 Multi-Layered Depth Parallax Hero Section */}
+      <section
+        ref={heroRef}
+        data-gsap-intro
+        className="relative isolate flex min-h-[105vh] w-full items-center justify-center overflow-hidden bg-slate-950 px-4 pt-24 pb-20 sm:px-6 lg:px-8"
+      >
+        {/* Layer 1: Parallax Deep Background Image with scale & translation */}
+        <motion.div
+          style={{ y: bgImageY, scale: bgImageScale, opacity: bgOpacity }}
+          className="absolute inset-0 -z-30 pointer-events-none"
         >
-          <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 group-hover:translate-x-full" />
-          <span className="relative">Let's Talk</span>
-          <MessageSquare className="relative h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-        </button>
+          <div
+            className="absolute inset-0 w-full h-[120%] -top-[10%]"
+            style={{
+              backgroundImage: `
+                linear-gradient(90deg, rgba(2, 6, 23, 0.96) 0%, rgba(2, 6, 23, 0.85) 48%, rgba(2, 6, 23, 0.52) 100%),
+                linear-gradient(0deg, #020617 0%, transparent 40%),
+                url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=85&w=2000')
+              `,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+        </motion.div>
 
-        <button
-          onClick={handlereadmore}
-          className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/[0.06] px-7 py-4 font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-emerald-400/10 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-        >
-          Explore Our Mission
-          <ArrowDown className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-y-1" />
-        </button>
-      </div>
+        {/* Layer 2: Parallax Ambient Radial Glow Meshes & Perspective Grid */}
+        <div className="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+          <motion.div
+            style={{ y: bgMesh1Y }}
+            className="absolute -left-40 top-12 h-[34rem] w-[34rem] rounded-full bg-emerald-500/[0.14] blur-[130px]"
+          />
+          <motion.div
+            style={{ y: bgMesh2Y }}
+            className="absolute -right-32 top-1/4 h-[38rem] w-[38rem] rounded-full bg-teal-400/[0.12] blur-[140px]"
+          />
+          <div className="absolute bottom-[-10rem] left-1/3 h-96 w-96 rounded-full bg-green-500/[0.08] blur-[120px]" />
 
-      {/* Impact indicators */}
-      <div className="mt-12 grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-7 text-left">
-        <div className="px-3 first:pl-0 sm:px-5">
-          <div className="flex items-center gap-2 text-emerald-300">
-            <Leaf className="h-4 w-4" />
-            <span className="text-xs font-semibold uppercase tracking-wider">
-              Planet
-            </span>
-          </div>
-          <p className="mt-2 text-sm font-semibold text-white sm:text-base">
-            Less waste
-          </p>
-          <p className="mt-1 text-xs text-slate-400">
-            Better resource use
-          </p>
-        </div>
-
-        <div className="px-3 sm:px-5">
-          <div className="flex items-center gap-2 text-teal-300">
-            <HeartHandshake className="h-4 w-4" />
-            <span className="text-xs font-semibold uppercase tracking-wider">
-              People
-            </span>
-          </div>
-          <p className="mt-2 text-sm font-semibold text-white sm:text-base">
-            Stronger communities
-          </p>
-          <p className="mt-1 text-xs text-slate-400">
-            Surplus with purpose
-          </p>
-        </div>
-
-        <div className="px-3 sm:px-5">
-          <div className="flex items-center gap-2 text-green-300">
-            <Recycle className="h-4 w-4" />
-            <span className="text-xs font-semibold uppercase tracking-wider">
-              Future
-            </span>
-          </div>
-          <p className="mt-2 text-sm font-semibold text-white sm:text-base">
-            Circular thinking
-          </p>
-          <p className="mt-1 text-xs text-slate-400">
-            A sustainable tomorrow
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Right-side visual card */}
-    <div className="relative mx-auto w-full max-w-md lg:ml-auto lg:mr-0">
-      <div className="absolute -inset-5 rounded-[2.5rem] bg-gradient-to-br from-emerald-400/20 via-transparent to-teal-300/10 blur-2xl" />
-
-      <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-slate-950/55 p-3 shadow-2xl shadow-black/30 backdrop-blur-2xl">
-        <div className="relative overflow-hidden rounded-[1.5rem]">
-          <img
-            src="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=85&w=1000"
-            alt="Wildlife in a natural green landscape"
-            className="h-64 w-full object-cover transition-transform duration-700 hover:scale-105 sm:h-80"
-            loading="lazy"
+          {/* Perspective Matrix Grid with subtle parallax */}
+          <motion.div
+            style={{
+              y: gridY,
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)",
+              backgroundSize: "60px 60px",
+              maskImage:
+                "linear-gradient(to bottom, black 20%, transparent 95%)",
+            }}
+            className="absolute inset-0 opacity-[0.065]"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+        </div>
 
-          <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/50 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-lg">
-            <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
-            Small actions. Real change.
-          </div>
+        {/* Layer 3: Midground Floating Eco-Orbs (GSAP Organic Floating + Scroll Depth Offset) */}
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          {/* Eco Orb 1 - Top Left Emerald Halo */}
+          <motion.div
+            style={{ y: orb1Y }}
+            className="absolute top-16 left-[10%]"
+          >
+            <div
+              ref={orb1Ref}
+              className="h-36 w-36 rounded-full bg-gradient-to-br from-emerald-400/25 to-teal-500/10 blur-2xl border border-emerald-400/30"
+            />
+          </motion.div>
 
-          <div className="absolute inset-x-5 bottom-5">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300/20 bg-emerald-400/15 text-emerald-300 backdrop-blur-md">
-              <Sprout className="h-5 w-5" />
-            </div>
+          {/* Eco Orb 2 - Bottom Right Cyan Aura */}
+          <motion.div
+            style={{ y: orb2Y }}
+            className="absolute bottom-20 right-[12%]"
+          >
+            <div
+              ref={orb2Ref}
+              className="h-52 w-52 rounded-full bg-gradient-to-tr from-teal-400/20 to-cyan-400/10 blur-3xl border border-teal-300/25"
+            />
+          </motion.div>
 
-            <h3 className="text-2xl font-bold tracking-tight text-white">
-              Waste less.
-              <span className="block text-emerald-300">
-                Give more.
+          {/* Eco Orb 3 - Mid Center Sparkle Pulse */}
+          <motion.div
+            style={{ y: orb3Y }}
+            className="absolute top-1/3 left-[48%]"
+          >
+            <div
+              ref={orb3Ref}
+              className="h-28 w-28 rounded-full bg-emerald-300/15 blur-xl border border-emerald-200/20"
+            />
+          </motion.div>
+
+          {/* Floating Eco Badge 1 (High Depth Shift) */}
+          <motion.div
+            style={{ y: floatBadge1Y, rotate: floatBadge1Rotate }}
+            className="absolute top-24 left-[28%] hidden lg:flex items-center gap-2 rounded-full border border-emerald-500/30 bg-slate-950/70 px-4 py-1.5 shadow-xl shadow-emerald-950/40 backdrop-blur-xl text-xs font-semibold text-emerald-300"
+          >
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+            <Sprout className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Circular Recovery Network</span>
+          </motion.div>
+
+          {/* Floating Eco Badge 2 (Above Card Depth Shift) */}
+          <motion.div
+            style={{ y: floatBadge2Y, rotate: floatBadge2Rotate }}
+            className="absolute top-36 right-[24%] hidden xl:flex items-center gap-2 rounded-full border border-teal-400/30 bg-slate-950/70 px-4 py-1.5 shadow-xl shadow-teal-950/40 backdrop-blur-xl text-xs font-semibold text-teal-300"
+          >
+            <Zap className="h-3.5 w-3.5 text-teal-300 fill-teal-300" />
+            <span>Zero Landfill Diversion</span>
+          </motion.div>
+        </div>
+
+        {/* Layer 4: Foreground Interactive Content (Left Headline & Right 3D Visual Card) */}
+        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
+          
+          {/* LEFT: Transform-linked Content */}
+          <motion.div
+            style={{ y: contentY, opacity: contentOpacity, scale: contentScale }}
+            className="mx-auto w-full max-w-3xl text-center lg:mx-0 lg:text-left space-y-7"
+          >
+            {/* Eyebrow badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55 }}
+              className="inline-flex items-center gap-3 rounded-full border border-emerald-400/25 bg-slate-950/60 px-4 py-2 shadow-lg shadow-emerald-950/30 backdrop-blur-xl"
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
               </span>
-            </h3>
 
-            <p className="mt-2 max-w-xs text-sm leading-6 text-slate-300">
-              A better tomorrow starts with what we choose to do today.
-            </p>
+              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300 sm:text-xs">
+                Supplier Operations Portal
+              </span>
+
+              <span className="h-4 w-px bg-white/15" />
+
+              <span className="text-xs font-medium text-slate-300">
+                Built for impact
+              </span>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.div
+              initial={{ opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.08 }}
+              className="relative space-y-2"
+            >
+              <h1 className="text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5.25rem]">
+                Give Waste a
+                <span className="mt-2 block bg-gradient-to-r from-emerald-300 via-teal-300 to-green-200 bg-clip-text pb-2 text-transparent">
+                  Second Chance.
+                </span>
+              </h1>
+            </motion.div>
+
+            {/* Description */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.16 }}
+              className="mx-auto max-w-2xl text-base leading-8 text-slate-300 sm:text-lg lg:mx-0 lg:text-xl"
+            >
+              Turn surplus inventory into something meaningful. Connect your
+              business with verified NGOs and make every resource count
+              toward a{" "}
+              <span className="font-semibold text-emerald-300">
+                zero-waste future.
+              </span>
+            </motion.p>
+
+            {/* Supporting value propositions */}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.22 }}
+              className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-slate-300 lg:justify-start"
+            >
+              <span className="flex items-center gap-2">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                </span>
+                Reduce surplus waste
+              </span>
+
+              <span className="flex items-center gap-2">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                </span>
+                Support local communities
+              </span>
+
+              <span className="flex items-center gap-2">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-400/15 text-teal-300">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                </span>
+                Track real-time impact
+              </span>
+            </motion.div>
+
+            {/* Actions */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.28 }}
+              className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start pt-2"
+            >
+              <button
+                onClick={() => {
+                  document
+                    .getElementById("contact")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-300 px-7 py-4 font-bold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(16,185,129,0.4)] focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+              >
+                <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 group-hover:translate-x-full" />
+                <span className="relative">Let's Talk</span>
+                <MessageSquare className="relative h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+              </button>
+
+              <button
+                onClick={handlereadmore}
+                className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/[0.06] px-7 py-4 font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-emerald-400/10 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              >
+                Explore Our Mission
+                <ArrowDown className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-y-1" />
+              </button>
+            </motion.div>
+
+            {/* Impact indicators */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.34 }}
+              className="grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-7 text-left"
+            >
+              <div className="px-3 first:pl-0 sm:px-5">
+                <div className="flex items-center gap-2 text-emerald-300">
+                  <Leaf className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-wider">
+                    Planet
+                  </span>
+                </div>
+                <p className="mt-2 text-sm font-semibold text-white sm:text-base">
+                  Less waste
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Better resource use
+                </p>
+              </div>
+
+              <div className="px-3 sm:px-5">
+                <div className="flex items-center gap-2 text-teal-300">
+                  <HeartHandshake className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-wider">
+                    People
+                  </span>
+                </div>
+                <p className="mt-2 text-sm font-semibold text-white sm:text-base">
+                  Stronger communities
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Surplus with purpose
+                </p>
+              </div>
+
+              <div className="px-3 sm:px-5">
+                <div className="flex items-center gap-2 text-green-300">
+                  <Recycle className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-wider">
+                    Future
+                  </span>
+                </div>
+                <p className="mt-2 text-sm font-semibold text-white sm:text-base">
+                  Circular thinking
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  A sustainable tomorrow
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* RIGHT: Differential Parallax & 3D Tilt Visual Card */}
+          <motion.div
+            style={{ y: cardY, rotateZ: cardRotate, scale: cardScale }}
+            className="relative mx-auto w-full max-w-md lg:ml-auto lg:mr-0"
+          >
+            {/* Ambient Background Aura behind the card */}
+            <div className="absolute -inset-6 rounded-[2.8rem] bg-gradient-to-br from-emerald-400/25 via-teal-500/10 to-transparent blur-3xl pointer-events-none" />
+
+            {/* 3D Interactive Card Container */}
+            <motion.div
+              onMouseMove={handleCardMouseMove}
+              onMouseLeave={handleCardMouseLeave}
+              style={{
+                transform: `perspective(1000px) rotateX(${-cardMousePos.y * 12}deg) rotateY(${cardMousePos.x * 12}deg)`,
+                transition: "transform 0.18s cubic-bezier(0.2, 0, 0, 1)",
+                transformStyle: "preserve-3d",
+              }}
+              className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-slate-950/60 p-3.5 shadow-2xl shadow-black/40 backdrop-blur-2xl"
+            >
+              <div className="relative overflow-hidden rounded-[1.5rem] group">
+                <img
+                  src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=85&w=1200"
+                  alt="Sustainable surplus management"
+                  className="h-68 w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-84"
+                  loading="lazy"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+
+                <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/60 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-lg shadow-lg">
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
+                  Small actions. Real change.
+                </div>
+
+                <div className="absolute inset-x-5 bottom-5">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-400/20 text-emerald-300 backdrop-blur-md shadow-md">
+                    <Sprout className="h-5 w-5" />
+                  </div>
+
+                  <h3 className="text-2xl font-bold tracking-tight text-white">
+                    Waste less.
+                    <span className="block text-emerald-300">
+                      Give more.
+                    </span>
+                  </h3>
+
+                  <p className="mt-2 max-w-xs text-sm leading-6 text-slate-300">
+                    A better tomorrow starts with what we choose to do today.
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom card footer */}
+              <div className="flex items-center justify-between gap-3 px-3 py-4 sm:px-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+                    <Globe2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      Every resource matters
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      Join the zero-waste movement
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-400/25 bg-emerald-400/10 text-emerald-300">
+                  <ArrowUpRight className="h-4 w-4" />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Differential Parallax Floating Badge on Right Side */}
+            <motion.div
+              style={{ y: cardFloatingBadgeY }}
+              className="absolute -right-3 top-1/3 hidden items-center gap-3 rounded-2xl border border-white/20 bg-slate-950/85 p-3.5 shadow-2xl backdrop-blur-2xl sm:flex lg:-right-8 z-20"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+                <Recycle className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white">Reuse. Redistribute.</p>
+                <p className="mt-1 text-[11px] text-slate-400">Make an impact</p>
+              </div>
+            </motion.div>
+          </motion.div>
+
+        </div>
+
+        {/* Layer 5: Scroll Indicator */}
+        <motion.div
+          style={{ opacity: scrollIndicatorOpacity, y: scrollIndicatorY }}
+          className="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-400"
+        >
+          <span className="text-[11px] font-semibold tracking-widest uppercase text-slate-400">
+            Scroll to explore
+          </span>
+          <div className="flex h-8 w-5 justify-center rounded-full border-2 border-emerald-400/40 p-1">
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+            />
           </div>
-        </div>
-
-        {/* Bottom card footer */}
-        <div className="flex items-center justify-between gap-3 px-3 py-4 sm:px-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">
-              <Globe2 className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-white">
-                Every resource matters
-              </p>
-              <p className="mt-1 text-xs text-slate-400">
-                Join the zero-waste movement
-              </p>
-            </div>
-          </div>
-
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
-            <ArrowUpRight className="h-4 w-4" />
-          </div>
-        </div>
-      </div>
-
-      {/* Floating accent */}
-      <div className="absolute -right-3 top-1/3 hidden items-center gap-3 rounded-2xl border border-white/15 bg-slate-950/80 p-3 shadow-xl backdrop-blur-xl sm:flex lg:-right-8">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
-          <Recycle className="h-5 w-5" />
-        </div>
-        <div>
-          <p className="text-xs font-bold text-white">Reuse. Redistribute.</p>
-          <p className="mt-1 text-[11px] text-slate-400">Make an impact</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+        </motion.div>
+      </section>
 
 
 
