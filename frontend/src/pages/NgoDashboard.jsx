@@ -8,6 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { Bell } from "lucide-react";
 import { motion } from "framer-motion";
 import useDashboardEntrance from "../hooks/useDashboardEntrance";
+import { useEcoLeaf } from "../context/EcoLeafContext";
 import {
   ShoppingBag,
   User,
@@ -56,6 +57,7 @@ const NgoDashboard = () => {
   const dashboardRef = useRef(null);
   useDashboardEntrance(dashboardRef);
   const navigate = useNavigate();
+  const { leavesEnabled, toggleLeaves } = useEcoLeaf();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role") || "NGO";
 
@@ -554,6 +556,23 @@ const NgoDashboard = () => {
                 className="text-emerald-300 transition-transform duration-300 group-hover:translate-x-1"
               />
             </motion.button>
+
+            <motion.button
+              type="button"
+              whileHover={{
+                scale: 1.025,
+              }}
+              whileTap={{ scale: 0.97 }}
+              onClick={toggleLeaves}
+              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-6 py-4 text-sm font-semibold backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
+                leavesEnabled
+                  ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-300 shadow-lg shadow-emerald-500/10 hover:bg-emerald-500/30"
+                  : "border-white/15 bg-slate-950/30 text-slate-100 hover:border-emerald-400/40 hover:bg-white/[0.08]"
+              }`}
+            >
+              <Leaf className={`h-4 w-4 transition-transform duration-300 ${leavesEnabled ? "rotate-12 text-emerald-400 scale-110" : "text-emerald-400"}`} />
+              <span>{leavesEnabled ? "Stop Leaf Animation 🍃" : "Start Leaf Animation 🍃"}</span>
+            </motion.button>
           </motion.div>
 
           {/* Compact value propositions */}
@@ -1027,287 +1046,686 @@ const NgoDashboard = () => {
 
 
       {/* 🏁 Vendor Directory CTA Section */}
-<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-gradient-to-b from-[#080d19] via-[#0b1020] to-[#090b12] px-4 py-20 sm:px-8 sm:py-24 lg:px-8">
+<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-gradient-to-b from-[#080d19] via-[#0b1020] to-[#090b12] px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
 
   {/* Background Grid */}
-  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_75%)]" />
+  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.025)_1px,transparent_1px)] bg-[size:32px_32px]" />
 
-  {/* Ambient Glows */}
-  <div className="pointer-events-none absolute -left-32 top-1/4 h-80 w-80 rounded-full bg-blue-500/[0.09] blur-[110px]" />
-  <div className="pointer-events-none absolute -right-32 bottom-0 h-80 w-80 rounded-full bg-emerald-500/[0.08] blur-[110px]" />
-  <div className="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent" />
+  {/* Background Glows */}
+  <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-emerald-500/[0.06] blur-[110px]" />
+  <div className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-cyan-500/[0.05] blur-[110px]" />
 
-  <div className="relative z-10 mx-auto max-w-5xl">
+  <div className="relative z-10 mx-auto max-w-6xl">
 
-    {/* Main Content Panel */}
-    <div className="group relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-gradient-to-br from-white/[0.055] via-white/[0.025] to-white/[0.015] px-5 py-10 shadow-2xl shadow-black/30 backdrop-blur-xl transition-all duration-500 hover:border-white/[0.14] sm:px-10 sm:py-14 lg:px-16 lg:py-16">
+    {/* ========================================= */}
+    {/* MAIN SECTION HEADING */}
+    {/* ========================================= */}
 
-      {/* Panel Accent */}
-      <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-100" />
-      <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-500/[0.07] blur-[80px] transition-all duration-700 group-hover:bg-blue-500/[0.12]" />
+    <div className="mx-auto mb-8 max-w-2xl text-center sm:mb-10">
 
-      <div className="relative mx-auto max-w-3xl space-y-7 text-center">
+      {/* Eyebrow */}
+      <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/[0.05] px-3.5 py-1.5">
 
-        {/* Badge */}
-        <div className="flex justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/[0.07] px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.2em] text-blue-300 sm:text-[11px]">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-50" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-400" />
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-40" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+        </span>
+
+        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300 sm:text-[11px]">
+          Impact & Community
+        </span>
+
+      </div>
+
+      {/* Main Heading */}
+      <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-[42px]">
+
+        Building a{" "}
+        <span className="bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent">
+          Sustainable Future
+        </span>
+
+      </h2>
+
+      {/* Subtitle */}
+      <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-400 sm:text-base sm:leading-7">
+        Track your impact, connect with local vendors, and turn surplus
+        resources into meaningful change.
+      </p>
+
+      {/* Decorative Divider */}
+      <div className="mx-auto mt-5 flex items-center justify-center gap-2">
+        <span className="h-px w-10 bg-gradient-to-r from-transparent to-emerald-400/50" />
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        <span className="h-px w-10 bg-gradient-to-l from-transparent to-cyan-400/50" />
+      </div>
+
+    </div>
+
+    {/* ========================================= */}
+    {/* TWO-COLUMN DASHBOARD */}
+    {/* ========================================= */}
+
+    <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2 lg:gap-5">
+
+      {/* ========================================= */}
+      {/* LEFT: CLAIM STATUS */}
+      {/* ========================================= */}
+
+      <div className="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c1220]/90 p-4 shadow-xl shadow-black/10 backdrop-blur-xl transition-all duration-300 hover:border-emerald-400/25 sm:p-5">
+
+        {/* Top Accent */}
+        <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] pb-3">
+
+          <div className="flex min-w-0 items-center gap-3">
+
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/[0.08] text-emerald-300 transition-transform duration-300 group-hover:scale-105">
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                className="h-5 w-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 3v18h18M7 14l4-4 4 4 6-7"
+                />
+              </svg>
+
+            </div>
+
+            <div className="min-w-0">
+              <h3 className="text-sm font-bold tracking-tight text-white">
+                Claim Status
+              </h3>
+              <p className="mt-1 text-[11px] text-slate-500">
+                Distribution overview
+              </p>
+            </div>
+
+          </div>
+
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-400/15 bg-emerald-400/[0.05] px-2.5 py-1.5 text-[10px] font-medium text-emerald-300">
+
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-40" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
             </span>
-            Supply Network
-            <span className="h-1 w-1 rounded-full bg-blue-300/50" />
-            <span className="font-semibold tracking-wider text-slate-400">Explore & Connect</span>
+
+            Analytics
+
           </span>
+
         </div>
 
-        {/* Heading and Description */}
-        <div className="space-y-5">
-          <h3 className="text-3xl font-black leading-[1.15] tracking-tight text-white sm:text-4xl lg:text-5xl">
-            Discover the
-            <span className="block mt-1 bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
-              Supply Network
-            </span>
-          </h3>
+        {/* Pie Chart */}
+        <div className="flex flex-1 flex-col justify-center py-3">
 
-          <p className="mx-auto max-w-2xl text-sm leading-7 text-slate-400 sm:text-base sm:leading-8">
-            Connect with active vendors, explore available resources, and help build a more sustainable regional ecosystem. Every connection brings us closer to reducing waste and maximizing community impact.
-          </p>
+          {pieData && pieData.length === 0 ? (
+
+            <div className="flex min-h-[230px] flex-col items-center justify-center text-center">
+
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.07] bg-white/[0.025] text-slate-500">
+
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="h-6 w-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M11 3.05A9 9 0 1 0 20.95 13H11V3.05Z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M14 3.5V10h6.5A9 9 0 0 0 14 3.5Z"
+                  />
+                </svg>
+
+              </div>
+
+              <p className="text-sm font-semibold text-slate-200">
+                No claim data yet
+              </p>
+
+              <p className="mt-1 max-w-[230px] text-xs leading-5 text-slate-500">
+                Claim statistics will appear when activity is recorded.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="mx-auto w-full max-w-[390px]">
+
+              <div className="h-[235px] w-full sm:h-[250px]">
+
+                <ResponsiveContainer width="100%" height="100%">
+
+                  <PieChart>
+
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="45%"
+                      outerRadius="65%"
+                      innerRadius="47%"
+                      paddingAngle={4}
+                      dataKey="value"
+                      stroke="none"
+                      label={({ percent }) =>
+                        `${(percent * 100).toFixed(0)}%`
+                      }
+                      labelLine={false}
+                      animationDuration={800}
+                      animationEasing="ease-out"
+                    >
+
+                      {pieData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                          stroke="#0c1220"
+                          strokeWidth={3}
+                          className="transition-opacity duration-300 hover:opacity-80"
+                        />
+                      ))}
+
+                    </Pie>
+
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#0b1020",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255,255,255,0.10)",
+                        padding: "10px 13px",
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+                        fontSize: "11px",
+                      }}
+                      labelStyle={{
+                        color: "#e2e8f0",
+                        fontWeight: 700,
+                      }}
+                      itemStyle={{
+                        color: "#cbd5e1",
+                        fontSize: "11px",
+                      }}
+                    />
+
+                    <Legend
+                      layout="horizontal"
+                      verticalAlign="bottom"
+                      align="center"
+                      iconType="circle"
+                      iconSize={7}
+                      wrapperStyle={{
+                        fontSize: "10px",
+                        color: "#94a3b8",
+                        paddingTop: "6px",
+                        lineHeight: "19px",
+                      }}
+                    />
+
+                  </PieChart>
+
+                </ResponsiveContainer>
+
+              </div>
+
+            </div>
+
+          )}
+
         </div>
 
-        {/* Feature Highlights */}
-        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-3 pt-1 text-left sm:grid-cols-3 sm:gap-4">
+        {/* Footer */}
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] pt-3">
 
-          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-emerald-400/20 hover:bg-emerald-400/[0.035] sm:flex-col sm:items-center sm:gap-2 sm:py-4 sm:text-center">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-emerald-400/15 bg-emerald-400/[0.08] text-emerald-300">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-[18px] w-[18px]">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 13v.01M9 17v.01M15 13v.01M15 17v.01" />
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-400/[0.07] text-emerald-300">
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                className="h-3.5 w-3.5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7"
+                />
               </svg>
+
             </span>
-            <span className="text-xs font-semibold tracking-wide text-slate-300">Active Vendors</span>
+
+            <span className="text-[10px] text-slate-400">
+              Claim activity
+            </span>
           </div>
 
-          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-cyan-400/20 hover:bg-cyan-400/[0.035] sm:flex-col sm:items-center sm:gap-2 sm:py-4 sm:text-center">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-400/15 bg-cyan-400/[0.08] text-cyan-300">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-[18px] w-[18px]">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7h-9m9 0-3-3m3 3-3 3M4 17h9m-9 0 3-3m-3 3 3 3M4 7h2m-2 10h2" />
+          <span className="rounded-lg border border-white/[0.06] bg-white/[0.025] px-2 py-1 text-[10px] text-slate-500">
+            Status breakdown
+          </span>
+
+        </div>
+
+      </div>
+
+      {/* ========================================= */}
+      {/* RIGHT: SUPPLY NETWORK */}
+      {/* ========================================= */}
+
+      <div className="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c1220]/90 p-4 shadow-xl shadow-black/10 backdrop-blur-xl transition-all duration-300 hover:border-cyan-400/25 sm:p-5">
+
+        {/* Top Accent */}
+        <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+
+        <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-cyan-400/[0.05] blur-[75px]" />
+
+        {/* Header */}
+        <div className="relative flex items-center justify-between gap-3 border-b border-white/[0.06] pb-3">
+
+          <div className="flex min-w-0 items-center gap-3">
+
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/15 bg-cyan-400/[0.08] text-cyan-300 transition-transform duration-300 group-hover:scale-105">
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                className="h-5 w-5"
+              >
+                <circle cx="12" cy="5" r="2.5" />
+                <circle cx="5" cy="18" r="2.5" />
+                <circle cx="19" cy="18" r="2.5" />
+                <path
+                  strokeLinecap="round"
+                  d="m10.8 7.2-4.5 8.5m6.9-8.5 4.5 8.5M7.5 18h9"
+                />
               </svg>
-            </span>
-            <span className="text-xs font-semibold tracking-wide text-slate-300">Resource Sharing</span>
+
+            </div>
+
+            <div className="min-w-0">
+              <h3 className="text-sm font-bold tracking-tight text-white">
+                Supply Network
+              </h3>
+              <p className="mt-1 text-[11px] text-slate-500">
+                Explore & connect
+              </p>
+            </div>
+
           </div>
 
-          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-teal-400/20 hover:bg-teal-400/[0.035] sm:flex-col sm:items-center sm:gap-2 sm:py-4 sm:text-center">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-teal-400/15 bg-teal-400/[0.08] text-teal-300">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-[18px] w-[18px]">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3 14.8 8.7 21 9.6l-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+          <span className="shrink-0 rounded-full border border-cyan-400/15 bg-cyan-400/[0.05] px-2.5 py-1.5 text-[10px] font-medium text-cyan-300">
+            Community
+          </span>
+
+        </div>
+
+        {/* Network Illustration */}
+        <div className="relative mx-auto my-3 w-full max-w-[320px]">
+
+          <svg
+            viewBox="0 0 320 190"
+            className="h-auto w-full"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+
+            <defs>
+
+              <pattern
+                id="compact-network-grid"
+                width="20"
+                height="20"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M20 0H0V20"
+                  stroke="#94a3b8"
+                  strokeOpacity=".07"
+                  strokeWidth=".7"
+                />
+              </pattern>
+
+              <radialGradient id="compact-network-glow">
+                <stop stopColor="#34d399" stopOpacity=".22" />
+                <stop offset="1" stopColor="#34d399" stopOpacity="0" />
+              </radialGradient>
+
+              <linearGradient
+                id="compact-network-line"
+                x1="55"
+                y1="35"
+                x2="265"
+                y2="155"
+              >
+                <stop stopColor="#34d399" />
+                <stop offset="1" stopColor="#22d3ee" />
+              </linearGradient>
+
+            </defs>
+
+            <rect
+              width="320"
+              height="190"
+              rx="12"
+              fill="url(#compact-network-grid)"
+            />
+
+            {/* Connections */}
+            <g
+              stroke="#334155"
+              strokeWidth="1.5"
+              strokeDasharray="4 5"
+            >
+              <path d="M160 95 60 35" />
+              <path d="M160 95 260 35" />
+              <path d="M160 95 60 155" />
+              <path d="M160 95 260 155" />
+            </g>
+
+            <g
+              stroke="url(#compact-network-line)"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            >
+              <path d="M160 95 60 35" />
+              <path d="M160 95 260 35" />
+              <path d="M160 95 60 155" />
+              <path d="M160 95 260 155" />
+            </g>
+
+            {/* Center Node */}
+            <circle
+              cx="160"
+              cy="95"
+              r="45"
+              fill="url(#compact-network-glow)"
+            />
+
+            <circle
+              cx="160"
+              cy="95"
+              r="27"
+              fill="#10342f"
+              stroke="#34d399"
+              strokeOpacity=".65"
+            />
+
+            <circle
+              cx="160"
+              cy="95"
+              r="20"
+              fill="#102b2a"
+              stroke="#34d399"
+              strokeOpacity=".4"
+            />
+
+            <g
+              stroke="#6ee7b7"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="160" cy="86" r="4" />
+              <circle cx="150" cy="103" r="4" />
+              <circle cx="170" cy="103" r="4" />
+              <path d="m158 90-6 9m10-9 6 9m-16 5h16" />
+            </g>
+
+            {/* Vendor Nodes */}
+            <g>
+
+              <circle
+                cx="60"
+                cy="35"
+                r="14"
+                fill="#102735"
+                stroke="#22d3ee"
+                strokeWidth="1.3"
+              />
+
+              <path
+                d="M53 40V30h14v10M51 40h18M57 34h2m4 0h2"
+                stroke="#67e8f9"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <circle
+                cx="260"
+                cy="35"
+                r="14"
+                fill="#103328"
+                stroke="#34d399"
+                strokeWidth="1.3"
+              />
+
+              <path
+                d="m253 32 7-3 7 3-7 4-7-4Zm0 4 7 4 7-4"
+                stroke="#6ee7b7"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <circle
+                cx="60"
+                cy="155"
+                r="14"
+                fill="#103328"
+                stroke="#34d399"
+                strokeWidth="1.3"
+              />
+
+              <path
+                d="M54 149h12v12H54zM57 153h2m3 0h1m-6 4h2m3 0h1"
+                stroke="#6ee7b7"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+
+              <circle
+                cx="260"
+                cy="155"
+                r="14"
+                fill="#102735"
+                stroke="#22d3ee"
+                strokeWidth="1.3"
+              />
+
+              <circle
+                cx="256"
+                cy="152"
+                r="2.5"
+                stroke="#67e8f9"
+                strokeWidth="1.2"
+              />
+
+              <circle
+                cx="264"
+                cy="152"
+                r="2.5"
+                stroke="#67e8f9"
+                strokeWidth="1.2"
+              />
+
+              <path
+                d="M252 160c0-4 8-4 8 0m0 0c0-4 8-4 8 0"
+                stroke="#67e8f9"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+
+            </g>
+
+            {/* Connection Points */}
+            <g fill="#a7f3d0">
+              <circle cx="110" cy="65" r="2" />
+              <circle cx="210" cy="65" r="2" />
+              <circle cx="110" cy="125" r="2" />
+              <circle cx="210" cy="125" r="2" />
+            </g>
+
+          </svg>
+
+        </div>
+
+        {/* Feature Cards */}
+        <div className="relative grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+
+          {/* Vendors */}
+          <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.025] p-2.5 transition-all duration-300 hover:border-emerald-400/25 hover:bg-emerald-400/[0.035]">
+
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-400/[0.08] text-emerald-300">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                className="h-4 w-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"
+                />
               </svg>
-            </span>
-            <span className="text-xs font-semibold tracking-wide text-slate-300">Sustainable Impact</span>
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-slate-200">
+                Vendors
+              </p>
+              <p className="mt-1 text-[10px] text-slate-500">
+                Discover suppliers
+              </p>
+            </div>
+
+          </div>
+
+          {/* Resources */}
+          <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.025] p-2.5 transition-all duration-300 hover:border-cyan-400/25 hover:bg-cyan-400/[0.035]">
+
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-400/[0.08] text-cyan-300">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                className="h-4 w-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 3v18m-9-9h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4"
+                />
+              </svg>
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-slate-200">
+                Resources
+              </p>
+              <p className="mt-1 text-[10px] text-slate-500">
+                Share supplies
+              </p>
+            </div>
+
+          </div>
+
+          {/* Sustainability */}
+          <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.025] p-2.5 transition-all duration-300 hover:border-teal-400/25 hover:bg-teal-400/[0.035]">
+
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-400/[0.08] text-teal-300">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                className="h-4 w-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M20 4c-9 0-15 4-15 11a5 5 0 0 0 5 5c7 0 11-7 10-16Z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 20c3-5 7-8 12-11"
+                />
+              </svg>
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-slate-200">
+                Sustainability
+              </p>
+              <p className="mt-1 text-[10px] text-slate-500">
+                Reduce waste
+              </p>
+            </div>
+
           </div>
 
         </div>
 
         {/* CTA */}
-        <div className="flex flex-col items-center gap-3 pt-3">
+        <div className="relative mt-4 border-t border-white/[0.06] pt-4">
+
           <button
             onClick={handleRedirect}
             type="button"
-            className="group/btn relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-emerald-300/30 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-7 py-4 text-sm font-extrabold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.16)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_38px_rgba(16,185,129,0.25)] active:translate-y-0 active:scale-[0.98] sm:w-auto sm:min-w-[240px]"
+            className="group/btn inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-4 py-3 text-xs font-bold text-[#07121a] shadow-[0_5px_20px_rgba(16,185,129,0.10)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,185,129,0.22)] active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220]"
           >
-            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
-            <span className="relative">View All Vendors</span>
-            <span className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-black/[0.08] transition-all duration-300 group-hover/btn:translate-x-1 group-hover/btn:bg-black/[0.12]">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-              </svg>
-            </span>
+
+            Explore All Vendors
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 12h14m-6-6 6 6-6 6"
+              />
+            </svg>
+
           </button>
 
-          <p className="text-[10px] font-medium tracking-wide text-slate-500 sm:text-[11px]">
-            Building stronger communities through smarter resource sharing.
+          <p className="mt-2 text-center text-[10px] text-slate-500">
+            Smarter sourcing starts with local connections.
           </p>
+
         </div>
 
       </div>
+
     </div>
+
   </div>
-</section>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      {/* 🥧 Claim Status Pie Chart Section */}
-<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-gradient-to-b from-[#090c15] via-[#0b1020] to-[#080b12] px-4 py-16 sm:px-8 sm:py-20">
-  {/* Background Grid */}
-  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.025)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_80%)]" />
-
-  {/* Ambient Glows */}
-  <div className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-emerald-500/[0.06] blur-[100px]" />
-  <div className="pointer-events-none absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-blue-500/[0.07] blur-[100px]" />
-
-  <div className="relative z-10 mx-auto max-w-4xl space-y-9 sm:space-y-11">
-
-    {/* Header */}
-    <div className="space-y-4 text-center">
-      <div className="flex justify-center">
-        <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-3.5 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-300 sm:text-[11px]">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-          </span>
-          Live Metric Stream
-        </span>
-      </div>
-
-      <div className="space-y-3">
-        <h2 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
-          Claim Status <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">Distribution</span>
-        </h2>
-        <p className="mx-auto max-w-lg text-xs leading-6 text-slate-400 sm:text-sm">
-          Visualize claim progress across different stages and get a clearer picture of your operational activity.
-        </p>
-      </div>
-    </div>
-
-    {/* Analytics Card */}
-    <div className="group relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-white/[0.045] via-white/[0.02] to-white/[0.01] p-4 shadow-2xl shadow-black/20 backdrop-blur-xl transition-all duration-500 hover:border-white/[0.12] sm:p-7 lg:p-8">
-
-      {/* Top Accent */}
-      <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
-      <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-emerald-500/[0.035] blur-[80px] transition-colors duration-500 group-hover:bg-emerald-500/[0.07]" />
-
-      <div className="relative">
-
-        {/* Card Header */}
-        <div className="mb-5 flex flex-col gap-3 border-b border-white/[0.06] pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/[0.08] text-emerald-300">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M7 14l4-4 4 4 6-7" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-white sm:text-base">Claims Analytics</h3>
-              <p className="mt-1 text-[11px] text-slate-500">Overview by current status</p>
-            </div>
-          </div>
-
-          <span className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-[10px] font-semibold tracking-wide text-slate-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            Status Breakdown
-          </span>
-        </div>
-
-        {/* Chart / Empty State */}
-        {pieData && pieData.length === 0 ? (
-          <div className="flex min-h-[300px] flex-col items-center justify-center px-5 py-12 text-center">
-            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.025] shadow-inner shadow-white/[0.02]">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-slate-500">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M11 3.05A9 9 0 1 0 20.95 13H11V3.05Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14 3.5V10h6.5A9 9 0 0 0 14 3.5Z" />
-              </svg>
-            </div>
-            <h4 className="text-sm font-bold text-slate-200">No claim data available</h4>
-            <p className="mt-2 max-w-xs text-xs leading-6 text-slate-500">
-              Your analytics will appear here once claim activity has been recorded.
-            </p>
-            <span className="mt-5 rounded-full border border-white/[0.06] bg-white/[0.025] px-3 py-1.5 text-[10px] font-medium text-slate-500">
-              Waiting for activity
-            </span>
-          </div>
-        ) : (
-          <div className="w-full">
-            <div className="h-[320px] w-full sm:h-[360px] lg:h-[380px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="43%"
-                    outerRadius="72%"
-                    innerRadius="53%"
-                    paddingAngle={4}
-                    dataKey="value"
-                    stroke="none"
-                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                        stroke="#0b1020"
-                        strokeWidth={3}
-                        className="transition-opacity duration-300 hover:opacity-80"
-                      />
-                    ))}
-                  </Pie>
-
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#0b1020",
-                      borderRadius: "14px",
-                      border: "1px solid rgba(255,255,255,0.10)",
-                      padding: "12px 15px",
-                      boxShadow: "0 12px 35px rgba(0,0,0,0.35)",
-                      fontSize: "12px",
-                    }}
-                    labelStyle={{
-                      color: "#e2e8f0",
-                      fontWeight: 700,
-                      marginBottom: "4px",
-                    }}
-                    itemStyle={{
-                      color: "#cbd5e1",
-                      fontSize: "12px",
-                    }}
-                    cursor={false}
-                  />
-
-                  <Legend
-                    layout="horizontal"
-                    verticalAlign="bottom"
-                    align="center"
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={{
-                      fontSize: "11px",
-                      color: "#94a3b8",
-                      paddingTop: "18px",
-                      lineHeight: "24px",
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/[0.06] pt-4">
-          <span className="text-[10px] font-medium text-slate-500 sm:text-[11px]">
-            Claim status overview
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 sm:text-[11px]">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
-            Distribution View
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
 </section>
 
 
@@ -1324,131 +1742,307 @@ const NgoDashboard = () => {
 
 
       {/* 📍 Nearest Vendors Call-to-Action */}
-<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-gradient-to-b from-[#080d17] via-[#0c1220] to-[#090b13] px-4 py-20 sm:px-8 sm:py-24 lg:px-8">
+
+<section className="relative isolate overflow-hidden border-t border-white/[0.06] bg-gradient-to-b from-[#080d17] via-[#0c1220] to-[#090b13] px-4 py-16 sm:px-8 sm:py-20 lg:px-8 lg:py-24">
 
   {/* Background Grid */}
-  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_75%)]" />
+  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_80%)]" />
 
   {/* Ambient Lighting */}
-  <div className="pointer-events-none absolute -left-32 top-0 h-80 w-80 rounded-full bg-emerald-500/[0.09] blur-[110px]" />
-  <div className="pointer-events-none absolute -right-32 bottom-0 h-80 w-80 rounded-full bg-cyan-500/[0.07] blur-[110px]" />
-  <div className="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent" />
+  <div className="pointer-events-none absolute -left-40 top-20 h-96 w-96 rounded-full bg-emerald-500/[0.09] blur-[120px]" />
+  <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-cyan-500/[0.08] blur-[120px]" />
 
-  <div className="relative z-10 mx-auto max-w-5xl">
+  <div className="relative z-10 mx-auto max-w-6xl">
 
-    {/* Main Feature Panel */}
-    <div className="group relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-gradient-to-br from-white/[0.045] via-white/[0.02] to-white/[0.01] px-5 py-10 shadow-2xl shadow-black/30 backdrop-blur-xl transition-all duration-500 hover:border-emerald-400/20 sm:px-10 sm:py-14 lg:px-16 lg:py-16">
+    {/* Main Panel */}
+    <div className="group relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-[#0b1220]/80 shadow-[0_30px_100px_rgba(0,0,0,0.3)] backdrop-blur-2xl transition-colors duration-500 hover:border-emerald-400/20 sm:rounded-[36px]">
+
+      {/* Top Accent */}
+      <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
 
       {/* Decorative Glow */}
-      <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-emerald-400/[0.06] blur-[90px] transition-all duration-700 group-hover:bg-emerald-400/[0.11]" />
-      <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
+      <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-emerald-400/[0.07] blur-[100px] transition-all duration-700 group-hover:bg-emerald-400/[0.12]" />
 
-      <div className="relative mx-auto max-w-3xl space-y-7 text-center">
+      <div className="grid items-center gap-10 p-5 sm:p-9 md:p-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:p-14">
 
-        {/* Badge */}
-        <div className="flex justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.07] px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.2em] text-emerald-300 sm:text-[11px]">
+        {/* LEFT: Content */}
+        <div className="relative z-10">
+
+          {/* Eyebrow */}
+          <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-3.5 py-2">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+              <span className="relative h-2 w-2 rounded-full bg-emerald-400" />
             </span>
-            Proximity Engine
-            <span className="h-1 w-1 rounded-full bg-emerald-300/50" />
-            <span className="font-semibold tracking-wider text-slate-400">Location Discovery</span>
-          </span>
-        </div>
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-emerald-300 sm:text-[11px]">
+              Smart Local Discovery
+            </span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5 text-emerald-300/70">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7 17 17 7M7 7h10v10" />
+            </svg>
+          </div>
 
-        {/* Heading */}
-        <div className="space-y-4">
-          <h3 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
-            Find Vendors
-            <span className="mt-1 block bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
-              Closer to You
+          {/* Heading */}
+          <h3 className="max-w-xl text-4xl font-black leading-[1.08] tracking-[-0.045em] text-white sm:text-5xl lg:text-[58px]">
+            Good resources.
+            <span className="mt-2 block bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text pb-1 text-transparent">
+              Right around you.
             </span>
           </h3>
 
-          <p className="mx-auto max-w-2xl text-sm leading-7 text-slate-400 sm:text-base sm:leading-8">
-            Discover nearby suppliers, explore locally available resources, and reduce unnecessary transportation. Find the right stock closer to your location and make every connection count.
+          <p className="mt-6 max-w-lg text-sm leading-7 text-slate-400 sm:text-base sm:leading-8">
+            Why source from miles away when the right supplier could be nearby? Discover local vendors, find available resources, and build a more sustainable supply chain.
           </p>
-        </div>
 
-        {/* Feature Highlights */}
-        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-3 pt-1 sm:grid-cols-3 sm:gap-4">
+          {/* Compact Feature List */}
+          <div className="mt-8 space-y-4">
 
-          {/* Location Discovery */}
-          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-emerald-400/20 hover:bg-emerald-400/[0.035] sm:flex-col sm:items-center sm:gap-3 sm:py-5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/[0.08] text-emerald-300 transition-transform duration-300 group-hover:scale-105">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/[0.07] text-emerald-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[19px] w-[19px]">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-slate-200">Location-based discovery</p>
+                <p className="mt-0.5 text-xs text-slate-500">Explore suppliers in your area</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/15 bg-cyan-400/[0.07] text-cyan-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[19px] w-[19px]">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m3 7 9-4 9 4-9 4-9-4Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m3 12 9 4 9-4M3 17l9 4 9-4" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-slate-200">Resources within reach</p>
+                <p className="mt-0.5 text-xs text-slate-500">Find locally available supplies</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-teal-400/15 bg-teal-400/[0.07] text-teal-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[19px] w-[19px]">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" />
+                  <circle cx="7.5" cy="19" r="2" />
+                  <circle cx="17.5" cy="19" r="2" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-slate-200">A lighter footprint</p>
+                <p className="mt-0.5 text-xs text-slate-500">Reduce unnecessary transportation</p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* CTA */}
+          <div className="mt-9">
+            <Link
+              to="/near"
+              className="group/btn relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-6 py-4 text-sm font-extrabold text-[#07121a] shadow-[0_8px_32px_rgba(16,185,129,0.15)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(16,185,129,0.25)] active:translate-y-0 active:scale-[0.98] sm:w-auto"
+            >
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="relative h-5 w-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
                 <circle cx="12" cy="10" r="2.5" />
               </svg>
-            </div>
-            <div className="text-left sm:text-center">
-              <h4 className="text-xs font-bold text-slate-200">Location-Based</h4>
-              <p className="mt-1 text-[10px] leading-5 text-slate-500">Discover nearby suppliers</p>
-            </div>
-          </div>
 
-          {/* Local Inventory */}
-          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-cyan-400/20 hover:bg-cyan-400/[0.035] sm:flex-col sm:items-center sm:gap-3 sm:py-5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/15 bg-cyan-400/[0.08] text-cyan-300 transition-transform duration-300 group-hover:scale-105">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m3 7 9-4 9 4-9 4-9-4Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="m3 12 9 4 9-4M3 17l9 4 9-4" />
-              </svg>
-            </div>
-            <div className="text-left sm:text-center">
-              <h4 className="text-xs font-bold text-slate-200">Local Resources</h4>
-              <p className="mt-1 text-[10px] leading-5 text-slate-500">Explore available supplies</p>
-            </div>
-          </div>
+              <span className="relative">Explore Nearby Vendors</span>
 
-          {/* Sustainable Logistics */}
-          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition-all duration-300 hover:border-teal-400/20 hover:bg-teal-400/[0.035] sm:flex-col sm:items-center sm:gap-3 sm:py-5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-teal-400/15 bg-teal-400/[0.08] text-teal-300 transition-transform duration-300 group-hover:scale-105">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" />
-                <circle cx="7.5" cy="19" r="2" />
-                <circle cx="17.5" cy="19" r="2" />
-              </svg>
-            </div>
-            <div className="text-left sm:text-center">
-              <h4 className="text-xs font-bold text-slate-200">Less Travel</h4>
-              <p className="mt-1 text-[10px] leading-5 text-slate-500">Support local sustainability</p>
-            </div>
-          </div>
+              <span className="relative ml-1 flex h-7 w-7 items-center justify-center rounded-lg bg-black/[0.08] transition-transform duration-300 group-hover/btn:translate-x-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+                </svg>
+              </span>
+            </Link>
 
+            <p className="mt-4 text-xs text-slate-500">
+              <span className="mr-1.5 text-emerald-400">✳</span>
+              Source locally. Travel less. Make an impact.
+            </p>
+          </div>
         </div>
 
-        {/* CTA */}
-        <div className="flex flex-col items-center gap-3 pt-3">
-          <Link
-            to="/near"
-            className="group/btn relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-emerald-300/30 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-7 py-4 text-sm font-extrabold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.16)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_38px_rgba(16,185,129,0.25)] active:translate-y-0 active:scale-[0.98] sm:w-auto sm:min-w-[260px]"
-          >
-            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+        {/* RIGHT: Visual Discovery Panel */}
+        <div className="relative mx-auto w-full max-w-md lg:max-w-none">
 
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="relative h-5 w-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-              <circle cx="12" cy="10" r="2.5" />
-            </svg>
+          {/* Visual Frame */}
+          <div className="relative overflow-hidden rounded-[26px] border border-white/[0.09] bg-gradient-to-br from-[#101e2c] via-[#0c1725] to-[#0b1220] p-4 shadow-2xl shadow-black/20 sm:p-5">
 
-            <span className="relative">Discover Nearby Vendors</span>
+            {/* Inner Ambient Light */}
+            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-400/[0.09] blur-[80px]" />
 
-            <span className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-black/[0.08] transition-all duration-300 group-hover/btn:translate-x-1 group-hover/btn:bg-black/[0.12]">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+            {/* Visual Header */}
+            <div className="relative flex items-center justify-between gap-3 border-b border-white/[0.07] pb-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                  Discovery Network
+                </p>
+                <p className="mt-1 text-sm font-bold text-white">Your local ecosystem</p>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/[0.06] px-2.5 py-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <span className="text-[10px] font-semibold text-emerald-300">Connected</span>
+              </div>
+            </div>
+
+            {/* Abstract Map */}
+            <div className="relative mt-4 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0a1420]">
+
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.055)_1px,transparent_1px)] bg-[size:24px_24px]" />
+
+              {/* Map Routes */}
+              <svg viewBox="0 0 400 350" className="relative h-auto w-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+                <defs>
+                  <linearGradient id="vendor-route" x1="80" y1="290" x2="320" y2="70" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#34d399" />
+                    <stop offset="1" stopColor="#22d3ee" />
+                  </linearGradient>
+                  <radialGradient id="vendor-glow">
+                    <stop stopColor="#34d399" stopOpacity=".22" />
+                    <stop offset="1" stopColor="#34d399" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+
+                {/* Neighborhood Blocks */}
+                <path d="M-20 75 L110 20 L150 60 L80 125 L-10 140Z" fill="#142535" stroke="#294052" strokeWidth="1" />
+                <path d="M170 15 L275 5 L305 65 L235 105 L165 70Z" fill="#142535" stroke="#294052" strokeWidth="1" />
+                <path d="M280 125 L420 80 L420 160 L330 195 L270 175Z" fill="#142535" stroke="#294052" strokeWidth="1" />
+                <path d="M-20 205 L75 160 L135 205 L105 280 L-10 300Z" fill="#142535" stroke="#294052" strokeWidth="1" />
+                <path d="M180 220 L255 180 L320 220 L285 300 L195 325 L150 270Z" fill="#142535" stroke="#294052" strokeWidth="1" />
+                <path d="M330 235 L420 200 L420 350 L300 350 L320 290Z" fill="#142535" stroke="#294052" strokeWidth="1" />
+
+                {/* Roads */}
+                <path d="M-10 175 C70 150 110 170 155 140 S250 125 410 175" stroke="#314454" strokeWidth="8" strokeLinecap="round" />
+                <path d="M125 -10 C145 65 180 100 160 155 S185 240 220 360" stroke="#314454" strokeWidth="7" strokeLinecap="round" />
+                <path d="M-10 315 C70 275 130 305 205 270 S320 250 410 280" stroke="#314454" strokeWidth="6" strokeLinecap="round" />
+
+                <path d="M-10 175 C70 150 110 170 155 140 S250 125 410 175" stroke="#526575" strokeWidth="1.2" strokeDasharray="4 7" />
+                <path d="M125 -10 C145 65 180 100 160 155 S185 240 220 360" stroke="#526575" strokeWidth="1.2" strokeDasharray="4 7" />
+
+                {/* Route Network */}
+                <path d="M90 265 C100 230 145 235 160 195 S225 180 250 140 S295 105 315 65" stroke="url(#vendor-route)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="5 7" />
+
+                {/* Origin Glow */}
+                <circle cx="90" cy="265" r="48" fill="url(#vendor-glow)" />
+                <circle cx="90" cy="265" r="19" fill="#34d399" fillOpacity=".10" stroke="#34d399" strokeOpacity=".25" />
+                <circle cx="90" cy="265" r="9" fill="#34d399" fillOpacity=".15" stroke="#6ee7b7" strokeWidth="1.5" />
+                <circle cx="90" cy="265" r="3" fill="#a7f3d0" />
+
+                {/* Vendor Pin 1 */}
+                <circle cx="160" cy="195" r="17" fill="#22d3ee" fillOpacity=".08" />
+                <circle cx="160" cy="195" r="11" fill="#102b38" stroke="#22d3ee" strokeWidth="1.5" />
+                <path d="M160 190 C157.5 190 155.5 192 155.5 194.5 C155.5 198 160 201 160 201 S164.5 198 164.5 194.5 C164.5 192 162.5 190 160 190Z" stroke="#67e8f9" strokeWidth="1.2" />
+                <circle cx="160" cy="194.5" r="1.4" fill="#67e8f9" />
+
+                {/* Vendor Pin 2 */}
+                <circle cx="250" cy="140" r="18" fill="#34d399" fillOpacity=".08" />
+                <circle cx="250" cy="140" r="11" fill="#103328" stroke="#34d399" strokeWidth="1.5" />
+                <path d="M244 137 L250 134 L256 137 L250 140 L244 137Z M244 140 L250 143 L256 140 M244 143 L250 146 L256 143" stroke="#6ee7b7" strokeWidth="1.1" strokeLinejoin="round" />
+
+                {/* Vendor Pin 3 */}
+                <circle cx="315" cy="65" r="18" fill="#22d3ee" fillOpacity=".08" />
+                <circle cx="315" cy="65" r="11" fill="#102b38" stroke="#22d3ee" strokeWidth="1.5" />
+                <path d="M309 61 H315 V70 H309 Z M315 64 H319 L321 67 V70 H315 Z" stroke="#67e8f9" strokeWidth="1.1" strokeLinejoin="round" />
+
+                {/* Map Labels */}
+                <text x="22" y="48" fill="#647b8e" fontSize="10" letterSpacing="1.5">NORTH</text>
+                <text x="278" y="220" fill="#647b8e" fontSize="9" letterSpacing="1">LOCAL AREA</text>
               </svg>
-            </span>
-          </Link>
 
-          <p className="text-[10px] font-medium tracking-wide text-slate-500 sm:text-[11px]">
-            Smarter sourcing. Shorter journeys. A greener future.
-          </p>
+              {/* Floating Origin Card */}
+              <div className="absolute bottom-3 left-3 flex items-center gap-2.5 rounded-xl border border-emerald-400/20 bg-[#0b1723]/95 px-3 py-2.5 shadow-xl backdrop-blur-xl">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-300">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-4 w-4">
+                    <circle cx="12" cy="12" r="8" />
+                    <circle cx="12" cy="12" r="3" />
+                    <path strokeLinecap="round" d="M12 1v3m0 16v3M1 12h3m16 0h3" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white">Your starting point</p>
+                  <p className="mt-0.5 text-[9px] text-slate-500">Find resources around you</p>
+                </div>
+              </div>
+
+              {/* Map Legend */}
+              <div className="absolute right-3 top-3 flex items-center gap-2 rounded-lg border border-white/[0.08] bg-[#0b1723]/90 px-2.5 py-2 backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300" />
+                <span className="text-[9px] font-medium text-slate-300">Supplier network</span>
+              </div>
+            </div>
+
+            {/* Bottom Metrics */}
+            <div className="relative mt-4 grid grid-cols-2 gap-3">
+
+              <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3.5 transition-colors duration-300 hover:border-emerald-400/20">
+                <div className="flex items-center gap-2 text-emerald-300">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-4 w-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                    <circle cx="12" cy="10" r="2.5" />
+                  </svg>
+                  <span className="text-[10px] font-semibold text-slate-400">Closer sourcing</span>
+                </div>
+                <p className="mt-2 text-sm font-extrabold text-white">Local first</p>
+                <p className="mt-1 text-[10px] leading-4 text-slate-500">Discover nearby options</p>
+              </div>
+
+              <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3.5 transition-colors duration-300 hover:border-cyan-400/20">
+                <div className="flex items-center gap-2 text-cyan-300">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-4 w-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v3m0 12v3M3 12h3m12 0h3M5.64 5.64l2.12 2.12m8.48 8.48 2.12 2.12m0-12.72-2.12 2.12m-8.48 8.48-2.12 2.12" />
+                    <circle cx="12" cy="12" r="5" />
+                  </svg>
+                  <span className="text-[10px] font-semibold text-slate-400">Better logistics</span>
+                </div>
+                <p className="mt-2 text-sm font-extrabold text-white">Less travel</p>
+                <p className="mt-1 text-[10px] leading-4 text-slate-500">Support sustainable sourcing</p>
+              </div>
+
+            </div>
+
+            {/* Footer Tag */}
+            <div className="relative mt-4 flex items-center justify-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-3 text-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-4 w-4 shrink-0 text-emerald-300">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20 4c-9 0-15 4-15 11a5 5 0 0 0 5 5c7 0 11-7 10-16Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 20c3-5 7-8 12-11" />
+              </svg>
+              <p className="text-[10px] font-medium text-slate-400 sm:text-[11px]">
+                Every local connection can make a difference.
+              </p>
+            </div>
+
+          </div>
+
+          {/* Decorative Floating Accent */}
+          <div className="pointer-events-none absolute -right-2 -top-3 h-14 w-14 rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.035] blur-[1px] sm:-right-4 sm:-top-4" />
+          <div className="pointer-events-none absolute -bottom-3 -left-3 h-16 w-16 rounded-full border border-cyan-300/10 bg-cyan-300/[0.025]" />
+
         </div>
-
       </div>
     </div>
+
+    {/* Bottom Supporting Line */}
+    <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-3 text-center">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+        Discover
+      </span>
+      <span className="h-1 w-1 rounded-full bg-emerald-400/70" />
+      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+        Connect
+      </span>
+      <span className="h-1 w-1 rounded-full bg-emerald-400/70" />
+      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+        Source Sustainably
+      </span>
+    </div>
+
   </div>
 </section>
 

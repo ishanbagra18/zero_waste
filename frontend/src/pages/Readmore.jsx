@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useEcoLeaf } from "../context/EcoLeafContext";
 
 import {
   ArrowLeft,
@@ -292,6 +293,7 @@ const StatCard = ({ icon: Icon, value, label }) => (
 
 const Readmore = () => {
   const navigate = useNavigate();
+  const { leavesEnabled, toggleLeaves } = useEcoLeaf();
 
   const pillars = [
     {
@@ -496,6 +498,19 @@ const Readmore = () => {
                 >
                   Discover Our Mission
                   <ArrowRight size={16} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={toggleLeaves}
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-3.5 text-sm font-semibold transition-all duration-300 ${
+                    leavesEnabled
+                      ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-300 shadow-lg shadow-emerald-500/10 hover:bg-emerald-500/30"
+                      : "border-white/10 bg-white/[0.035] text-slate-200 hover:border-emerald-300/30 hover:bg-white/[0.06]"
+                  }`}
+                >
+                  <Leaf className={`h-4 w-4 transition-transform duration-300 ${leavesEnabled ? "rotate-12 text-emerald-400 scale-110" : "text-emerald-400"}`} />
+                  <span>{leavesEnabled ? "Stop Leaf Animation 🍃" : "Start Leaf Animation 🍃"}</span>
                 </button>
               </motion.div>
 

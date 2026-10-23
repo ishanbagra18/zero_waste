@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
 import useDashboardEntrance from "../hooks/useDashboardEntrance";
+import { useEcoLeaf } from "../context/EcoLeafContext";
 import { HeartHandshake } from "lucide-react";
 import volunteer3dHero from "../assets/volunteer_3d_hero.png";
 
@@ -59,6 +60,7 @@ export default function Volunteerdashboard() {
   const dashboardRef = useRef(null);
   useDashboardEntrance(dashboardRef);
   const navigate = useNavigate();
+  const { leavesEnabled, toggleLeaves } = useEcoLeaf();
   const token = localStorage.getItem("token") || "";
 
   const [bookings, setBookings] = useState([]);
@@ -268,6 +270,19 @@ export default function Volunteerdashboard() {
           >
             <span>Discover Our Mission</span>
             <ArrowRight className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-x-1" />
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleLeaves}
+            className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-6 py-4 font-semibold backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-300 sm:px-7 ${
+              leavesEnabled
+                ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-300 shadow-lg shadow-emerald-500/10 hover:bg-emerald-500/30"
+                : "border-white/10 bg-white/[0.045] text-white hover:border-emerald-400/30 hover:bg-white/[0.08]"
+            }`}
+          >
+            <Leaf className={`h-4 w-4 transition-transform duration-300 ${leavesEnabled ? "rotate-12 text-emerald-400 scale-110" : "text-emerald-400"}`} />
+            <span>{leavesEnabled ? "Stop Leaf Animation 🍃" : "Start Leaf Animation 🍃"}</span>
           </button>
         </motion.div>
 

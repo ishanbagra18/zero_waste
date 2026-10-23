@@ -8,6 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import gsap from "gsap";
 import { Leaf, ArrowDown, MessageSquare } from "lucide-react";
+import { useEcoLeaf } from "../context/EcoLeafContext";
 import { Activity } from "lucide-react";
 import { ArrowRight, BarChart3 } from 'lucide-react';
 
@@ -199,6 +200,7 @@ const VendorDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { leavesEnabled, toggleLeaves } = useEcoLeaf();
 
   const NOTIFICATION_API = `${import.meta.env.VITE_API_BASE_URL}/api/notifications/notification`;
 
@@ -536,6 +538,19 @@ const VendorDashboard = () => {
               >
                 Explore Our Mission
                 <ArrowDown className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-y-1" />
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleLeaves}
+                className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-7 py-4 font-semibold backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
+                  leavesEnabled
+                    ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-300 shadow-lg shadow-emerald-500/10 hover:bg-emerald-500/30"
+                    : "border-white/15 bg-white/[0.06] text-white hover:border-emerald-400/40 hover:bg-emerald-400/10"
+                }`}
+              >
+                <Leaf className={`h-4 w-4 transition-transform duration-300 ${leavesEnabled ? "rotate-12 text-emerald-400 scale-110" : "text-emerald-400"}`} />
+                <span>{leavesEnabled ? "Stop Leaf Animation 🍃" : "Start Leaf Animation 🍃"}</span>
               </button>
             </motion.div>
 
