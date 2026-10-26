@@ -1,3 +1,5 @@
+// updated chatbot 
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Item } from "../models/item.model.js";
 import { evaluateFoodSafety } from "../services/foodSafetyAgent.js";
