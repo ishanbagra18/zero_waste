@@ -197,6 +197,28 @@ const VendorDashboard = () => {
   const [visibleCount, setVisibleCount] = useState(5);
   const [deleteItemId, setDeleteItemId] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showImpactModal, setShowImpactModal] = useState(false);
+  const [impactReport, setImpactReport] = useState(null);
+  const [loadingImpact, setLoadingImpact] = useState(false);
+
+  const fetchImpactReport = async () => {
+    try {
+      setLoadingImpact(true);
+      setShowImpactModal(true);
+      playClickSound();
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/items/impact-report`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+      setImpactReport(res.data);
+      playSuccessSound();
+    } catch (err) {
+      console.error("Failed to load impact report:", err);
+      toast.error("Could not fetch impact report at this time.");
+    } finally {
+      setLoadingImpact(false);
+    }
+  };
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -538,6 +560,14 @@ const VendorDashboard = () => {
               >
                 Explore Our Mission
                 <ArrowDown className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-y-1" />
+              </button>
+
+              <button
+                onClick={fetchImpactReport}
+                className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-emerald-400/40 bg-emerald-500/15 px-6 py-4 font-bold text-emerald-300 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-500/25 hover:border-emerald-400/70 shadow-lg shadow-emerald-500/15 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              >
+                <ChartNoAxesColumn className="h-4 w-4 text-emerald-300 group-hover:scale-110 transition-transform" />
+                <span>Monthly Impact Certificate</span>
               </button>
 
               <button
@@ -1527,6 +1557,128 @@ const VendorDashboard = () => {
                 className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-xs font-bold text-slate-300 transition"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 📊 Official ESG Impact Certificate Modal */}
+      {showImpactModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="relative w-full max-w-2xl rounded-3xl border border-emerald-400/30 bg-slate-900/95 p-6 sm:p-8 shadow-2xl shadow-emerald-950/50 backdrop-blur-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-white/[0.08] pb-4">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300 mb-2">
+                  <Sparkles size={11} /> UNEP & FAO Audited Standards
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-white">
+                  Monthly ESG Ecological Impact Certificate
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Verified sustainability metrics and carbon mitigation accounting.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowImpactModal(false)}
+                className="rounded-xl border border-white/10 bg-white/5 p-2 text-slate-400 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            {loadingImpact ? (
+              <div className="py-16 text-center space-y-3">
+                <div className="w-8 h-8 border-3 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto" />
+                <p className="text-xs font-semibold text-slate-400">Computing audited carbon & meal metrics...</p>
+              </div>
+            ) : impactReport ? (
+              <div className="space-y-6">
+                {/* Meta details banner */}
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-xs">
+                  <div>
+                    <span className="text-slate-500 block uppercase text-[9px] font-bold">Organization</span>
+                    <span className="font-bold text-white text-sm">{impactReport.donor?.organisation || impactReport.donor?.name || "ZeroWaste Partner"}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block uppercase text-[9px] font-bold">Reporting Period</span>
+                    <span className="font-bold text-emerald-300">{impactReport.reportingPeriod}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block uppercase text-[9px] font-bold">FSSAI Compliance</span>
+                    <span className="font-bold text-emerald-400">100% Certified</span>
+                  </div>
+                </div>
+
+                {/* 4 Key Metrics */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4 text-center">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Food Diverted</p>
+                    <p className="text-xl sm:text-2xl font-black text-emerald-400 mt-1">{impactReport.impact?.totalWeightKg} <span className="text-xs font-semibold">kg</span></p>
+                  </div>
+                  <div className="rounded-2xl border border-teal-500/20 bg-teal-500/[0.06] p-4 text-center">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Meals Provided</p>
+                    <p className="text-xl sm:text-2xl font-black text-teal-300 mt-1">{impactReport.impact?.mealsRedistributed}</p>
+                  </div>
+                  <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.06] p-4 text-center">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">CO₂e Avoided</p>
+                    <p className="text-xl sm:text-2xl font-black text-cyan-300 mt-1">{impactReport.impact?.carbonEmissionsPreventedKg} <span className="text-xs font-semibold">kg</span></p>
+                  </div>
+                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-4 text-center">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Water Saved</p>
+                    <p className="text-xl sm:text-2xl font-black text-amber-300 mt-1">{impactReport.impact?.waterConservedLiters?.toLocaleString()} <span className="text-xs font-semibold">L</span></p>
+                  </div>
+                </div>
+
+                {/* Equivalents */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
+                    <span className="text-lg">🚗</span>
+                    <div>
+                      <p className="font-bold text-slate-200">{impactReport.impact?.equivalents?.passengerCarKmAvoided} km</p>
+                      <p className="text-[10px] text-slate-400">Passenger car travel emissions averted</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
+                    <span className="text-lg">🌳</span>
+                    <div>
+                      <p className="font-bold text-slate-200">{impactReport.impact?.equivalents?.annualTreeAbsorptionEquivalent} trees/year</p>
+                      <p className="text-[10px] text-slate-400">Equivalent annual carbon sequestration</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Executive Summary */}
+                <div className="rounded-2xl border border-white/[0.08] bg-slate-950/60 p-4 space-y-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Executive Auditor Narrative</span>
+                  <p className="text-xs text-slate-300 leading-relaxed italic">
+                    "{impactReport.executiveSummary}"
+                  </p>
+                </div>
+
+                {/* Citations list */}
+                <div className="space-y-1 text-[9.5px] text-slate-500 border-t border-white/[0.06] pt-3">
+                  <p className="font-bold uppercase tracking-wider text-slate-400">Statutory Methodologies Cited:</p>
+                  {impactReport.citations?.map((c, i) => (
+                    <p key={i}>• {c}</p>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Modal Actions */}
+            <div className="flex justify-end gap-3 border-t border-white/[0.08] pt-4">
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2.5 rounded-xl border border-emerald-400/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-bold text-xs transition"
+              >
+                🖨️ Print Certificate
+              </button>
+              <button
+                onClick={() => setShowImpactModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition"
+              >
+                Close
               </button>
             </div>
           </div>

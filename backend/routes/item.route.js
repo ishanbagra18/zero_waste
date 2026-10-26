@@ -20,6 +20,8 @@ import {
   getDemandForecast,
   checkGeofenceTrigger,
   getItemsInGeofence,
+  autoListFromPhoto,
+  getMonthlyImpactReportController,
 } from '../controller/item.controller.js';
 import { isAuthenticated, isVendor } from '../middleware/AuthUser.js';
 import { updateClaimStatus } from '../controller/item.controller.js';
@@ -28,6 +30,7 @@ const router = express.Router();
 
 // 🚀 Core Surplus Inventory Endpoints
 router.post("/create-item", isAuthenticated, isVendor("vendor"), createItem);
+router.post("/auto-list-from-photo", isAuthenticated, isVendor("vendor"), autoListFromPhoto);
 router.get("/get-items", isAuthenticated, getAllItems);
 router.get("/my-items", isAuthenticated, isVendor("vendor"), myAllItems);
 router.delete("/delete-item/:id", isAuthenticated, isVendor("vendor"), deleteItem);
@@ -51,6 +54,8 @@ router.get("/nearby", isAuthenticated, getNearbyItems);
 router.post("/optimize-route", isAuthenticated, isVendor("Volunteer", "NGO"), optimizeRoute);
 router.post("/food-safety-check", isAuthenticated, checkFoodSafety);
 router.get("/impact-summary", getImpactMetrics);
+router.get("/impact-report", isAuthenticated, getMonthlyImpactReportController);
+router.get("/impact-report/:vendorId", isAuthenticated, getMonthlyImpactReportController);
 
 // 🔮 AI Demand Forecasting & 📍 GPS Geofencing
 router.get("/demand-forecast", isAuthenticated, getDemandForecast);

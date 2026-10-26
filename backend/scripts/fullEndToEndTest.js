@@ -30,7 +30,18 @@ function recordResult(stepName, status, details = "") {
   console.log(`${icon} [${status}] ${stepName} ${details ? `— ${details}` : ""}`);
 }
 
-async function request(endpoint, options = {}) {
+async function request(endpoint, optionsOrMethod = {}, body = null, token = null) {
+  let options = {};
+  if (typeof optionsOrMethod === "string") {
+    options = {
+      method: optionsOrMethod,
+      body,
+      token,
+    };
+  } else {
+    options = optionsOrMethod || {};
+  }
+
   const url = `${BASE_URL}${endpoint}`;
   const headers = options.headers || {};
   if (options.token) {
@@ -442,6 +453,65 @@ async function runAllTests() {
     }
   } catch (err) {
     recordResult("Ecological Accounting", "FAIL", err.message);
+  }
+
+  // -------------------------------------------------------------
+  // 12. AGENTIC WORKFLOWS: AUTO-LISTING, IMPACT REPORT, CHATBOT
+  // -------------------------------------------------------------
+  console.log("\n--- 12. AGENTIC AI WORKFLOWS ---");
+
+  // A. Auto-Listing from Photo Agent
+  try {
+    const sample1x1Png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+    const autoListRes = await request("/api/items/auto-list-from-photo", "POST", { image: sample1x1Png }, tokens.vendor);
+    if (autoListRes.status === 200 && autoListRes.data.data?.name) {
+      const d = autoListRes.data.data;
+      recordResult(
+        "Auto-Listing Vision Agent (/api/items/auto-list-from-photo)",
+        "PASS",
+        `Extracted: "${d.name}", Category: ${d.category}, Qty: ${d.quantity} ${d.unit}, Urgent: ${d.isUrgent}`
+      );
+    } else {
+      recordResult("Auto-Listing Vision Agent", "FAIL", `Status: ${autoListRes.status}`);
+    }
+  } catch (err) {
+    recordResult("Auto-Listing Vision Agent", "FAIL", err.message);
+  }
+
+  // B. Monthly Impact Report Agent (UNEP & FAO)
+  try {
+    const reportRes = await request("/api/items/impact-report", "GET", null, tokens.vendor);
+    if (reportRes.status === 200 && reportRes.data.impact?.mealsRedistributed) {
+      const rep = reportRes.data;
+      recordResult(
+        "Monthly Impact Report Agent (/api/items/impact-report)",
+        "PASS",
+        `Period: ${rep.reportingPeriod}, Meals: ${rep.impact.mealsRedistributed}, CO2e: ${rep.impact.carbonEmissionsPreventedKg}kg, Citations: ${rep.citations.length}`
+      );
+    } else {
+      recordResult("Monthly Impact Report Agent", "FAIL", `Status: ${reportRes.status}`);
+    }
+  } catch (err) {
+    recordResult("Monthly Impact Report Agent", "FAIL", err.message);
+  }
+
+  // C. Agentic Chatbot Multi-Agent Routing
+  try {
+    const chatSafetyRes = await request("/api/chat/chatbot", "POST", {
+      message: "Is cooked dal curry safe to donate after 5 hours at ambient room temperature?",
+    }, tokens.vendor);
+
+    if (chatSafetyRes.status === 200 && chatSafetyRes.data.agentType === "FOOD_SAFETY") {
+      recordResult(
+        "Agentic Chatbot Dispatcher (/api/chat/chatbot -> FOOD_SAFETY)",
+        "PASS",
+        `Dispatched to Food Safety Agent, Verdict: ${chatSafetyRes.data.safetyData?.verdict}`
+      );
+    } else {
+      recordResult("Agentic Chatbot Dispatcher", "FAIL", `Status: ${chatSafetyRes.status}, Agent: ${chatSafetyRes.data?.agentType}`);
+    }
+  } catch (err) {
+    recordResult("Agentic Chatbot Dispatcher", "FAIL", err.message);
   }
 
   // -------------------------------------------------------------

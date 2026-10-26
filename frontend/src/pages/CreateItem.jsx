@@ -15,6 +15,7 @@ import {
   XCircle,
   Clock,
   Zap,
+  Sparkles,
 } from "lucide-react";
 import ParallaxHero from "../components/ParallaxHero";
 
@@ -23,6 +24,7 @@ export default function CreateItem() {
   const [imagePreview, setImagePreview] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -62,6 +64,55 @@ export default function CreateItem() {
       setForm((prev) => ({ ...prev, [name]: checked }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleAutoFillWithVision = async () => {
+    if (!form.itemImage) {
+      toast.error("Please attach an item photo first to auto-fill.");
+      return;
+    }
+
+    try {
+      setIsAutoFilling(true);
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("itemImage", form.itemImage);
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/items/auto-list-from-photo`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (res.data?.success && res.data?.data) {
+        const d = res.data.data;
+        setForm((prev) => ({
+          ...prev,
+          name: d.name || prev.name,
+          description: d.description || prev.description,
+          quantity: d.quantity ? String(d.quantity) : prev.quantity,
+          category: d.category || prev.category || "Food",
+          isUrgent: typeof d.isUrgent === "boolean" ? d.isUrgent : prev.isUrgent,
+          expiryDate: d.expiryDate ? d.expiryDate.slice(0, 16) : prev.expiryDate,
+          mode: "donation",
+          price: "0",
+        }));
+        toast.success(`✨ AI Vision Extracted: "${d.name}" (~${d.quantity} portions)!`, {
+          duration: 4000,
+        });
+      }
+    } catch (err) {
+      console.error("Auto-fill fault:", err);
+      toast.error(err.response?.data?.message || "Failed to analyze photo with AI Vision.");
+    } finally {
+      setIsAutoFilling(false);
     }
   };
 
@@ -173,6 +224,26 @@ export default function CreateItem() {
             Select Photo File
             <input type="file" name="itemImage" accept="image/*" onChange={handleChange} className="hidden" />
           </label>
+
+          {/* ✨ Vision Agent Auto-Fill Button */}
+          <button
+            type="button"
+            disabled={!form.itemImage || isAutoFilling}
+            onClick={handleAutoFillWithVision}
+            className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-teal-500/20 via-emerald-500/20 to-emerald-400/10 border border-emerald-400/40 hover:border-emerald-400 text-emerald-300 font-extrabold text-xs uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 disabled:opacity-40 disabled:cursor-not-allowed group"
+          >
+            {isAutoFilling ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                <span>AI Vision Inspecting Photo...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 text-emerald-300 group-hover:rotate-12 transition-transform" />
+                <span>✨ Auto-Fill with AI Vision</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* Inputs Column */}

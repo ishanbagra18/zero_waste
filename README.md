@@ -134,33 +134,50 @@ Rather than only reacting after surplus food has already aged, ZeroWaste analyze
 
 ---
 
-## 🤖 Agentic AI & FSSAI Compliance (LangGraph)
+## 🤖 Agentic AI Ecosystem (LangGraph Multi-Agent Architecture)
 
-Food safety liability is the single largest barrier preventing commercial vendors from donating surplus food. ZeroWaste implements an agentic **Food Safety Evaluation Agent** built with **LangGraph StateGraph** and **Google Gemini 1.5 Flash**.
+ZeroWaste transforms food recovery from manual guesswork into an intelligent, autonomous pipeline using **LangGraph StateGraph** and **Google Gemini Multimodal Vision**.
 
 ```
-[Surplus Food Listing] ➔ [Node 1: Deterministic FSSAI Threshold Gating]
-                                       │
-                                       ▼
-                       [Node 2: LangGraph LLM Safety Synthesizer]
-                                       │
-                                       ▼
-                       { Verdict: APPROVED | CONDITIONAL | REJECTED,
-                         RiskScore: 0-100, FSSAICitation: "Reg 2019" }
+                           ┌───────────────────────────────┐
+                           │   Agentic Chatbot / Router    │
+                           └───────────────┬───────────────┘
+                                           │
+         ┌───────────────────┬─────────────┴───────┬───────────────────┐
+         ▼                   ▼                     ▼                   ▼
+┌─────────────────┐ ┌─────────────────┐ ┌───────────────────┐ ┌─────────────────┐
+│ 🛡️ Food Safety  │ │ 📸 Auto-Listing │ │ 📊 Monthly Impact │ │ 📦 Live Surplus │
+│ Agent (FSSAI)   │ │ Agent (Vision)  │ │ Report Auditor    │ │ Discovery Agent │
+└─────────────────┘ └─────────────────┘ └───────────────────┘ └─────────────────┘
 ```
 
-1. **Statutory Grounding:** Grounded in the *Food Safety and Standards Authority of India (FSSAI) Recovery and Distribution of Surplus Food Regulations, 2019*.
-2. **Deterministic Pre-Filter:** Automatically flags cooked perishables exposed to ambient temperatures (>25°C) beyond 4 hours as critical biological hazards.
-3. **Structured Agent Output:** Returns auditable safety decisions:
-   - `APPROVED_SAFE` (low biological risk, standard transit)
-   - `CONDITIONAL_PICKUP_URGENT` (ambient exposure nearing safety limit; requires expedited <90m transit)
-   - `REJECTED_UNSAFE` (statutory safety violation; donation blocked)
+### 1. 🛡️ Food Safety Evaluation Agent (FSSAI RAG + Multimodal Vision)
+Food safety liability is the single largest reason commercial kitchens discard edible surplus rather than donating it. This agent evaluates:
+* **Inputs:** Item photo (visual inspection for mold, discoloration, container integrity), food category, preparation time, and storage temperature.
+* **LangGraph Pipeline:**
+  1. `deterministicRuleFilter`: Enforces statutory microbiological limits (ambient cooked food > 4 hours = rejected; non-veg > 2.5 hours = rejected).
+  2. `fssaiKnowledgeRetriever`: RAG node pulling statutory clauses from *FSSAI Food Safety and Standards (Recovery and Distribution of Surplus Food) Regulations, 2019*.
+  3. `multimodalVisionInspector`: Gemini Vision evaluates packaging seal, container hygiene, and visual freshness.
+  4. `aiSafetySynthesizer`: Outputs `APPROVED_SAFE`, `CONDITIONAL_PICKUP_URGENT`, or `REJECTED_UNSAFE` with numerical risk score (0-100) and step-by-step handling protocols.
+* *Endpoints:* `POST /api/items/food-safety-check` & `POST /api/chat/chatbot`
 
-*Endpoint:* `POST /api/items/food-safety-check`
+### 2. 📸 Auto-Listing from Photo (Vision Model Agent)
+Minimizes donor friction by enabling **1-click surplus publishing directly from camera/photo upload**:
+* **Capabilities:** Vendor snaps a picture of surplus trays or boxes.
+* **Extraction:** Multimodal vision identifies dish name, dietary classification (`veg`/`non-veg`), estimates quantity in meal portions and kilograms, calculates remaining safe shelf-life hours, and recommends storage protocols (`Ambient`, `Refrigerated <5°C`, `Hot-Hold >60°C`).
+* **One-Click Pre-fill:** Directly integrated into the [Post Surplus Item](/vendor/createitem) console via the **"✨ Auto-Fill with AI Vision"** action.
+* *Endpoints:* `POST /api/items/auto-list-from-photo` & `POST /api/chat/chatbot`
 
-> [!NOTE]
-> **Model Verification & Architecture Fact-Check:**
-> Fictional model designations (such as the drafted typo "gemini-3.6-flash") do not exist. ZeroWaste relies exclusively on verified, production Google DeepMind endpoints: **`gemini-1.5-flash`** as the primary LangGraph synthesizer, backed by graceful runtime fallbacks to **`gemini-2.0-flash`** and **`gemini-1.5-pro`** in [`backend/services/foodSafetyAgent.js`](file:///c:/Users/ishan/Desktop/all/myzerowaste/backend/services/foodSafetyAgent.js) and [`backend/controller/chatbot.controller.js`](file:///c:/Users/ishan/Desktop/all/myzerowaste/backend/controller/chatbot.controller.js). If the LLM quota is exhausted, the pipeline falls back deterministically to rule-based statutory FSSAI threshold gating.
+### 3. 📊 Verified Monthly ESG Impact Reports
+Generates automated, auditable monthly and cumulative sustainability statements for food businesses and municipal partners:
+* **Verified Conversions:** Calculates total kilograms diverted, meals provided (0.42 kg/meal UN FAO), greenhouse gas emissions avoided (2.5 kg CO₂e/kg UNEP), and embedded water saved (1,000 L/kg).
+* **Corporate CSR Integration:** Cites formal international standards (*UNEP Food Waste Index 2024*, *UN FAO 2019*, *Water Footprint Network*) with executive narrative summaries suitable for ESG audits.
+* *Endpoints:* `GET /api/items/impact-report` & `GET /api/items/impact-report/:vendorId`
+
+### 4. 💬 Agentic Chatbot Orchestrator
+The chatbot is not a generic text prompt; it operates as an **Agentic Supervisor / StateGraph Orchestrator**:
+* User questions or attached images are dynamically classified into specialized sub-agent domains (`FOOD_SAFETY`, `AUTO_LIST`, `IMPACT_REPORT`, `INVENTORY_SEARCH`, `PLATFORM_ASSISTANT`).
+* Returns interactive visual cards in the chat UI with safety badges, listing drafts, and impact tables.
 
 ---
 

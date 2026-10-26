@@ -9,6 +9,8 @@ import { evaluateFoodSafety } from "../services/foodSafetyAgent.js";
 import { calculateEcologicalImpact } from "../services/impactService.js";
 import { generateVendorSurplusForecast } from "../services/demandForecaster.js";
 import { evaluateGeofence, queryItemsInGeofence } from "../services/geofenceService.js";
+import { extractListingFromPhoto } from "../services/autoListingAgent.js";
+import { generateMonthlyImpactReport } from "../services/impactReportAgent.js";
 
 const REJECTION_RECOVERY_DELAY_MS = 5000;
 
@@ -1056,17 +1058,18 @@ export const optimizeRoute = async (req, res) => {
 
 /**
  * 🛡️ 4. Food Safety Assessment Controller
- * Evaluates food item viability against FSSAI guidelines via LangGraph Agent.
+ * Evaluates food item viability against FSSAI guidelines via LangGraph Agent with multimodal vision.
  */
 export const checkFoodSafety = async (req, res) => {
   try {
     const itemData = req.body;
+    const imageFile = req.files?.itemImage || req.files?.image || req.body?.image || null;
 
-    if (!itemData || !itemData.name) {
-      return res.status(400).json({ message: "Item details (name, category, hoursSinceCooked) are required." });
+    if (!itemData || (!itemData.name && !imageFile)) {
+      return res.status(400).json({ message: "Item details or food photo is required." });
     }
 
-    const evaluation = await evaluateFoodSafety(itemData);
+    const evaluation = await evaluateFoodSafety(itemData, imageFile);
 
     return res.status(200).json({
       success: true,
@@ -1075,6 +1078,54 @@ export const checkFoodSafety = async (req, res) => {
   } catch (error) {
     console.error("🔥 Error in checkFoodSafety:", error);
     return res.status(500).json({ message: "Food safety evaluation failed." });
+  }
+};
+
+/**
+ * 📸 Auto-Listing from Photo Controller (Vision Model Agent)
+ * Extracts item name, category, quantity estimate, shelf-life, and storage guidelines directly from photo.
+ */
+export const autoListFromPhoto = async (req, res) => {
+  try {
+    const imageFile = req.files?.itemImage || req.files?.image || req.body?.image;
+    if (!imageFile) {
+      return res.status(400).json({ message: "Please upload an image file or provide image data." });
+    }
+
+    const listing = await extractListingFromPhoto(imageFile);
+
+    return res.status(200).json({
+      success: true,
+      data: listing,
+    });
+  } catch (error) {
+    console.error("🔥 Error in autoListFromPhoto:", error);
+    return res.status(500).json({ message: "Auto-listing vision agent failed to process image." });
+  }
+};
+
+/**
+ * 📊 Monthly ESG Impact Report Controller
+ * Generates verified monthly reports citing UNEP and UN FAO standards.
+ */
+export const getMonthlyImpactReportController = async (req, res) => {
+  try {
+    const vendorId = req.params?.vendorId || req.query?.vendorId || (req.user?.role === "vendor" ? req.user?._id : null);
+    const month = req.query?.month;
+    const year = req.query?.year;
+    const platformWide = req.query?.platformWide === "true" || !vendorId;
+
+    const report = await generateMonthlyImpactReport({
+      vendorId,
+      month,
+      year,
+      platformWide,
+    });
+
+    return res.status(200).json(report);
+  } catch (error) {
+    console.error("🔥 Error in getMonthlyImpactReportController:", error);
+    return res.status(500).json({ message: "Failed to generate monthly impact report." });
   }
 };
 
