@@ -92,18 +92,39 @@ export function scoreItemForNGO(item, ngoProfile = {}) {
   const vendorRating = item.vendor?.averageRating || 4.2;
   const reliabilityScore = Math.min(100, Math.round((vendorRating / 5) * 100));
 
-  // Weights
-  const wDist = 0.35;
-  const wUrg = 0.35;
-  const wDiet = 0.15;
-  const wRel = 0.15;
+  // 5. NGO Capacity Match Score (Item quantity vs NGO meal capacity)
+  let capacityScore = 100;
+  const ngoCapacity = Number(ngoProfile.capacity) || 0;
+  const itemQty = Number(item.quantity) || 10;
+  if (ngoCapacity > 0) {
+    const ratio = itemQty / ngoCapacity;
+    if (ratio >= 0.4 && ratio <= 1.25) {
+      capacityScore = 100; // Perfect capacity fit
+    } else if (ratio < 0.4) {
+      capacityScore = Math.max(30, Math.round((ratio / 0.4) * 85));
+    } else {
+      capacityScore = Math.max(40, Math.round(100 - (ratio - 1.25) * 40));
+    }
+  }
 
-  const totalScore = Math.round(
-    wDist * proximityScore +
-    wUrg * urgencyScore +
-    wDiet * dietaryScore +
-    wRel * reliabilityScore
-  );
+  // Weights (adjusted dynamically if capacity is specified)
+  let totalScore;
+  if (ngoCapacity > 0) {
+    totalScore = Math.round(
+      0.30 * proximityScore +
+      0.30 * urgencyScore +
+      0.15 * capacityScore +
+      0.15 * dietaryScore +
+      0.10 * reliabilityScore
+    );
+  } else {
+    totalScore = Math.round(
+      0.35 * proximityScore +
+      0.35 * urgencyScore +
+      0.15 * dietaryScore +
+      0.15 * reliabilityScore
+    );
+  }
 
   return {
     totalScore,
@@ -114,6 +135,7 @@ export function scoreItemForNGO(item, ngoProfile = {}) {
       urgency: urgencyScore,
       dietary: dietaryScore,
       reliability: reliabilityScore,
+      capacity: capacityScore,
     },
     recommendationReason: getRecommendationReason(distanceKm, remainingHours, item.isUrgent, totalScore),
   };

@@ -17,6 +17,9 @@ import {
   optimizeRoute,
   checkFoodSafety,
   getImpactMetrics,
+  getDemandForecast,
+  checkGeofenceTrigger,
+  getItemsInGeofence,
 } from '../controller/item.controller.js';
 import { isAuthenticated, isVendor } from '../middleware/AuthUser.js';
 import { updateClaimStatus } from '../controller/item.controller.js';
@@ -48,5 +51,11 @@ router.get("/nearby", isAuthenticated, getNearbyItems);
 router.post("/optimize-route", isAuthenticated, isVendor("Volunteer", "NGO"), optimizeRoute);
 router.post("/food-safety-check", isAuthenticated, checkFoodSafety);
 router.get("/impact-summary", getImpactMetrics);
+
+// 🔮 AI Demand Forecasting & 📍 GPS Geofencing
+router.get("/demand-forecast", isAuthenticated, getDemandForecast);
+router.get("/demand-forecast/:vendorId", isAuthenticated, getDemandForecast);
+router.post("/geofence-check", isAuthenticated, checkGeofenceTrigger);
+router.get("/geofence-items", isAuthenticated, getItemsInGeofence);
 
 export default router;

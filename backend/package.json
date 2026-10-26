@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test __tests__/*.test.js",
+    "test:e2e": "node scripts/fullEndToEndTest.js",
     "seed": "node utils/seedDemoData.js",
     "start": "node index.js",
     "dev": "nodemon index.js"

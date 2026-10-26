@@ -3,6 +3,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import dns from 'dns';
+import os from 'os';
 
 // Fix querySrv ECONNREFUSED for MongoDB Atlas on local Windows
 if (process.env.NODE_ENV !== 'production') {
@@ -166,7 +167,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(fileUpload({
   useTempFiles: true,
-  tempFileDir: "/tmp",
+  tempFileDir: process.env.TEMP || os.tmpdir() || "/tmp",
 }));
 
 cloudinary.config({

@@ -42,6 +42,26 @@ describe("🧠 Smart Matching Engine Unit Tests", () => {
 
     assert.equal(result.breakdown.dietary, 0, "Non-veg item must receive 0 dietary score for veg-only NGO");
   });
+
+  test("Capacity scoring gives 100 for well-matched batch size relative to shelter capacity", () => {
+    const item = {
+      name: "Rice and Dal Meals",
+      quantity: 40,
+      foodType: "veg",
+      geoPoint: { coordinates: [75.7873, 26.9124] },
+      vendor: { averageRating: 4.8 },
+    };
+
+    const ngoProfile = {
+      latitude: 26.9124,
+      longitude: 75.7873,
+      capacity: 50, // 40 meals / 50 capacity = 80% (perfect fit)
+      dietPreference: "veg",
+    };
+
+    const result = scoreItemForNGO(item, ngoProfile);
+    assert.equal(result.breakdown.capacity, 100, "Capacity score should be 100 for 40 meals / 50 shelter capacity");
+  });
 });
 
 describe("🚴 Route Optimizer & TSP 2-Opt Heuristic Tests", () => {
