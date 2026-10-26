@@ -179,6 +179,49 @@ const NgoDashboard = () => {
   );
   const TOTAL_FRAMES = frameNumbers.current.length;
 
+  // Ultra-fast white-background chroma keying processor: converts light background to 100% transparent
+  const processFrame = (img) => {
+    try {
+      const off = document.createElement('canvas');
+      const targetW = 640;
+      const aspect = (img.naturalWidth || 1280) / (img.naturalHeight || 720);
+      const targetH = Math.round(targetW / aspect);
+      off.width = targetW;
+      off.height = targetH;
+      const octx = off.getContext('2d', { willReadFrequently: true });
+      octx.drawImage(img, 0, 0, targetW, targetH);
+      const idata = octx.getImageData(0, 0, targetW, targetH);
+      const data = idata.data;
+      const len = data.length;
+
+      for (let i = 0; i < len; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const maxRGB = Math.max(r, g, b);
+        const minRGB = Math.min(r, g, b);
+        const sat = maxRGB - minRGB;
+        const bright = (r + g + b) / 3;
+
+        // Key out white / light-grey background (high brightness, low saturation)
+        if (bright > 125 && sat < 42) {
+          let alphaScale = (205 - bright) / 80;
+          if (alphaScale < 0) alphaScale = 0;
+          else if (alphaScale > 1) alphaScale = 1;
+
+          if (sat < 22 && bright > 155) {
+            alphaScale = Math.min(alphaScale, sat / 22);
+          }
+          data[i + 3] = Math.round(data[i + 3] * alphaScale);
+        }
+      }
+      octx.putImageData(idata, 0, 0);
+      return off;
+    } catch {
+      return img;
+    }
+  };
+
   // Preload frames with instant Frame 0 and background idle batching
   useEffect(() => {
     let cancelled = false;
@@ -205,7 +248,7 @@ const NgoDashboard = () => {
         firstImg.src = mod.default;
         firstImg.onload = () => {
           if (cancelled) return;
-          images[0] = firstImg;
+          images[0] = processFrame(firstImg);
           setFramesLoaded(true);
 
           // Step 2: Lazy load remaining frames gradually on idle without blocking main thread
@@ -224,7 +267,7 @@ const NgoDashboard = () => {
                   img.src = m.default;
                   img.onload = () => {
                     if (!cancelled) {
-                      images[currentIdx] = img;
+                      images[currentIdx] = processFrame(img);
                     }
                   };
                 });
@@ -449,7 +492,6 @@ const NgoDashboard = () => {
       className="absolute inset-0 z-0 h-full w-full pointer-events-none"
       style={{
         display: framesLoaded ? "block" : "none",
-        mixBlendMode: "screen",
         willChange: "transform",
       }}
     />
