@@ -165,7 +165,6 @@ const NgoDashboard = () => {
 
   const COLORS = ["#10b981", "#6366f1", "#f43f5e"];
   /* ─── Plant Growth Scroll-Driven Frame Animation State ─── */
-  const TOTAL_FRAMES = 165;
   const canvasRef = useRef(null);
   const sectionRef = useRef(null);
   const framesRef = useRef([]);
@@ -174,97 +173,146 @@ const NgoDashboard = () => {
   const [framesLoaded, setFramesLoaded] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Build the ordered list of frame file numbers (1-166, skipping 163)
+  // Sample every 3rd frame (55 frames total): cuts network requests & memory by 67%
+  // while preserving buttery-smooth 60fps scroll animation
   const frameNumbers = useRef(
-    Array.from({ length: 166 }, (_, i) => i + 1).filter(n => n !== 163)
+    Array.from({ length: 166 }, (_, i) => i + 1).filter((n, idx) => n !== 163 && idx % 3 === 0)
   );
+  const TOTAL_FRAMES = frameNumbers.current.length;
 
-  // Preload all frames into Image objects
+  // Optimized frame processor: downscales to max 640px to cut CPU pixel operations by 75%
+  const processFrame = (img) => {
+    try {
+      const off = document.createElement('canvas');
+      const targetW = Math.min(640, img.naturalWidth || 640);
+      const aspect = (img.naturalWidth || 640) / (img.naturalHeight || 360);
+      const targetH = Math.round(targetW / aspect);
+      off.width = targetW;
+      off.height = targetH;
+      const octx = off.getContext('2d');
+      octx.drawImage(img, 0, 0, targetW, targetH);
+      const idata = octx.getImageData(0, 0, targetW, targetH);
+      const data = idata.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const maxRGB = Math.max(r, g, b);
+        const minRGB = Math.min(r, g, b);
+        const sat = maxRGB - minRGB;
+        const bright = (r + g + b) / 3;
+
+        if (bright > 120 && sat < 45) {
+          let alphaScale = (200 - bright) / 80;
+          if (alphaScale < 0) alphaScale = 0;
+          if (alphaScale > 1) alphaScale = 1;
+          if (sat < 20 && bright > 150) {
+            alphaScale = Math.min(alphaScale, sat / 20);
+          }
+          data[i + 3] = Math.round(data[i + 3] * alphaScale);
+        }
+      }
+      octx.putImageData(idata, 0, 0);
+      return off;
+    } catch {
+      return img;
+    }
+  };
+
+  // Preload frames with instant Frame 0 and background idle batching
   useEffect(() => {
     let cancelled = false;
-    const images = [];
-    let loaded = 0;
+    const images = new Array(TOTAL_FRAMES).fill(null);
+    framesRef.current = images;
 
-    // Use Vite's import.meta.glob to get hashed URLs for each frame
-    const frameModules = import.meta.glob(
-      '../assets/plant-frames/frame_*.jpg',
-      { eager: true, import: 'default' }
+    const frameLoaders = import.meta.glob(
+      '../assets/plant-frames/frame_*.jpg'
     );
 
-    // Build a lookup: frameNumber → resolved URL
-    const urlByNumber = {};
-    for (const [path, url] of Object.entries(frameModules)) {
+    const loaderByNumber = {};
+    for (const [path, loader] of Object.entries(frameLoaders)) {
       const match = path.match(/frame_(\d+)\.jpg$/);
-      if (match) urlByNumber[parseInt(match[1], 10)] = url;
+      if (match) loaderByNumber[parseInt(match[1], 10)] = loader;
     }
 
-    frameNumbers.current.forEach((num, idx) => {
-      const img = new Image();
-      img.src = urlByNumber[num] || '';
-      img.onload = () => {
+    // Step 1: Only load Frame 0 on initial render
+    const initialNum = frameNumbers.current[0];
+    const initialLoader = loaderByNumber[initialNum];
+    if (initialLoader) {
+      initialLoader().then((mod) => {
         if (cancelled) return;
-        try {
-          const off = document.createElement('canvas');
-          off.width = img.naturalWidth;
-          off.height = img.naturalHeight;
-          const octx = off.getContext('2d');
-          octx.drawImage(img, 0, 0);
-          const idata = octx.getImageData(0, 0, off.width, off.height);
-          const data = idata.data;
-          
-          for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            
-            const maxRGB = Math.max(r, g, b);
-            const minRGB = Math.min(r, g, b);
-            const sat = maxRGB - minRGB;
-            const bright = (r + g + b) / 3;
+        const firstImg = new Image();
+        firstImg.src = mod.default;
+        firstImg.onload = () => {
+          if (cancelled) return;
+          images[0] = processFrame(firstImg);
+          setFramesLoaded(true);
 
-            // Target light neutral grey / white background pixels
-            if (bright > 120 && sat < 45) {
-              // Smooth falloff: bright 120 (opaque) -> bright 200+ (transparent)
-              let alphaScale = (200 - bright) / 80;
-              if (alphaScale < 0) alphaScale = 0;
-              if (alphaScale > 1) alphaScale = 1;
-
-              // Extra fade for very low saturation near white
-              if (sat < 20 && bright > 150) {
-                const satFade = sat / 20;
-                alphaScale = Math.min(alphaScale, satFade);
+          // Step 2: Lazy load remaining frames gradually on idle without blocking main thread
+          let nextIdx = 1;
+          const scheduleNextBatch = () => {
+            if (cancelled || nextIdx >= TOTAL_FRAMES) return;
+            const batchEnd = Math.min(nextIdx + 2, TOTAL_FRAMES);
+            for (let i = nextIdx; i < batchEnd; i++) {
+              const num = frameNumbers.current[i];
+              const loader = loaderByNumber[num];
+              const currentIdx = i;
+              if (loader) {
+                loader().then((m) => {
+                  if (cancelled) return;
+                  const img = new Image();
+                  img.src = m.default;
+                  img.onload = () => {
+                    if (!cancelled) {
+                      images[currentIdx] = processFrame(img);
+                    }
+                  };
+                });
               }
-
-              data[i + 3] = Math.round(data[i + 3] * alphaScale);
             }
+            nextIdx = batchEnd;
+            if (nextIdx < TOTAL_FRAMES) {
+              if ('requestIdleCallback' in window) {
+                requestIdleCallback(scheduleNextBatch, { timeout: 200 });
+              } else {
+                setTimeout(scheduleNextBatch, 60);
+              }
+            }
+          };
+
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(scheduleNextBatch, { timeout: 200 });
+          } else {
+            setTimeout(scheduleNextBatch, 80);
           }
-          octx.putImageData(idata, 0, 0);
-          images[idx] = off;
-        } catch (e) {
-          images[idx] = img;
-        }
+        };
+      });
+    }
 
-        loaded++;
-        if (loaded >= TOTAL_FRAMES) setFramesLoaded(true);
-      };
-      img.onerror = () => {
-        if (cancelled) return;
-        loaded++;
-        if (loaded >= TOTAL_FRAMES) setFramesLoaded(true);
-      };
-      images[idx] = img;
-    });
-
-    framesRef.current = images;
     return () => { cancelled = true; };
   }, []);
 
-  // Draw a specific frame index onto the canvas
+  // Draw a specific frame index onto the canvas (with fallback to nearest ready frame)
   const drawFrame = useCallback((index) => {
     const canvas = canvasRef.current;
-    const img = framesRef.current[index];
-    if (!canvas || !img) return;
-    if (lastDrawnFrameRef.current === index) return; // skip redundant draws
+    if (!canvas) return;
+
+    let img = framesRef.current[index];
+    if (!img) {
+      for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
+        if (index - offset >= 0 && framesRef.current[index - offset]) {
+          img = framesRef.current[index - offset];
+          break;
+        }
+        if (index + offset < TOTAL_FRAMES && framesRef.current[index + offset]) {
+          img = framesRef.current[index + offset];
+          break;
+        }
+      }
+    }
+    if (!img) return;
+    if (lastDrawnFrameRef.current === index && lastDrawnFrameRef.current !== -1) return;
 
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;

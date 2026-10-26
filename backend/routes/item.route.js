@@ -1,30 +1,52 @@
 import express from 'express';
-import { claimItem, confirmPickup, createItem, deleteItem, getAllItems, getClaimedItems, getSingleItem, logConditionReport, markItemDeliveryReached, myAllItems, updateItem, verifyDeliveryOtp } from '../controller/item.controller.js';
+import { 
+  claimItem, 
+  confirmPickup, 
+  createItem, 
+  deleteItem, 
+  getAllItems, 
+  getClaimedItems, 
+  getSingleItem, 
+  logConditionReport, 
+  markItemDeliveryReached, 
+  myAllItems, 
+  updateItem, 
+  verifyDeliveryOtp,
+  getSmartMatchingItems,
+  getNearbyItems,
+  optimizeRoute,
+  checkFoodSafety,
+  getImpactMetrics,
+} from '../controller/item.controller.js';
 import { isAuthenticated, isVendor } from '../middleware/AuthUser.js';
 import { updateClaimStatus } from '../controller/item.controller.js';
 
-
 const router = express.Router();
 
-
-router.post("/create-item",isAuthenticated ,isVendor("vendor"),createItem);
-router.get("/get-items", isAuthenticated , getAllItems);
+// 🚀 Core Surplus Inventory Endpoints
+router.post("/create-item", isAuthenticated, isVendor("vendor"), createItem);
+router.get("/get-items", isAuthenticated, getAllItems);
 router.get("/my-items", isAuthenticated, isVendor("vendor"), myAllItems);
 router.delete("/delete-item/:id", isAuthenticated, isVendor("vendor"), deleteItem);
 router.get("/get-item/:id", isAuthenticated, getSingleItem);
 router.put("/update-item/:id", isAuthenticated, isVendor("vendor"), updateItem); 
-router.patch("/:id/claim",isAuthenticated , isVendor("NGO"),claimItem);
-router.get("/get-claimed-items" , isAuthenticated , isVendor("NGO"), getClaimedItems);
+
+// 🛡️ Atomic Concurrency-Safe Claiming & Claim Flow
+router.patch("/:id/claim", isAuthenticated, isVendor("NGO"), claimItem);
+router.get("/get-claimed-items", isAuthenticated, isVendor("NGO"), getClaimedItems);
 router.patch("/:id/claim-status", isAuthenticated, isVendor("vendor", "NGO"), updateClaimStatus);
+
+// 🚴 Volunteer Delivery & OTP Verification State Machine
 router.patch("/:id/delivery-reached", isAuthenticated, isVendor("Volunteer"), markItemDeliveryReached);
 router.patch("/:id/pickup-confirmed", isAuthenticated, isVendor("Volunteer"), confirmPickup);
 router.patch("/:id/verify-otp", isAuthenticated, isVendor("NGO"), verifyDeliveryOtp);
 router.post("/:id/condition-report", isAuthenticated, isVendor("NGO"), logConditionReport);
 
-
-
-
-
-
+// 🧠 Advanced Engineering & Algorithmic Engines
+router.get("/smart-match", isAuthenticated, isVendor("NGO"), getSmartMatchingItems);
+router.get("/nearby", isAuthenticated, getNearbyItems);
+router.post("/optimize-route", isAuthenticated, isVendor("Volunteer", "NGO"), optimizeRoute);
+router.post("/food-safety-check", isAuthenticated, checkFoodSafety);
+router.get("/impact-summary", getImpactMetrics);
 
 export default router;

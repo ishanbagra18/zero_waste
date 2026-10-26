@@ -77,7 +77,7 @@ const itemSchema = new mongoose.Schema({
     // New fields for claims
     claimedBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "NGO", // Reference to the NGO model
+        ref: "User", // Stored in User model with role 'NGO'
         default: null, // Initialize as null
     },
 
@@ -181,6 +181,34 @@ const itemSchema = new mongoose.Schema({
         },
     },
 
+    foodType: {
+        type: String,
+        enum: ["veg", "non-veg", "vegan", "packaged"],
+        default: "veg",
+    },
+
+    weightKg: {
+        type: Number,
+        default: 2,
+    },
+
+    geoPoint: {
+        type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point",
+        },
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            default: [75.7873, 26.9124], // Default coordinates (Jaipur city pilot)
+        },
+    },
+
 }, { timestamps: true });
+
+// 🚀 Performance & Geospatial Indexes
+itemSchema.index({ geoPoint: "2dsphere" });
+itemSchema.index({ status: 1, createdAt: -1 });
+itemSchema.index({ expiryDate: 1, status: 1 });
 
 export const Item = mongoose.model("Item", itemSchema);

@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import useDashboardEntrance from "../hooks/useDashboardEntrance";
 import { useEcoLeaf } from "../context/EcoLeafContext";
 import { HeartHandshake } from "lucide-react";
-import volunteer3dHero from "../assets/volunteer_3d_hero.png";
 
 import {
   

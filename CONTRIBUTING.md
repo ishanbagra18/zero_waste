@@ -63,7 +63,7 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
    API_KEY=your_cloudinary_api_key
    API_SECRET=your_cloudinary_api_secret
    BOT_API_KEY=your_gemini_api_key
-   BOT_API_ENDPOINT=https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent
+   BOT_API_ENDPOINT=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
    ```
 
 3. **Setup Frontend**

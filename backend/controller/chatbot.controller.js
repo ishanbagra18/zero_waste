@@ -128,12 +128,11 @@ export const chatWithBot = async (req, res) => {
       ["human", "{input}"]
     ]);
 
-    // 🤖 Candidate model fallbacks
+    // 🤖 Candidate model fallbacks (official verified Gemini models)
     const candidateModels = [
-      "gemini-3.6-flash",
-      "gemini-3.5-flash",
-      "gemini-flash-latest",
-      "gemini-1.5-flash"
+      "gemini-1.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-pro"
     ];
 
     let botResponse = null;

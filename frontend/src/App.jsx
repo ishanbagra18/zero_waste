@@ -4,12 +4,13 @@ import { Toaster } from "react-hot-toast";
 
 // Import non-page components eagerly
 import ProtectedRoute from "./components/ProtectedRoute";
-import Chatbot from "./components/Chatbot";
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
 import PageWrapper from "./components/PageWrapper";
-import EcoMascotQuote from "./components/EcoMascotQuote";
 import SmoothScroll from "./components/common/SmoothScroll";
+
+// Lazy load non-critical global components
+const Chatbot = lazy(() => import("./components/Chatbot"));
+const Footer = lazy(() => import("./components/Footer"));
 
 import { useAuth } from "./context/AuthContext";
 
@@ -127,8 +128,10 @@ const AppContent = () => {
         </Suspense>
       </main>
 
-      {hasNavbar && !hideFooter && <Footer />}
-      {!hideChatbot && <Chatbot />}
+      <Suspense fallback={null}>
+        {hasNavbar && !hideFooter && <Footer />}
+        {!hideChatbot && <Chatbot />}
+      </Suspense>
     </div>
   );
 };
