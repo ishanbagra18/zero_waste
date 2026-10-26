@@ -174,10 +174,15 @@ Generates automated, auditable monthly and cumulative sustainability statements 
 * **Corporate CSR Integration:** Cites formal international standards (*UNEP Food Waste Index 2024*, *UN FAO 2019*, *Water Footprint Network*) with executive narrative summaries suitable for ESG audits.
 * *Endpoints:* `GET /api/items/impact-report` & `GET /api/items/impact-report/:vendorId`
 
-### 4. 💬 Agentic Chatbot Orchestrator
+### 4. 💬 Agentic Chatbot Orchestrator & Interactive UI Cards
 The chatbot is not a generic text prompt; it operates as an **Agentic Supervisor / StateGraph Orchestrator**:
-* User questions or attached images are dynamically classified into specialized sub-agent domains (`FOOD_SAFETY`, `AUTO_LIST`, `IMPACT_REPORT`, `INVENTORY_SEARCH`, `PLATFORM_ASSISTANT`).
-* Returns interactive visual cards in the chat UI with safety badges, listing drafts, and impact tables.
+* **Multimodal Camera Upload:** Food vendors and NGOs can attach live photos directly from mobile/desktop via the chat composer's camera action to trigger visual food inspection or auto-listing.
+* **Dynamic Intent Classification:** Automatically routes queries across specialized sub-agent domains (`FOOD_SAFETY`, `AUTO_LIST`, `IMPACT_REPORT`, `INVENTORY_SEARCH`, `PLATFORM_ASSISTANT`) with support for English, Hindi, and Hinglish colloquial phrasing (*"ye khana safe hai ya nahi"*, *"photo se list karo"*, *"kitna carbon bachaya"*).
+* **Interactive Chat Cards:** Rather than raw text walls, the chatbot renders structured UI components:
+  * 🛡️ **FSSAI Compliance Verdict Card:** Displays real-time numerical biological risk scores (0–100), color-coded risk meter bars, official regulatory statutes, and a direct link to publish approved surplus.
+  * 📸 **Vision Auto-Listing Card:** Previews dish name, portion count, freshness window, and provides a **"1-Click Auto-Fill Surplus Form"** button that seamlessly transfers extracted specs into `/vendor/createitem` via React Router state.
+  * 📊 **Certified ESG Certificate Card:** Visual 4-metric sustainability audit (Food Diverted, Meals Served, CO₂e Avoided, Freshwater Conserved) with international standard citations.
+* **1-Click Quick Prompts:** Pre-configured test prompts for instant evaluation: `🛡️ Food Safety Audit`, `📸 Auto-List from Photo`, `📊 Monthly Impact Report`, and `⚡ Active Surplus`.
 
 ---
 
@@ -237,11 +242,20 @@ Conducted using Chrome Headless / Lighthouse v12 against the live Netlify produc
 </p>
 <p align="center"><i>Figure: Official Chrome Lighthouse Audit on live Netlify deployment (<a href="docs/lighthouse-desktop.html">View Desktop HTML Report</a> | <a href="docs/lighthouse-report.html">View Mobile HTML Report</a>).</i></p>
 
-#### ⚡ Dashboard-Specific Performance Engineering (Vendor & NGO Dashboards):
-To maintain fluid 60 FPS rendering across complex administrative dashboards (`VendorDashboard.jsx` and `NgoDashboard.jsx`):
-1. **Lazy Dynamic Frame Decoupling:** Converted eager 7MB synchronous image glob imports into on-demand idle-batched dynamic loaders (`import.meta.glob('../assets/plant-frames/frame_*.jpg')` with `requestIdleCallback`). Initial frame 0 renders immediately, while subsequent frames decode only during idle browser intervals.
-2. **Heavy Dependency Splitting (`vite.config.js`):** Isolated analytical charts (`recharts` ➔ `vendor-charts`), geospatial map renderers (`leaflet` ➔ `vendor-maps`), and animation engines (`gsap` / `framer-motion` ➔ `vendor-animation`) into modular, asynchronously cached vendor chunks.
-3. **Route-Level Code Splitting:** Vendor and NGO dashboards load with lean initial JS payloads (~16–17kB gzip), keeping initial hydration instantaneous and main-thread blocking time at **0 ms**.
+#### ⚡ 60 FPS Zero-Stutter Architecture (Vendor & NGO Dashboards):
+Complex administrative dashboards (`VendorDashboard.jsx` and `NgoDashboard.jsx`) feature heavy visualizations, real-time charts, and scroll-driven plant growth animations. To guarantee buttery-smooth 60 FPS performance without main-thread choking:
+
+1. **NGO Dashboard Zero-Re-Render Scroll Pipeline:**
+   * **Chroma-Keying Background Removal (`processFrame`):** Plant animation JPEG frames originally contained solid white rectangular backgrounds. An off-screen canvas processor dynamically keys out neutral light-grey/white pixels (`bright > 125, sat < 42`) into 100% transparent alpha on idle worker threads (`requestIdleCallback`).
+   * **Scroll-Listener Decoupling:** Eliminated scroll-triggered React state updates (`scrollProgress` was re-rendering 2,260 lines of JSX 60 times/second) in favor of direct GPU-accelerated canvas `drawFrame(index)` invocations throttled via `requestAnimationFrame`.
+2. **Vendor Dashboard Parallax & 3D Tilt Optimization:**
+   * **Eliminated Dual-Spring Physics Conflict:** Layering Framer Motion's `useSpring` on top of Lenis smooth scroll caused fighting physics and sticky delays. Replaced spring interpolations with direct mappings from `heroScrollY`, synchronizing parallax depth layers with the smooth-scroll engine.
+   * **Zero-Re-Render 3D Card Hover:** Converted cursor-tracking React state (`useState` on `handleCardMouseMove`) to direct DOM GPU transforms (`perspective(1000px) rotateX(...) rotateY(...)`), completely preventing dashboard re-renders during mouse movement.
+   * **Hardware Layer Promotion:** Heavy radial gradient blurs (`blur-[130px]`, `blur-[140px]`) were promoted to independent GPU composite layers using `willChange: "transform"` and `translateZ(0)`.
+3. **Calibrated Lenis Smooth Scrolling Engine:**
+   * Global scroll physics tuned in `SmoothScroll.jsx` (`duration: 1.0`, `wheelMultiplier: 1.1`, `touchMultiplier: 1.5`) to provide immediate, responsive, and cinematic scroll momentum across all pages.
+4. **Heavy Dependency Splitting (`vite.config.js`):**
+   * Isolated analytical charts (`recharts` ➔ `vendor-charts`), geospatial map renderers (`leaflet` ➔ `vendor-maps`), and animation engines (`gsap` / `framer-motion` ➔ `vendor-animation`) into modular, asynchronously cached vendor chunks (~16–17kB gzip).
 
 ---
 
@@ -295,17 +309,20 @@ Engineering honesty is paramount. ZeroWaste is designed as a production-grade pr
 
 ## 🛣️ API Specifications
 
-### Core Surplus Inventory (`/api/items`)
+### Core Surplus Inventory & Agentic Endpoints (`/api/items` & `/api/chat`)
 - `GET /api/items/get-items` - Paginated surplus inventory feed.
 - `POST /api/items/create-item` - Publish surplus listing *(Vendor)*.
+- `POST /api/items/auto-list-from-photo` - **Multimodal Vision 1-Click Surplus Extraction** from photo *(Vendor)*.
 - `PATCH /api/items/:id/claim` - **Atomic CAS claim operation** *(NGO)*.
 - `GET /api/items/smart-match` - Ranked items via multi-criteria matching algorithm (proximity, urgency, capacity, diet).
 - `GET /api/items/nearby` - Geospatial radius search using MongoDB 2dsphere indexing.
 - `POST /api/items/optimize-route` - Volunteer multi-stop TSP 2-Opt solver.
 - `POST /api/items/food-safety-check` - LangGraph FSSAI food safety analysis.
+- `GET /api/items/impact-report` - **Monthly ESG Sustainability Certificate** citing UNEP & UN FAO standards.
 - `GET /api/items/demand-forecast` - Predictive AI surplus output forecasting by day & hour.
 - `POST /api/items/geofence-check` - GPS proximity & geofence perimeter trigger evaluator.
 - `GET /api/items/impact-summary` - Aggregated meals, CO₂e, and water metrics.
+- `POST /api/chat/chatbot` - **LangGraph Multi-Agent Orchestrator** supporting photo attachments and interactive cards.
 
 ### System Observability & Probes (`/health`)
 - `GET /health/live` - Lightweight process liveness check (memory, uptime, PID).
@@ -320,21 +337,23 @@ ZeroWaste includes an automated test suite executed in **GitHub Actions** on eve
 ```bash
 cd backend
 
-# Run algorithmic unit tests (11 tests across 6 suites)
+# Run algorithmic unit tests (18 tests across 6 suites — 100% passing)
 npm test
 
-# Run complete End-to-End API verification test (19/19 passing)
+# Run complete End-to-End API verification test (22/22 steps passing)
 npm run test:e2e
 ```
 
-### Test Suites Included:
+### Test Suites Included (18 Unit Tests + 22 End-to-End Steps):
 1. **Concurrency Race Condition:** Simulates simultaneous parallel claims on a single item, proving atomic conflict resolution (`200 OK` for winner, `409 Conflict` for competitor).
-2. **AI Demand & Surplus Forecasting:** Tests prediction accuracy against historical donation batches and day-of-week seasonality.
-3. **GPS Geofencing & Proximity Triggers:** Validates boundary detection within 500m perimeter and ETA calculations.
-4. **Haversine Trigonometry & Smart Matching:** Validates geodetic distance calculations, urgency decay curves, shelter capacity matching, and dietary preference filters.
-5. **2-Opt TSP Optimizer:** Verifies distance reduction on scrambled multi-stop delivery routes.
-6. **Ecological Accounting:** Tests conversion factors against UN FAO and UNEP benchmarks.
-7. **End-to-End API Verification:** Validates full lifecycle state machine from item creation, vendor approval, volunteer pickup, dual-phase OTP verification, to final completion.
+2. **🛡️ Food Safety Agent Gating:** Validates deterministic FSSAI rule rejection for ambient perishables exceeding 4 hours and approval for fresh meals.
+3. **📸 Auto-Listing Vision Schema:** Validates payload normalization, urgency flags, and dynamic expiry computation.
+4. **📊 UNEP & FAO Ecological Accounting:** Verifies standard conversion factors (0.42 kg/meal, 2.5 kg CO₂e/kg, 1,000 L/kg water).
+5. **🔮 AI Demand & Surplus Forecasting:** Tests prediction accuracy against historical donation batches and day-of-week seasonality.
+6. **📍 GPS Geofencing & Proximity Triggers:** Validates boundary detection within 500m perimeter (`INSIDE_GEOFENCE`, `APPROACHING`) and ETA calculations.
+7. **🧠 Haversine Trigonometry & Smart Matching:** Validates geodetic distance calculations, urgency decay curves, shelter capacity matching, and dietary preference filters.
+8. **🚴 2-Opt TSP Optimizer:** Verifies distance reduction on scrambled multi-stop delivery routes.
+9. **🏁 End-to-End Lifecycle Verification (22/22 Steps):** Validates full lifecycle state machine from authentication, surplus creation, FSSAI safety checks, smart matching, volunteer pickup, dual-phase OTP verification, to final completion.
 
 ---
 
