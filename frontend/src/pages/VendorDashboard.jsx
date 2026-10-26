@@ -82,55 +82,48 @@ const VendorDashboard = () => {
     offset: ["start start", "end start"],
   });
 
-  const smoothHeroProgress = useSpring(heroScrollY, {
-    stiffness: 90,
-    damping: 22,
-    restDelta: 0.001,
-  });
-
-  // Deep Background Layer Transforms
-  const bgImageY = useTransform(smoothHeroProgress, [0, 1], ["0%", "26%"]);
-  const bgImageScale = useTransform(smoothHeroProgress, [0, 1], [1, 1.18]);
-  const bgOpacity = useTransform(smoothHeroProgress, [0, 0.9], [1, 0.45]);
-  const bgMesh1Y = useTransform(smoothHeroProgress, [0, 1], [0, -140]);
-  const bgMesh2Y = useTransform(smoothHeroProgress, [0, 1], [0, 120]);
-  const gridY = useTransform(smoothHeroProgress, [0, 1], [0, 60]);
+  // Parallax Scroll Tracking for Hero - directly uses heroScrollY since Lenis already provides smooth 60fps lerp
+  const bgImageY = useTransform(heroScrollY, [0, 1], ["0%", "24%"]);
+  const bgImageScale = useTransform(heroScrollY, [0, 1], [1, 1.12]);
+  const bgOpacity = useTransform(heroScrollY, [0, 0.9], [1, 0.45]);
+  const bgMesh1Y = useTransform(heroScrollY, [0, 1], [0, -100]);
+  const bgMesh2Y = useTransform(heroScrollY, [0, 1], [0, 80]);
+  const gridY = useTransform(heroScrollY, [0, 1], [0, 40]);
 
   // Floating Orbs & Eco Badges (Midground)
-  const orb1Y = useTransform(smoothHeroProgress, [0, 1], [0, -180]);
-  const orb2Y = useTransform(smoothHeroProgress, [0, 1], [0, -260]);
-  const orb3Y = useTransform(smoothHeroProgress, [0, 1], [0, -120]);
-  const floatBadge1Y = useTransform(smoothHeroProgress, [0, 1], [0, -170]);
-  const floatBadge1Rotate = useTransform(smoothHeroProgress, [0, 1], [-2, 8]);
-  const floatBadge2Y = useTransform(smoothHeroProgress, [0, 1], [0, -230]);
-  const floatBadge2Rotate = useTransform(smoothHeroProgress, [0, 1], [4, -6]);
+  const orb1Y = useTransform(heroScrollY, [0, 1], [0, -120]);
+  const orb2Y = useTransform(heroScrollY, [0, 1], [0, -160]);
+  const orb3Y = useTransform(heroScrollY, [0, 1], [0, -80]);
+  const floatBadge1Y = useTransform(heroScrollY, [0, 1], [0, -120]);
+  const floatBadge1Rotate = useTransform(heroScrollY, [0, 1], [-2, 6]);
+  const floatBadge2Y = useTransform(heroScrollY, [0, 1], [0, -150]);
+  const floatBadge2Rotate = useTransform(heroScrollY, [0, 1], [3, -5]);
 
   // Foreground Left Column (Headline & CTAs)
-  const contentY = useTransform(smoothHeroProgress, [0, 1], [0, 95]);
-  const contentOpacity = useTransform(smoothHeroProgress, [0, 0.85], [1, 0.2]);
-  const contentScale = useTransform(smoothHeroProgress, [0, 1], [1, 0.96]);
+  const contentY = useTransform(heroScrollY, [0, 1], [0, 70]);
+  const contentOpacity = useTransform(heroScrollY, [0, 0.85], [1, 0.25]);
+  const contentScale = useTransform(heroScrollY, [0, 1], [1, 0.96]);
 
   // Foreground Right Column (3D Interactive Visual Card)
-  const cardY = useTransform(smoothHeroProgress, [0, 1], [0, 160]);
-  const cardRotate = useTransform(smoothHeroProgress, [0, 1], [0, 4.5]);
-  const cardScale = useTransform(smoothHeroProgress, [0, 1], [1, 0.94]);
-  const cardFloatingBadgeY = useTransform(smoothHeroProgress, [0, 1], [0, -70]);
+  const cardY = useTransform(heroScrollY, [0, 1], [0, 110]);
+  const cardRotate = useTransform(heroScrollY, [0, 1], [0, 3]);
+  const cardScale = useTransform(heroScrollY, [0, 1], [1, 0.97]);
+  const cardFloatingBadgeY = useTransform(heroScrollY, [0, 1], [0, -60]);
 
   // Bottom Scroll Indicator
-  const scrollIndicatorOpacity = useTransform(smoothHeroProgress, [0, 0.15], [1, 0]);
-  const scrollIndicatorY = useTransform(smoothHeroProgress, [0, 0.15], [0, 18]);
+  const scrollIndicatorOpacity = useTransform(heroScrollY, [0, 0.15], [1, 0]);
+  const scrollIndicatorY = useTransform(heroScrollY, [0, 0.15], [0, 18]);
 
-  // Mouse tilt tracking on hero visual card for 3D tactile interaction
-  const [cardMousePos, setCardMousePos] = useState({ x: 0, y: 0 });
+  // 3D tactile card tilt: executed directly on the DOM node to eliminate React re-renders on mousemove
   const handleCardMouseMove = (e) => {
     const { clientX, clientY, currentTarget } = e;
     const { left, top, width, height } = currentTarget.getBoundingClientRect();
-    const x = (clientX - left) / width - 0.5;
-    const y = (clientY - top) / height - 0.5;
-    setCardMousePos({ x, y });
+    const x = ((clientX - left) / width - 0.5) * 12;
+    const y = ((clientY - top) / height - 0.5) * -12;
+    currentTarget.style.transform = `perspective(1000px) rotateX(${y}deg) rotateY(${x}deg)`;
   };
-  const handleCardMouseLeave = () => {
-    setCardMousePos({ x: 0, y: 0 });
+  const handleCardMouseLeave = (e) => {
+    e.currentTarget.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
   };
 
   // GSAP subtle floating ambient glow orbs
@@ -364,11 +357,11 @@ const VendorDashboard = () => {
         {/* Layer 2: Parallax Ambient Radial Glow Meshes & Perspective Grid */}
         <div className="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
           <motion.div
-            style={{ y: bgMesh1Y }}
+            style={{ y: bgMesh1Y, willChange: "transform", transform: "translateZ(0)" }}
             className="absolute -left-40 top-12 h-[34rem] w-[34rem] rounded-full bg-emerald-500/[0.14] blur-[130px]"
           />
           <motion.div
-            style={{ y: bgMesh2Y }}
+            style={{ y: bgMesh2Y, willChange: "transform", transform: "translateZ(0)" }}
             className="absolute -right-32 top-1/4 h-[38rem] w-[38rem] rounded-full bg-teal-400/[0.12] blur-[140px]"
           />
           <div className="absolute bottom-[-10rem] left-1/3 h-96 w-96 rounded-full bg-green-500/[0.08] blur-[120px]" />
@@ -647,13 +640,13 @@ const VendorDashboard = () => {
             <div className="absolute -inset-6 rounded-[2.8rem] bg-gradient-to-br from-emerald-400/25 via-teal-500/10 to-transparent blur-3xl pointer-events-none" />
 
             {/* 3D Interactive Card Container */}
-            <motion.div
+            <div
               onMouseMove={handleCardMouseMove}
               onMouseLeave={handleCardMouseLeave}
               style={{
-                transform: `perspective(1000px) rotateX(${-cardMousePos.y * 12}deg) rotateY(${cardMousePos.x * 12}deg)`,
-                transition: "transform 0.18s cubic-bezier(0.2, 0, 0, 1)",
+                transition: "transform 0.16s cubic-bezier(0.2, 0, 0, 1)",
                 transformStyle: "preserve-3d",
+                willChange: "transform",
               }}
               className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-slate-950/60 p-3.5 shadow-2xl shadow-black/40 backdrop-blur-2xl"
             >
@@ -710,7 +703,7 @@ const VendorDashboard = () => {
                   <ArrowUpRight className="h-4 w-4" />
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Differential Parallax Floating Badge on Right Side */}
             <motion.div

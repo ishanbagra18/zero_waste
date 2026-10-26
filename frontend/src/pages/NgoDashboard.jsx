@@ -171,7 +171,6 @@ const NgoDashboard = () => {
   const rafIdRef = useRef(null);
   const lastDrawnFrameRef = useRef(-1);
   const [framesLoaded, setFramesLoaded] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Sample every 3rd frame (55 frames total): cuts network requests & memory by 67%
   // while preserving buttery-smooth 60fps scroll animation
@@ -179,46 +178,6 @@ const NgoDashboard = () => {
     Array.from({ length: 166 }, (_, i) => i + 1).filter((n, idx) => n !== 163 && idx % 3 === 0)
   );
   const TOTAL_FRAMES = frameNumbers.current.length;
-
-  // Optimized frame processor: downscales to max 640px to cut CPU pixel operations by 75%
-  const processFrame = (img) => {
-    try {
-      const off = document.createElement('canvas');
-      const targetW = Math.min(640, img.naturalWidth || 640);
-      const aspect = (img.naturalWidth || 640) / (img.naturalHeight || 360);
-      const targetH = Math.round(targetW / aspect);
-      off.width = targetW;
-      off.height = targetH;
-      const octx = off.getContext('2d');
-      octx.drawImage(img, 0, 0, targetW, targetH);
-      const idata = octx.getImageData(0, 0, targetW, targetH);
-      const data = idata.data;
-
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const maxRGB = Math.max(r, g, b);
-        const minRGB = Math.min(r, g, b);
-        const sat = maxRGB - minRGB;
-        const bright = (r + g + b) / 3;
-
-        if (bright > 120 && sat < 45) {
-          let alphaScale = (200 - bright) / 80;
-          if (alphaScale < 0) alphaScale = 0;
-          if (alphaScale > 1) alphaScale = 1;
-          if (sat < 20 && bright > 150) {
-            alphaScale = Math.min(alphaScale, sat / 20);
-          }
-          data[i + 3] = Math.round(data[i + 3] * alphaScale);
-        }
-      }
-      octx.putImageData(idata, 0, 0);
-      return off;
-    } catch {
-      return img;
-    }
-  };
 
   // Preload frames with instant Frame 0 and background idle batching
   useEffect(() => {
@@ -246,14 +205,14 @@ const NgoDashboard = () => {
         firstImg.src = mod.default;
         firstImg.onload = () => {
           if (cancelled) return;
-          images[0] = processFrame(firstImg);
+          images[0] = firstImg;
           setFramesLoaded(true);
 
           // Step 2: Lazy load remaining frames gradually on idle without blocking main thread
           let nextIdx = 1;
           const scheduleNextBatch = () => {
             if (cancelled || nextIdx >= TOTAL_FRAMES) return;
-            const batchEnd = Math.min(nextIdx + 2, TOTAL_FRAMES);
+            const batchEnd = Math.min(nextIdx + 4, TOTAL_FRAMES);
             for (let i = nextIdx; i < batchEnd; i++) {
               const num = frameNumbers.current[i];
               const loader = loaderByNumber[num];
@@ -265,7 +224,7 @@ const NgoDashboard = () => {
                   img.src = m.default;
                   img.onload = () => {
                     if (!cancelled) {
-                      images[currentIdx] = processFrame(img);
+                      images[currentIdx] = img;
                     }
                   };
                 });
@@ -274,9 +233,9 @@ const NgoDashboard = () => {
             nextIdx = batchEnd;
             if (nextIdx < TOTAL_FRAMES) {
               if ('requestIdleCallback' in window) {
-                requestIdleCallback(scheduleNextBatch, { timeout: 200 });
+                requestIdleCallback(scheduleNextBatch, { timeout: 150 });
               } else {
-                setTimeout(scheduleNextBatch, 60);
+                setTimeout(scheduleNextBatch, 40);
               }
             }
           };
@@ -318,10 +277,12 @@ const NgoDashboard = () => {
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
+    const targetW = Math.round(w * dpr);
+    const targetH = Math.round(h * dpr);
 
-    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
       ctx.scale(dpr, dpr);
     }
 
@@ -360,9 +321,9 @@ const NgoDashboard = () => {
 
         const rect = section.getBoundingClientRect();
         const sectionHeight = section.scrollHeight - window.innerHeight;
+        if (sectionHeight <= 0) return;
         const scrolled = -rect.top;
         const progress = Math.max(0, Math.min(1, scrolled / sectionHeight));
-        setScrollProgress(progress);
 
         const frameIndex = Math.min(
           TOTAL_FRAMES - 1,
@@ -488,6 +449,8 @@ const NgoDashboard = () => {
       className="absolute inset-0 z-0 h-full w-full pointer-events-none"
       style={{
         display: framesLoaded ? "block" : "none",
+        mixBlendMode: "screen",
+        willChange: "transform",
       }}
     />
 
