@@ -631,7 +631,7 @@ const NgoDashboard = () => {
     )}
 
     {/* Scroll indicator */}
-    {framesLoaded && scrollProgress < 0.1 && (
+    {framesLoaded && (
       <motion.div
         initial={{ opacity: 0, y: -4 }}
         animate={{ opacity: 1, y: 0 }}
