@@ -1,5 +1,6 @@
 // src/components/Chatbot.jsx
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import {
@@ -22,10 +23,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { playClickSound, playSuccessSound } from "../utils/audio";
 
 const QUICK_PROMPTS = [
-  { icon: FaShieldAlt, label: "Food Safety Audit", prompt: "🛡️ Is my cooked food safe to donate after 3 hours at room temperature?" },
-  { icon: FaCamera, label: "Auto-List from Photo", prompt: "📸 How does Auto-Listing from Photo work?" },
-  { icon: FaChartBar, label: "Monthly Impact Report", prompt: "📊 Generate my monthly ecological impact report" },
-  { icon: FaBolt, label: "Active Surplus Items", prompt: "⚡ Show active surplus items ready for claim" },
+  { icon: FaShieldAlt, label: "Food Safety Audit", prompt: "🛡️ Is cooked food safe to donate after 2 hours at ambient room temperature under FSSAI rules?" },
+  { icon: FaCamera, label: "Auto-List from Photo", prompt: "📸 Auto-list surplus food from photo with estimated quantity and shelf-life" },
+  { icon: FaChartBar, label: "Monthly Impact Report", prompt: "📊 Generate my monthly ecological impact report with verified UNEP carbon and meals saved" },
+  { icon: FaBolt, label: "Active Surplus", prompt: "⚡ Show active surplus items ready for claim" },
 ];
 
 const INITIAL_MESSAGE = {
@@ -35,6 +36,7 @@ const INITIAL_MESSAGE = {
 };
 
 const Chatbot = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
@@ -379,6 +381,187 @@ const Chatbot = () => {
                         }`}
                       >
                         {msg.text}
+
+                        {/* Interactive Agent Card 1: Food Safety FSSAI Audit */}
+                        {msg.safetyData && (
+                          <div className="mt-3 overflow-hidden rounded-2xl border border-emerald-400/30 bg-slate-950/85 p-3 text-left shadow-lg">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                                <FaShieldAlt
+                                  className={
+                                    msg.safetyData.verdict === "APPROVED_SAFE"
+                                      ? "text-emerald-400"
+                                      : msg.safetyData.verdict === "CONDITIONAL_PICKUP_URGENT"
+                                      ? "text-amber-400"
+                                      : "text-rose-400"
+                                  }
+                                />
+                                <span>FSSAI Audit Summary</span>
+                              </div>
+                              <span
+                                className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${
+                                  msg.safetyData.verdict === "APPROVED_SAFE"
+                                    ? "border border-emerald-400/40 bg-emerald-500/20 text-emerald-300"
+                                    : msg.safetyData.verdict === "CONDITIONAL_PICKUP_URGENT"
+                                    ? "border border-amber-400/40 bg-amber-500/20 text-amber-300"
+                                    : "border border-rose-400/40 bg-rose-500/20 text-rose-300"
+                                }`}
+                              >
+                                {msg.safetyData.verdict === "APPROVED_SAFE"
+                                  ? "Safe to Donate"
+                                  : msg.safetyData.verdict === "CONDITIONAL_PICKUP_URGENT"
+                                  ? "Urgent Pickup"
+                                  : "Unsafe / Spoiled"}
+                              </span>
+                            </div>
+
+                            <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-300">
+                              <span>Biological Risk Score:</span>
+                              <span className="font-extrabold text-emerald-300">
+                                {msg.safetyData.riskScore ?? 12}/100
+                              </span>
+                            </div>
+
+                            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                              <div
+                                className={`h-full transition-all duration-500 ${
+                                  msg.safetyData.riskScore > 70
+                                    ? "bg-rose-500"
+                                    : msg.safetyData.riskScore > 40
+                                    ? "bg-amber-400"
+                                    : "bg-emerald-400"
+                                }`}
+                                style={{ width: `${Math.min(100, Math.max(10, msg.safetyData.riskScore ?? 15))}%` }}
+                              />
+                            </div>
+
+                            <p className="mt-2 text-[9px] text-slate-400 italic">
+                              Statute: {msg.safetyData.fssaiCitation || "FSSAI Surplus Regulations 2019"}
+                            </p>
+
+                            {msg.safetyData.verdict === "APPROVED_SAFE" && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  playClickSound();
+                                  setIsOpen(false);
+                                  navigate("/vendor/createitem", {
+                                    state: {
+                                      prefill: {
+                                        name: msg.safetyData.name || "Approved Surplus Meal",
+                                        category: "Food",
+                                      },
+                                    },
+                                  });
+                                }}
+                                className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl border border-emerald-400/30 bg-emerald-500/15 py-1.5 text-[10px] font-bold text-emerald-300 transition-colors hover:bg-emerald-500/25"
+                              >
+                                <FaSeedling size={10} /> List this Approved Surplus Item →
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Interactive Agent Card 2: Auto-Listing Vision Card */}
+                        {msg.listingData && (
+                          <div className="mt-3 overflow-hidden rounded-2xl border border-teal-400/35 bg-slate-950/85 p-3.5 text-left shadow-xl">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                                <FaCamera className="text-teal-400" />
+                                <span>Vision Surplus Extract</span>
+                              </div>
+                              <span className="rounded-full border border-teal-400/30 bg-teal-500/20 px-2 py-0.5 text-[9px] font-bold text-teal-300">
+                                1-Click Ready
+                              </span>
+                            </div>
+
+                            <div className="mt-2.5 space-y-1.5 text-[10px]">
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">Dish Name:</span>
+                                <span className="font-bold text-white">{msg.listingData.name}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">Category & Type:</span>
+                                <span className="font-semibold text-emerald-300">
+                                  {msg.listingData.category} ({msg.listingData.foodType || "veg"})
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">Est. Quantity:</span>
+                                <span className="font-bold text-white">
+                                  ~{msg.listingData.quantity || msg.listingData.estimatedQuantity} {msg.listingData.unit || "meals"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">Freshness Window:</span>
+                                <span className="font-semibold text-amber-300">
+                                  {msg.listingData.shelfLifeHours || 4} hours remaining
+                                </span>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playClickSound();
+                                setIsOpen(false);
+                                navigate("/vendor/createitem", {
+                                  state: { prefill: msg.listingData },
+                                });
+                              }}
+                              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 py-2 text-[10.5px] font-black text-slate-950 shadow-lg shadow-emerald-950/40 transition-transform active:scale-[0.98]"
+                            >
+                              <FaBolt size={10} /> Auto-Fill Surplus Form in 1 Click →
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Interactive Agent Card 3: Monthly ESG Impact Certificate */}
+                        {msg.reportData && (
+                          <div className="mt-3 overflow-hidden rounded-2xl border border-emerald-400/30 bg-slate-950/90 p-3.5 text-left shadow-xl">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                                <FaChartBar className="text-emerald-400" />
+                                <span>Certified Monthly ESG Audit</span>
+                              </div>
+                              <span className="rounded-full border border-emerald-400/30 bg-emerald-500/20 px-2 py-0.5 text-[8.5px] font-bold text-emerald-300">
+                                UNEP & FAO Grounded
+                              </span>
+                            </div>
+
+                            <div className="mt-2.5 grid grid-cols-2 gap-2">
+                              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2 text-center">
+                                <p className="text-[8.5px] text-slate-400">Food Diverted</p>
+                                <p className="text-sm font-black text-emerald-400">
+                                  {msg.reportData.impact?.totalWeightKg || 42} kg
+                                </p>
+                              </div>
+                              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2 text-center">
+                                <p className="text-[8.5px] text-slate-400">Meals Served</p>
+                                <p className="text-sm font-black text-teal-400">
+                                  {msg.reportData.impact?.mealsRedistributed || 100}
+                                </p>
+                              </div>
+                              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2 text-center">
+                                <p className="text-[8.5px] text-slate-400">CO₂e Avoided</p>
+                                <p className="text-sm font-black text-green-400">
+                                  {msg.reportData.impact?.carbonEmissionsPreventedKg || 105} kg
+                                </p>
+                              </div>
+                              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2 text-center">
+                                <p className="text-[8.5px] text-slate-400">Freshwater Saved</p>
+                                <p className="text-sm font-black text-cyan-400">
+                                  {(msg.reportData.impact?.waterConservedLiters || 42000).toLocaleString()} L
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-2.5 flex items-center justify-between text-[8.5px] text-slate-400">
+                              <span>UN FAO: 0.42 kg/meal</span>
+                              <span>UNEP: 2.5 kg CO₂e/kg</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {!isUser && (

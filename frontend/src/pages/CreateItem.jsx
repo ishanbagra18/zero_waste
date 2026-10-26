@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import {
   Upload,
@@ -21,6 +21,7 @@ import ParallaxHero from "../components/ParallaxHero";
 
 export default function CreateItem() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [imagePreview, setImagePreview] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,6 +40,25 @@ export default function CreateItem() {
     isUrgent: false,
     itemImage: null,
   });
+
+  // Pre-fill from Agentic Chatbot or Vision Agent
+  useEffect(() => {
+    if (location.state?.prefill) {
+      const p = location.state.prefill;
+      setForm((prev) => ({
+        ...prev,
+        name: p.name || prev.name,
+        category: p.category || prev.category || "Food",
+        quantity: p.quantity ? String(p.quantity) : (p.estimatedQuantity ? String(p.estimatedQuantity) : prev.quantity),
+        description: p.description || prev.description,
+        isUrgent: p.isUrgent ?? prev.isUrgent,
+        expiryDate: p.expiryDate
+          ? new Date(p.expiryDate).toISOString().slice(0, 16)
+          : prev.expiryDate,
+      }));
+      toast.success("✨ Form auto-filled from Agentic Vision Assistant!");
+    }
+  }, [location.state]);
 
   useEffect(() => {
     return () => {

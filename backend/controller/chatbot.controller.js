@@ -25,7 +25,10 @@ function classifyIntent(message = "", hasImage = false) {
   const safetyKeywords = [
     "safe", "safety", "fssai", "spoil", "expire", "fungus", "smell", "bad",
     "rotten", "hours ago", "cooked", "temperature", "danger zone", "khana khrab",
-    "safe to eat", "safe to donate", "fssai rule", "poisoning"
+    "safe to eat", "safe to donate", "fssai rule", "poisoning", "kya yeh khana",
+    "donate kar sakte", "donate kr skte", "safe hai", "safe h", "kharab", "khrab",
+    "basi", "check karo", "audit karo", "inspect", "food safety", "food safety agent",
+    "ghante", "ghanta", "hours", "hour", "shelf life", "shelf-life", "freshness"
   ];
   if (safetyKeywords.some((kw) => normalized.includes(kw))) {
     return "FOOD_SAFETY";
@@ -33,8 +36,10 @@ function classifyIntent(message = "", hasImage = false) {
 
   // 2. Auto-Listing Intent
   const listingKeywords = [
-    "auto list", "auto-list", "list this", "create item", "photo se list",
-    "identify food", "fill form", "new listing", "post surplus", "upload photo"
+    "auto list", "auto-list", "auto listing", "list this", "create item", "photo se list",
+    "identify food", "fill form", "new listing", "post surplus", "upload photo",
+    "photo upload", "vision model", "auto-listing from photo", "listing banao",
+    "khud bhar de", "item bana do"
   ];
   if (listingKeywords.some((kw) => normalized.includes(kw)) || (hasImage && !safetyKeywords.some((kw) => normalized.includes(kw)))) {
     return "AUTO_LIST";
@@ -44,7 +49,8 @@ function classifyIntent(message = "", hasImage = false) {
   const impactKeywords = [
     "impact", "monthly report", "report", "carbon", "co2", "emissions", "meals",
     "kitna khana", "kitne meals", "saved", "water footprint", "esg", "certificate",
-    "trees", "diverted"
+    "trees", "diverted", "impact reports", "kitna kg bacha", "co2 saved",
+    "conversion factor", "monthly impact", "bachaya", "bachi"
   ];
   if (impactKeywords.some((kw) => normalized.includes(kw))) {
     return "IMPACT_REPORT";
