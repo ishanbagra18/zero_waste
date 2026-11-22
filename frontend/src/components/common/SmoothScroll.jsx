@@ -20,6 +20,8 @@ export default function SmoothScroll({ children }) {
       touchMultiplier: 1.5,
     });
 
+    window.__lenis = lenis;
+
     let rafId;
     function raf(time) {
       lenis.raf(time);
@@ -30,6 +32,7 @@ export default function SmoothScroll({ children }) {
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
+      window.__lenis = null;
     };
   }, []);
 

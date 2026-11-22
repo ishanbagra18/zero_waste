@@ -26,3 +26,4 @@ export default function useDocumentTitle(title, description) {
     };
   }, [title, description]);
 }
+
