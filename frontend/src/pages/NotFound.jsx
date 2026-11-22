@@ -1,115 +1,176 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Leaf, Compass, Home, Package, ArrowLeft, Sparkles, HelpCircle } from "lucide-react";
-import useDocumentTitle from "../hooks/useDocumentTitle";
+import {
+  Home,
+  PackageOpen,
+  ArrowLeft,
+  Compass,
+  Sparkles,
+  MessageSquare,
+  HelpCircle,
+  Leaf,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { playClickSound } from "../utils/audio";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 export default function NotFound() {
-  useDocumentTitle("404 - Page Not Found", "The requested page could not be found on the ZeroWaste portal.");
+  useDocumentTitle(
+    "404 - Page Not Found",
+    "The requested page could not be found on the ZeroWaste portal."
+  );
   const navigate = useNavigate();
-  const { isAuthenticated, role } = useAuth();
+  const { role, isAuthenticated } = useAuth();
 
-  const getHomePath = () => {
+  const getDashboardPath = () => {
     if (!isAuthenticated) return "/";
-    const r = (role || "").toLowerCase();
-    if (r === "vendor") return "/vendor/dashboard";
-    if (r === "volunteer") return "/volunteer/dashboard";
-    return "/ngo/dashboard";
+    const currentRole = (role || "").toLowerCase();
+    if (currentRole === "vendor") return "/vendor/dashboard";
+    if (currentRole === "ngo") return "/ngo/dashboard";
+    if (currentRole === "volunteer") return "/volunteer/dashboard";
+    return "/";
+  };
+
+  const handleOpenChatbot = () => {
+    playClickSound();
+    window.dispatchEvent(new CustomEvent("open-chatbot"));
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden font-sans">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 relative overflow-hidden py-16 selection:bg-emerald-500 selection:text-white">
+      {/* Background ambient glowing orbs */}
+      <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none translate-x-1/2 translate-y-1/2" />
+      <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-xl text-center space-y-8 p-6 sm:p-10 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-2xl backdrop-blur-2xl relative z-10"
-      >
-        {/* Clickable Brand Logo Header */}
-        <div className="flex justify-center">
-          <Link to="/" className="inline-flex items-center gap-2.5 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/25 border border-emerald-300/30 group-hover:rotate-12 transition-transform">
-              <Leaf className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="text-2xl font-black tracking-tight text-white font-display flex items-center gap-1">
-                Zero<span className="text-emerald-400">Waste</span>
-                <Sparkles className="w-4 h-4 text-emerald-400 opacity-80" />
-              </span>
-              <span className="text-[10px] font-semibold text-emerald-400/80 tracking-widest uppercase -mt-1">
-                Sustainability Portal
-              </span>
-            </div>
-          </Link>
-        </div>
+      {/* Decorative Grid Lines */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b0f_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0f_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
-        {/* 404 Visual Icon */}
-        <div className="relative inline-block my-2">
-          <div className="text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 font-display select-none">
-            404
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
-              className="p-4 rounded-full bg-slate-900/90 border border-emerald-500/30 shadow-xl shadow-emerald-500/20"
-            >
-              <Compass className="w-10 h-10 text-emerald-400" />
-            </motion.div>
-          </div>
-        </div>
+      <div className="max-w-2xl w-full text-center relative z-10 space-y-8">
+        {/* Floating 404 Badge */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-extrabold uppercase tracking-widest shadow-lg shadow-emerald-500/10"
+        >
+          <Leaf className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+          <span>Page Not Found • Error 404</span>
+        </motion.div>
 
-        {/* Informative Error Copy */}
-        <div className="space-y-3">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-display">
-            Page Not Found
+        {/* Large 404 Visual Number */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="relative"
+        >
+          <h1 className="text-8xl sm:text-9xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-200 to-slate-500 font-display select-none">
+            4<span className="text-emerald-400">0</span>4
           </h1>
-          <p className="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
-            Looks like this path diverged from our zero-waste mission. The page you are looking for may have been moved, expired, or does not exist.
+          <div className="absolute -top-3 right-1/4 sm:right-1/3 animate-bounce">
+            <Sparkles className="w-6 h-6 text-emerald-400 opacity-80" />
+          </div>
+        </motion.div>
+
+        {/* Informative Explanation */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="space-y-3"
+        >
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Lost in the Zero-Waste Movement?
+          </h2>
+          <p className="text-sm sm:text-base text-slate-400 max-w-lg mx-auto leading-relaxed">
+            The page, surplus batch, or route you are searching for might have been claimed, redistributed, or moved to a different coordinate.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Quick Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-white text-sm font-semibold transition flex items-center justify-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Go Back
-          </button>
-
+        {/* Primary Action Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2"
+        >
           <Link
-            to={getHomePath()}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-sm font-bold shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2"
+            to={getDashboardPath()}
+            onClick={() => playClickSound()}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-emerald-500/40"
           >
             <Home className="w-4 h-4" />
-            {isAuthenticated ? "Go to Dashboard" : "Go to Home"}
+            <span>Go to Dashboard</span>
           </Link>
 
           <Link
             to="/vendor/allitems"
-            className="w-full sm:w-auto px-5 py-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-sm font-semibold transition flex items-center justify-center gap-2"
+            onClick={() => playClickSound()}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-slate-900 border border-slate-700/80 hover:border-emerald-500/40 hover:bg-slate-800/80 text-white font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5 shadow-lg"
           >
-            <Package className="w-4 h-4 text-emerald-400" />
-            Browse Items
+            <PackageOpen className="w-4 h-4 text-emerald-400" />
+            <span>Browse Surplus Items</span>
           </Link>
-        </div>
 
-        {/* Support Help Link */}
-        <div className="pt-4 border-t border-slate-800/60 text-xs text-slate-500 flex items-center justify-center gap-1.5">
-          <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-          <span>Need assistance? Contact our team at </span>
-          <a href="mailto:support@zerowaste.org" className="text-emerald-400 hover:underline font-medium">
-            support@zerowaste.org
-          </a>
-        </div>
-      </motion.div>
+          <button
+            type="button"
+            onClick={() => {
+              playClickSound();
+              navigate(-1);
+            }}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-transparent border border-white/10 hover:border-white/20 text-slate-400 hover:text-white font-medium text-sm transition-all duration-300"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Go Back</span>
+          </button>
+        </motion.div>
+
+        {/* Quick Assist Cards */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="pt-8 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-lg mx-auto"
+        >
+          <Link
+            to="/readmore"
+            onClick={() => playClickSound()}
+            className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/30 transition-all group flex items-start gap-3"
+          >
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform">
+              <Compass className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">
+                Our Mission & Insights
+              </p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Learn how surplus redistribution saves lives & carbon.
+              </p>
+            </div>
+          </Link>
+
+          <button
+            type="button"
+            onClick={handleOpenChatbot}
+            className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/30 transition-all group flex items-start gap-3 text-left w-full"
+          >
+            <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400 shrink-0 group-hover:scale-110 transition-transform">
+              <MessageSquare className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white group-hover:text-teal-400 transition-colors">
+                Ask ZeroWaste AI
+              </p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Open our assistant for quick answers and guidance.
+              </p>
+            </div>
+          </button>
+        </motion.div>
+      </div>
     </div>
   );
 }

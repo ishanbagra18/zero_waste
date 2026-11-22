@@ -26,10 +26,8 @@ import ParallaxHero from "../components/ParallaxHero";
 import { playClickSound } from "../utils/audio";
 import ItemCardWithCursor from "../components/items/ItemCardWithCursor";
 import AllItemsMap from "../components/items/AllItemsMap";
-import useDocumentTitle from "../hooks/useDocumentTitle";
 
 export default function Allitems() {
-  useDocumentTitle("Surplus Inventory", "Browse active surplus food listings and physical resources available for community rescue.");
   const { items, fetchItems } = useData();
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -398,6 +396,21 @@ export default function Allitems() {
           <div className="p-12 text-center rounded-3xl bg-slate-900/40 border border-slate-800 max-w-md mx-auto space-y-3">
             <Package className="w-10 h-10 text-slate-600 mx-auto" />
             <p className="text-sm text-slate-400 italic">No surplus food items match your filter criteria.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCategory("");
+                setSelectedLocation("");
+                setSearchQuery("");
+                setShowUrgentOnly(false);
+                setShowFreeOnly(false);
+                setShowFavoritesOnly(false);
+                toast.success("Filters cleared!");
+              }}
+              className="mt-2 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.04] text-xs font-bold text-slate-300 hover:border-emerald-500/40 hover:text-white transition"
+            >
+              Reset Filters
+            </button>
           </div>
         ) : (
           <>

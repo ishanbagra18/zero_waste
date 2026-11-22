@@ -6,6 +6,8 @@ import {
   LayoutDashboard,
   PlusCircle,
   Package,
+  Users,
+  MapPin,
   Bell,
   User,
   LogOut,
@@ -15,13 +17,15 @@ import {
   HandHeart,
   ChevronDown,
   Sparkles,
+  BookOpen,
   Boxes,
   Truck,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-hot-toast";
 
 export default function Navbar() {
-  const { role, user, isAuthenticated, logout } = useAuth();
+  const { token, role, user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -45,8 +49,14 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
+    try {
+      await logout();
+      toast.success("Logged out successfully. See you soon! 👋");
+    } catch {
+      toast.error("Logout encountered an issue, redirecting...");
+    } finally {
+      navigate("/");
+    }
   };
 
   const isAuthPage =
@@ -342,7 +352,7 @@ export default function Navbar() {
                       key={link.path}
                       to={link.path}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${isActive
+                      className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition ${isActive
                         ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                         : "text-slate-300 hover:bg-slate-800/60"
                         }`}
@@ -359,7 +369,7 @@ export default function Navbar() {
                   <Link
                     to="/myprofile"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/60"
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/60"
                   >
                     <User className="w-4 h-4 text-emerald-400" />
                     My Profile
@@ -369,7 +379,7 @@ export default function Navbar() {
                       setMobileMenuOpen(false);
                       handleLogout();
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-rose-400 hover:bg-rose-500/10 transition"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-rose-400 hover:bg-rose-500/10 transition"
                   >
                     <LogOut className="w-4 h-4 text-rose-400" />
                     Sign Out
@@ -380,14 +390,14 @@ export default function Navbar() {
                   <Link
                     to="/"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center py-3 rounded-xl text-sm font-semibold text-slate-200 bg-slate-900 border border-slate-800"
+                    className="w-full text-center py-2.5 rounded-xl text-sm font-semibold text-slate-200 bg-slate-900 border border-slate-800"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center py-3 rounded-xl text-sm font-semibold text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-300"
+                    className="w-full text-center py-2.5 rounded-xl text-sm font-semibold text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-300"
                   >
                     Register
                   </Link>

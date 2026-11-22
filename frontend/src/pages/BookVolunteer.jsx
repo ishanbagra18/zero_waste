@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toast, Toaster } from "react-hot-toast";
 import {
   Search,
   Mail,
@@ -55,10 +56,11 @@ export default function BookVolunteer() {
           : []
       );
     } catch (err) {
-      setError(
+      const msg =
         err.response?.data?.message ||
-          "Unable to load volunteers. Please try again."
-      );
+        "Unable to load volunteers. Please try again.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

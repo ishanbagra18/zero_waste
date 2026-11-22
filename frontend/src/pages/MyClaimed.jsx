@@ -74,10 +74,11 @@ export default function MyClaimed() {
       );
     } catch (err) {
       console.error("Error fetching claimed items:", err);
-      setError(
+      const msg =
         err.response?.data?.message ||
-          "Unable to load your claimed resources. Please try again."
-      );
+        "Unable to load your claimed resources. Please try again.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

@@ -8,7 +8,6 @@ import { Toaster, toast } from "react-hot-toast";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import gsap from "gsap";
 import { Leaf, ArrowDown, MessageSquare } from "lucide-react";
-import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEcoLeaf } from "../context/EcoLeafContext";
 import { Activity } from "lucide-react";
 import { ArrowRight, BarChart3 } from 'lucide-react';
@@ -63,7 +62,7 @@ import { useAuth } from "../context/AuthContext";
 import { playClickSound, playSuccessSound } from "../utils/audio";
 import ItemCardWithCursor from "../components/items/ItemCardWithCursor";
 import useDashboardEntrance from "../hooks/useDashboardEntrance";
-
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6']; // Example Tailwind colors
 
@@ -538,9 +537,9 @@ const VendorDashboard = () => {
             >
               <button
                 onClick={() => {
-                  document
-                    .getElementById("contact")
-                    ?.scrollIntoView({ behavior: "smooth" });
+                  playClickSound();
+                  window.dispatchEvent(new CustomEvent("open-chatbot"));
+                  toast.success("💬 Opening ZeroWaste AI Assistant...");
                 }}
                 className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-300 px-7 py-4 font-bold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(16,185,129,0.4)] focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950"
               >
@@ -554,7 +553,7 @@ const VendorDashboard = () => {
                 className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/[0.06] px-7 py-4 font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-emerald-400/10 focus:outline-none focus:ring-2 focus:ring-emerald-300"
               >
                 Explore Our Mission
-                <ArrowDown className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-y-1" />
+                <ArrowRight className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
 
               <button

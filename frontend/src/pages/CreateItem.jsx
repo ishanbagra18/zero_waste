@@ -18,10 +18,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import ParallaxHero from "../components/ParallaxHero";
-import useDocumentTitle from "../hooks/useDocumentTitle";
+import { playSuccessSound } from "../utils/audio";
 
 export default function CreateItem() {
-  useDocumentTitle("Publish Surplus Item", "List surplus food batches with automated FSSAI safety analysis and instant NGO matching.");
   const navigate = useNavigate();
   const location = useLocation();
   const [imagePreview, setImagePreview] = useState(null);
@@ -169,6 +168,8 @@ export default function CreateItem() {
         withCredentials: true,
       });
 
+      playSuccessSound();
+      toast.success("🎉 Surplus item published successfully to the exchange network!");
       setShowModal(true);
     } catch (err) {
       console.error("Create item fault:", err);

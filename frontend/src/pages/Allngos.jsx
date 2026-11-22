@@ -18,6 +18,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { useData } from "../context/DataContext";
 import ParallaxHero from "../components/ParallaxHero";
 
@@ -32,6 +33,15 @@ export default function Allngos() {
   useEffect(() => {
     fetchNgos();
   }, [fetchNgos]);
+
+  const handleRefresh = async () => {
+    try {
+      await fetchNgos(true);
+      toast.success("NGO directory refreshed!");
+    } catch {
+      toast.error("Failed to refresh NGO directory.");
+    }
+  };
 
   const filteredNgos = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -153,7 +163,7 @@ export default function Allngos() {
 
               <button
                 type="button"
-                onClick={() => fetchNgos()}
+                onClick={handleRefresh}
                 disabled={loadingNgos}
                 title="Refresh NGO directory"
                 aria-label="Refresh NGO directory"
@@ -337,18 +347,12 @@ function NGOCard({ ngo, index, onChat, onReview }) {
 
           <div className="flex min-w-0 items-center gap-2.5">
             <Mail size={15} className="shrink-0 text-cyan-300" />
-            {ngo.email ? (
-              <a
-                href={`mailto:${ngo.email}`}
-                onClick={(e) => e.stopPropagation()}
-                title={ngo.email}
-                className="truncate text-xs text-slate-300 transition hover:text-cyan-300 hover:underline"
-              >
-                {ngo.email}
-              </a>
-            ) : (
-              <span className="truncate text-xs text-slate-500">Email not provided</span>
-            )}
+            <span
+              title={ngo.email || "Email not provided"}
+              className="truncate text-xs text-slate-300"
+            >
+              {ngo.email || "Email not provided"}
+            </span>
           </div>
 
           <div className="flex min-w-0 items-center gap-2.5">

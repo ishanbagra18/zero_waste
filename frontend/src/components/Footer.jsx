@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Leaf, Heart, Sparkles, Send, Globe, ArrowUpRight, Phone, Mail, MapPin } from "lucide-react";
 import { toast } from "react-hot-toast";
 import EcoMascotQuote from "./EcoMascotQuote";
+import { playSuccessSound } from "../utils/audio";
 
 const Footer = () => {
   const [pledgeEmail, setPledgeEmail] = useState("");
@@ -16,7 +17,8 @@ const Footer = () => {
       return;
     }
     setPledged(true);
-    toast.success("Thank you for taking the Zero-Waste pledge! Welcome to the movement 🌱");
+    playSuccessSound();
+    toast.success("🌱 Thank you for taking the Zero-Waste pledge! Welcome to the movement 🌱");
     setTimeout(() => {
       setPledgeEmail("");
       setPledged(false);

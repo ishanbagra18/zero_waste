@@ -75,7 +75,6 @@ const AppContent = () => {
               {/* Public Routes (Accessible to everyone) */}
               {/* ====================================================== */}
               <Route path="/" element={<Login />} />
-              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgotpassword" element={<ForgotPassword />} />
               <Route path="/review/:id" element={<SendReview />} />
