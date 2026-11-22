@@ -47,23 +47,55 @@ To test all three stakeholder perspectives immediately without registration fric
 
 ---
 
+## 🖥️ Live Stakeholder Dashboards
+
+ZeroWaste provides tailored, purpose-built operational interfaces for all three primary ecosystem participants:
+
+### 1. 👨‍🍳 Food Donor & Vendor Portal (`VendorDashboard.jsx`)
+*Supplier Operations Hub enabling food businesses (restaurants, bakeries, caterers) to publish surplus listings, review real-time FSSAI food-safety scores, inspect AI vision auto-filled items, and generate monthly ESG impact certificates.*
+
+<p align="center">
+  <img src="screenshots/vendor-dashboard.png" alt="ZeroWaste Food Donor & Vendor Operations Hub" width="900" />
+</p>
+
+---
+
+### 2. 🏢 NGO & Shelter Ecosystem Hub (`NgoDashboard.jsx`)
+*Ecosystem Operations Hub for verified hunger-relief organizations to discover smart-matched surplus feeds, execute 1-click atomic compare-and-swap claims, schedule volunteer dispatch, and interact with the 60 FPS scroll-driven plant growth canvas.*
+
+<p align="center">
+  <img src="screenshots/ngo-dashboard.png" alt="ZeroWaste NGO & Shelter Operations Hub" width="900" />
+</p>
+
+---
+
+### 3. 🚴 Hero Volunteer Operations Center (`Volunteerdashboard.jsx`)
+*Delivery Logistics Center where volunteer couriers review freight dispatch tasks, inspect 2-Opt TSP optimized delivery routes, confirm donor pickups, and complete handoffs via dual-phase OTP verification.*
+
+<p align="center">
+  <img src="screenshots/volunteer-dashboard.png" alt="ZeroWaste Volunteer Delivery Operations Center" width="900" />
+</p>
+
+---
+
 ## 📋 Table of Contents
-1. [Hard Engineering & Algorithmic Highlights](#-hard-engineering--algorithmic-highlights)
-2. [Agentic AI & FSSAI Compliance (LangGraph)](#-agentic-ai--fssai-compliance-langgraph)
-3. [Verified Ecological Accounting](#-verified-ecological-accounting)
-4. [System Architecture & Lifecycle State Machine](#-system-architecture--lifecycle-state-machine)
+1. [Live Stakeholder Dashboards](#️-live-stakeholder-dashboards)
+2. [Hard Engineering & Algorithmic Highlights](#-hard-engineering--algorithmic-highlights)
+3. [Agentic AI & FSSAI Compliance (LangGraph)](#-agentic-ai--fssai-compliance-langgraph)
+4. [Verified Ecological Accounting](#-verified-ecological-accounting)
+5. [System Architecture & Lifecycle State Machine](#-system-architecture--lifecycle-state-machine)
    - [High-Level Multi-Tier Architecture](#1-high-level-multi-tier-architecture)
    - [Surplus Donation & OTP Verification Flow](#2-surplus-donation--otp-verification-flow)
    - [Real-Time WebSocket & Messaging Architecture](#3-real-time-websocket--messaging-architecture)
    - [Database Entity-Relationship (ER) Diagram](#4-database-entity-relationship-er-diagram)
    - [Repository Directory Structure](#5-repository-directory-structure)
    - [Frontend 60 FPS Pipelines & Audio Synthesis](#6-frontend-60-fps-pipelines--audio-synthesis)
-5. [Performance & Web Vitals Audit](#-performance--web-vitals-audit)
-6. [Known Limitations & Engineering Trade-offs](#-known-limitations--engineering-trade-offs)
-7. [API Specifications](#-api-specifications)
-8. [Testing & CI Pipeline](#-testing--ci-pipeline)
-9. [Local Development Setup](#-local-development-setup)
-10. [Architecture Decision Records (ADRs)](#-architecture-decision-records-adrs)
+6. [Performance & Web Vitals Audit](#-performance--web-vitals-audit)
+7. [Known Limitations & Engineering Trade-offs](#-known-limitations--engineering-trade-offs)
+8. [API Specifications](#-api-specifications)
+9. [Testing & CI Pipeline](#-testing--ci-pipeline)
+10. [Local Development Setup](#-local-development-setup)
+11. [Architecture Decision Records (ADRs)](#-architecture-decision-records-adrs)
 
 ---
 
