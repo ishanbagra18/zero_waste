@@ -18,8 +18,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import ParallaxHero from "../components/ParallaxHero";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 export default function CreateItem() {
+  useDocumentTitle("Publish Surplus Item", "List surplus food batches with automated FSSAI safety analysis and instant NGO matching.");
   const navigate = useNavigate();
   const location = useLocation();
   const [imagePreview, setImagePreview] = useState(null);

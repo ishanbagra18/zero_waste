@@ -98,7 +98,7 @@ const MyProfile = () => {
 
             <button
               type="button"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/")}
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-emerald-300"
             >
               Go to Login
@@ -389,9 +389,19 @@ const InfoItem = ({ label, value, icon, accent = "emerald" }) => {
         <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">
           {label}
         </p>
-        <p className="mt-1.5 break-words text-sm font-semibold leading-6 text-slate-200">
-          {value || "Not set"}
-        </p>
+        <div className="mt-1.5 break-words text-sm font-semibold leading-6 text-slate-200">
+          {label === "Email Address" && value ? (
+            <a href={`mailto:${value}`} className="hover:text-emerald-400 hover:underline transition">
+              {value}
+            </a>
+          ) : label === "Phone Number" && value ? (
+            <a href={`tel:${value}`} className="hover:text-teal-400 hover:underline transition">
+              {value}
+            </a>
+          ) : (
+            value || "Not set"
+          )}
+        </div>
       </div>
     </div>
   );

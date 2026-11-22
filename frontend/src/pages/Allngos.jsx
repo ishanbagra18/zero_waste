@@ -337,12 +337,18 @@ function NGOCard({ ngo, index, onChat, onReview }) {
 
           <div className="flex min-w-0 items-center gap-2.5">
             <Mail size={15} className="shrink-0 text-cyan-300" />
-            <span
-              title={ngo.email || "Email not provided"}
-              className="truncate text-xs text-slate-300"
-            >
-              {ngo.email || "Email not provided"}
-            </span>
+            {ngo.email ? (
+              <a
+                href={`mailto:${ngo.email}`}
+                onClick={(e) => e.stopPropagation()}
+                title={ngo.email}
+                className="truncate text-xs text-slate-300 transition hover:text-cyan-300 hover:underline"
+              >
+                {ngo.email}
+              </a>
+            ) : (
+              <span className="truncate text-xs text-slate-500">Email not provided</span>
+            )}
           </div>
 
           <div className="flex min-w-0 items-center gap-2.5">

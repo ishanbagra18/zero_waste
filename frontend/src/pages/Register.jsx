@@ -19,8 +19,10 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 export default function Register() {
+  useDocumentTitle("Create Account", "Register for ZeroWaste as a food vendor, NGO shelter, or volunteer courier.");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -121,12 +123,12 @@ export default function Register() {
           <div className="absolute -bottom-16 -right-16 w-56 h-56 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
 
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-              <Leaf className="w-5 h-5 text-emerald-400" />
+            <Link to="/" className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 hover:border-emerald-400/60 transition group w-fit">
+              <Leaf className="w-5 h-5 text-emerald-400 group-hover:rotate-12 transition-transform" />
               <span className="text-xs font-black uppercase tracking-widest text-emerald-400">
                 ZeroWaste Platform
               </span>
-            </div>
+            </Link>
 
             <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-tight">
               Join the <br />

@@ -40,6 +40,7 @@ const Volunteerdashboard = lazy(() => import("./pages/Volunteerdashboard"));
 const VolunteerBookings = lazy(() => import("./pages/VolunteerBookings"));
 const BookVolunteer = lazy(() => import("./pages/BookVolunteer"));
 const Bookingform = lazy(() => import("./pages/Bookingform"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Smooth fallback loading UI while route chunk downloads
 const PageLoader = () => (
@@ -74,6 +75,7 @@ const AppContent = () => {
               {/* Public Routes (Accessible to everyone) */}
               {/* ====================================================== */}
               <Route path="/" element={<Login />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgotpassword" element={<ForgotPassword />} />
               <Route path="/review/:id" element={<SendReview />} />
@@ -123,6 +125,11 @@ const AppContent = () => {
                 <Route path="/ngo/dashboard" element={<NgoDashboard />} />
                 <Route path="/ngo/myclaimed" element={<MyClaimed />} />
               </Route>
+
+              {/* ====================================================== */}
+              {/* Catch-all 404 Route */}
+              {/* ====================================================== */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </PageWrapper>
         </Suspense>

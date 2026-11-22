@@ -12,8 +12,10 @@ import {
 import { Leaf, ArrowRight, KeyRound } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 export default function Login() {
+  useDocumentTitle("Sign In", "Sign in to access your ZeroWaste surplus sharing dashboard.");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("vendor");
@@ -79,14 +81,14 @@ export default function Login() {
         <div className="md:w-1/2 p-8 md:p-12 space-y-6 flex flex-col justify-center bg-gradient-to-br from-slate-900/80 via-slate-950/60 to-slate-900/80 text-white border-b md:border-b-0 md:border-r border-slate-700/50 relative overflow-hidden">
           <div className="absolute -top-12 -left-12 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="flex items-center gap-2 text-emerald-400">
-            <span className="p-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-sm">
+          <Link to="/" className="flex items-center gap-2 text-emerald-400 hover:opacity-95 transition group w-fit">
+            <span className="p-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 backdrop-blur-sm group-hover:scale-105 transition-transform">
               <Leaf className="w-5 h-5 text-emerald-400" />
             </span>
             <span className="text-xs font-black uppercase tracking-widest text-emerald-400 drop-shadow-md">
               ZeroWaste Ecosystem
             </span>
-          </div>
+          </Link>
 
           <h1 className="text-3xl md:text-4xl font-black leading-tight tracking-tight drop-shadow-lg">
             Flip the Waste <br />

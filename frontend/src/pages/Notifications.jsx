@@ -7,8 +7,10 @@ import { Bell, ArrowLeft, CheckCircle2, Clock, Trash2, KeyRound, ShieldCheck, Al
 import { useSocket } from "../context/SocketContext";
 import ParallaxHero from "../components/ParallaxHero";
 import DisputeFeedbackModal from "../components/items/DisputeFeedbackModal";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 const Notification = () => {
+  useDocumentTitle("Notifications", "Review live notifications, dispatch updates, and OTP handoff codes.");
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [otpInputs, setOtpInputs] = useState({});

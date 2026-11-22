@@ -26,8 +26,10 @@ import ParallaxHero from "../components/ParallaxHero";
 import { playClickSound } from "../utils/audio";
 import ItemCardWithCursor from "../components/items/ItemCardWithCursor";
 import AllItemsMap from "../components/items/AllItemsMap";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 export default function Allitems() {
+  useDocumentTitle("Surplus Inventory", "Browse active surplus food listings and physical resources available for community rescue.");
   const { items, fetchItems } = useData();
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);

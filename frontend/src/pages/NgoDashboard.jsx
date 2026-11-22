@@ -8,6 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { Bell } from "lucide-react";
 import { motion } from "framer-motion";
 import useDashboardEntrance from "../hooks/useDashboardEntrance";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEcoLeaf } from "../context/EcoLeafContext";
 import {
   ShoppingBag,
@@ -54,6 +55,7 @@ import {
 
 
 const NgoDashboard = () => {
+  useDocumentTitle("NGO Operations Hub", "Claim surplus food batches, arrange volunteer pickup, and track community impact.");
   const dashboardRef = useRef(null);
   useDashboardEntrance(dashboardRef);
   const navigate = useNavigate();

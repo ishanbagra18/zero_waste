@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="50%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <!-- Background Rounded Rect -->
+  <rect width="64" height="64" rx="16" fill="#090d16" />
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bgGrad)" filter="url(#shadow)" />
+  
+  <!-- Stylized Eco Leaf -->
+  <path d="M44 20C44 20 31 20 23 28C15 36 17 48 17 48C17 48 29 49 37 41C45 33 44 20 44 20Z" fill="#ffffff" />
+  <path d="M23 44C27 40 33 34 38 27" stroke="#059669" stroke-width="3" stroke-linecap="round" />
+  
+  <!-- Sparkle Accent -->
+  <circle cx="45" cy="19" r="2.5" fill="#a7f3d0" />
+</svg>

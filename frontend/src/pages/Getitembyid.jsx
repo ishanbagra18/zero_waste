@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
@@ -31,6 +32,7 @@ import { SlidingNumber } from "@/components/core/sliding-number";
 
 export default function Getitembyid() {
   const [item, setItem] = useState(null);
+  useDocumentTitle(item?.title || item?.name || "Item Details", "Review surplus item specifications, FSSAI verification, and donor contact details.");
   const [loading, setLoading] = useState(true);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showVendorActionModal, setShowVendorActionModal] = useState(false);

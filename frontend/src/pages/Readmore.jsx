@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEcoLeaf } from "../context/EcoLeafContext";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 import {
   ArrowLeft,
@@ -292,6 +293,7 @@ const StatCard = ({ icon: Icon, value, label }) => (
 /* -------------------------------------------------------------------------- */
 
 const Readmore = () => {
+  useDocumentTitle("Sustainability & Impact Insights", "Learn how ZeroWaste coordinates community food rescue, FSSAI compliance, and UNEP carbon abatement.");
   const navigate = useNavigate();
   const { leavesEnabled, toggleLeaves } = useEcoLeaf();
 

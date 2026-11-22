@@ -8,6 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import gsap from "gsap";
 import { Leaf, ArrowDown, MessageSquare } from "lucide-react";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEcoLeaf } from "../context/EcoLeafContext";
 import { Activity } from "lucide-react";
 import { ArrowRight, BarChart3 } from 'lucide-react';
@@ -67,6 +68,7 @@ import useDashboardEntrance from "../hooks/useDashboardEntrance";
 const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6']; // Example Tailwind colors
 
 const VendorDashboard = () => {
+  useDocumentTitle("Vendor Dashboard", "Manage surplus listings, monitor FSSAI compliance, and view community impact.");
   const dashboardRef = useRef(null);
   useDashboardEntrance(dashboardRef);
 
@@ -958,8 +960,8 @@ const VendorDashboard = () => {
                     <div>
                       <div className="relative rounded-2xl overflow-hidden aspect-video w-full mb-4 border border-white/[0.04] bg-slate-950">
                         <img
-                          src={item.itemImage?.url || "https://via.placeholder.com/300"}
-                          alt={item.name}
+                          src={item.itemImage?.url || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200' fill='%230f172a'><rect width='300' height='200' fill='%230f172a'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2310b981' font-family='sans-serif' font-size='13' font-weight='bold'>ZeroWaste Surplus Batch</text></svg>"}
+                          alt={item.name || "Surplus food item"}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         {(item.isUrgent || (item.expiryDate && (new Date(item.expiryDate).getTime() - Date.now() <= 12 * 60 * 60 * 1000))) && (

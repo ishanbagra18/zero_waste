@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Leaf, Heart, Sparkles, Send, Globe, Shield, ArrowUpRight } from "lucide-react";
+import { Leaf, Heart, Sparkles, Send, Globe, ArrowUpRight, Phone, Mail, MapPin } from "lucide-react";
+import { toast } from "react-hot-toast";
 import EcoMascotQuote from "./EcoMascotQuote";
 
 const Footer = () => {
@@ -10,16 +11,22 @@ const Footer = () => {
 
   const handlePledgeSubmit = (e) => {
     e.preventDefault();
-    if (!pledgeEmail) return;
+    if (!pledgeEmail || !pledgeEmail.includes("@")) {
+      toast.error("Please enter a valid email address to take the pledge.");
+      return;
+    }
     setPledged(true);
+    toast.success("Thank you for taking the Zero-Waste pledge! Welcome to the movement 🌱");
     setTimeout(() => {
       setPledgeEmail("");
       setPledged(false);
     }, 4000);
   };
 
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-slate-800/80 pt-12 pb-8 px-6 md:px-16 lg:px-24 relative overflow-hidden font-sans">
+    <footer className="bg-slate-950 text-slate-400 border-t border-slate-800/80 pt-12 pb-8 px-4 sm:px-8 md:px-16 lg:px-24 relative overflow-hidden font-sans">
       {/* Background ambient light blobs */}
       <div className="absolute left-1/4 top-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute right-1/4 bottom-0 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -29,12 +36,12 @@ const Footer = () => {
         <EcoMascotQuote />
 
         {/* Multi-column Footer Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12 pt-4 border-t border-slate-800/60">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 pt-4 border-t border-slate-800/60">
           
-          {/* Brand Info */}
-          <div className="space-y-4 md:col-span-1">
+          {/* Brand Info & Clickable Contact */}
+          <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 border border-emerald-300/30">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 border border-emerald-300/30 group-hover:scale-105 transition-transform">
                 <Leaf className="w-5 h-5 text-white" />
               </div>
               <div className="flex flex-col">
@@ -50,6 +57,28 @@ const Footer = () => {
             <p className="text-xs text-slate-400 leading-relaxed">
               Empowering local communities, vendors, NGOs, and volunteers to eliminate surplus food waste and build a zero-waste future.
             </p>
+            <div className="space-y-2 pt-2 border-t border-slate-800/50 text-xs">
+              <a
+                href="tel:+919876543210"
+                className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition"
+                title="Call ZeroWaste Hotline"
+              >
+                <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>+91 98765 43210</span>
+              </a>
+              <a
+                href="mailto:support@zerowaste.org"
+                className="flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition"
+                title="Email ZeroWaste Support"
+              >
+                <Mail className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <span>support@zerowaste.org</span>
+              </a>
+              <div className="flex items-center gap-2 text-slate-500">
+                <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span>Jaipur Perimeter, RJ, India</span>
+              </div>
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -137,6 +166,7 @@ const Footer = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   type="submit"
+                  aria-label="Submit sustainability pledge"
                   className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold text-xs flex items-center justify-center shadow-md shadow-emerald-500/20"
                 >
                   <Send className="w-3.5 h-3.5" />
@@ -150,7 +180,7 @@ const Footer = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 pt-6 border-t border-slate-800/40">
           <span className="flex items-center gap-1.5">
             <Globe className="w-3.5 h-3.5 text-emerald-400" />
-            © {new Date().getFullYear()} ZeroWaste Platform. All rights reserved.
+            © {currentYear} ZeroWaste Platform. All rights reserved.
           </span>
           <span className="flex items-center gap-1.5">
             Made with <Heart className="w-3.5 h-3.5 text-rose-500 fill-current animate-pulse" /> for a Greener Tomorrow

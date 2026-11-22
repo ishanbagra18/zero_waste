@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
 import useDashboardEntrance from "../hooks/useDashboardEntrance";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEcoLeaf } from "../context/EcoLeafContext";
 import { HeartHandshake } from "lucide-react";
 
@@ -56,6 +57,7 @@ import {
 } from "react-icons/fa";
 
 export default function Volunteerdashboard() {
+  useDocumentTitle("Volunteer Operations Hub", "Manage delivery tasks, optimize 2-Opt routes, and confirm OTP handoffs.");
   const dashboardRef = useRef(null);
   useDashboardEntrance(dashboardRef);
   const navigate = useNavigate();

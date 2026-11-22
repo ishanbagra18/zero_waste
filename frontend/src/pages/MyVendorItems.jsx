@@ -276,8 +276,8 @@ export default function MyVendorItems() {
                   <div>
                     <div className="relative rounded-2xl overflow-hidden aspect-video w-full mb-4 border border-slate-800 bg-slate-950">
                       <img
-                        src={item.itemImage?.url || "https://via.placeholder.com/300"}
-                        alt={item.name}
+                        src={item.itemImage?.url || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200' fill='%230f172a'><rect width='300' height='200' fill='%230f172a'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2310b981' font-family='sans-serif' font-size='13' font-weight='bold'>ZeroWaste Surplus Batch</text></svg>"}
+                        alt={item.name || "Surplus food item"}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       {(item.isUrgent ||
