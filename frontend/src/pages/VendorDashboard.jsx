@@ -17,6 +17,8 @@ import {
   Truck,
   ChartNoAxesColumn,
   Info,
+  PackageOpen,
+  ShoppingBag,
 } from "lucide-react";
 
 import {
@@ -533,48 +535,59 @@ const VendorDashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.28 }}
-              className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start pt-2"
+              className="flex flex-wrap items-center justify-center gap-3.5 lg:justify-start pt-2"
             >
               <button
                 onClick={() => {
                   playClickSound();
-                  window.dispatchEvent(new CustomEvent("open-chatbot"));
-                  toast.success("💬 Opening ZeroWaste AI Assistant...");
+                  navigate("/vendor/createitem");
                 }}
-                className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-300 px-7 py-4 font-bold text-slate-950 shadow-[0_8px_30px_rgba(16,185,129,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(16,185,129,0.4)] focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+                className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-400 to-teal-300 px-6 py-4 text-sm font-extrabold text-slate-950 shadow-lg shadow-emerald-950/30 transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-300"
               >
                 <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 group-hover:translate-x-full" />
-                <span className="relative">Let's Talk</span>
-                <MessageSquare className="relative h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                <Plus size={18} className="relative stroke-[3]" />
+                <span className="relative">List Surplus Item</span>
+                <ArrowUpRight size={17} className="relative transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </button>
 
               <button
-                onClick={handlereadmore}
-                className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/[0.06] px-7 py-4 font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-emerald-400/10 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                onClick={() => {
+                  playClickSound();
+                  navigate("/vendor/my-items");
+                }}
+                className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-white/15 bg-slate-950/40 px-5 py-4 text-sm font-semibold text-slate-100 backdrop-blur-md transition-all hover:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-300"
               >
-                Explore Our Mission
-                <ArrowRight className="h-4 w-4 text-emerald-300 transition-transform duration-300 group-hover:translate-x-1" />
+                <PackageOpen size={17} className="text-emerald-300 transition-transform group-hover:scale-110" />
+                <span>My Listed Items ({totalItems})</span>
+              </button>
+
+              <button
+                onClick={handlebutton}
+                className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-white/15 bg-slate-950/40 px-5 py-4 text-sm font-semibold text-slate-100 backdrop-blur-md transition-all hover:border-teal-400/40 focus:outline-none focus:ring-2 focus:ring-teal-300"
+              >
+                <HeartHandshake size={17} className="text-teal-300 transition-transform group-hover:scale-110" />
+                <span>Partner NGOs</span>
               </button>
 
               <button
                 onClick={fetchImpactReport}
-                className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-emerald-400/40 bg-emerald-500/15 px-6 py-4 font-bold text-emerald-300 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-500/25 hover:border-emerald-400/70 shadow-lg shadow-emerald-500/15 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-emerald-400/40 bg-emerald-500/15 px-5 py-4 text-sm font-bold text-emerald-300 backdrop-blur-md transition-all hover:bg-emerald-500/25 hover:border-emerald-400/70 shadow-lg shadow-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-300"
               >
                 <ChartNoAxesColumn className="h-4 w-4 text-emerald-300 group-hover:scale-110 transition-transform" />
-                <span>Monthly Impact Certificate</span>
+                <span>Impact Certificate</span>
               </button>
 
               <button
                 type="button"
                 onClick={toggleLeaves}
-                className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-7 py-4 font-semibold backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
+                className={`group inline-flex items-center justify-center gap-2 rounded-2xl border px-5 py-4 text-sm font-semibold backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
                   leavesEnabled
                     ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-300 shadow-lg shadow-emerald-500/10 hover:bg-emerald-500/30"
-                    : "border-white/15 bg-white/[0.06] text-white hover:border-emerald-400/40 hover:bg-emerald-400/10"
+                    : "border-white/15 bg-slate-950/40 text-slate-100 hover:border-emerald-400/40 hover:bg-white/[0.08]"
                 }`}
               >
                 <Leaf className={`h-4 w-4 transition-transform duration-300 ${leavesEnabled ? "rotate-12 text-emerald-400 scale-110" : "text-emerald-400"}`} />
-                <span>{leavesEnabled ? "Stop Leaf Animation 🍃" : "Start Leaf Animation 🍃"}</span>
+                <span>{leavesEnabled ? "Stop Leaves 🍃" : "Leaf Rain 🍃"}</span>
               </button>
             </motion.div>
 
@@ -649,60 +662,133 @@ const VendorDashboard = () => {
                 transformStyle: "preserve-3d",
                 willChange: "transform",
               }}
-              className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-slate-950/60 p-3.5 shadow-2xl shadow-black/40 backdrop-blur-2xl"
+              className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-slate-950/75 p-5 sm:p-6 shadow-2xl backdrop-blur-2xl"
             >
-              <div className="relative overflow-hidden rounded-[1.5rem] group">
-                <img
-                  src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=85&w=1200"
-                  alt="Sustainable surplus management"
-                  className="h-68 w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-84"
-                  loading="lazy"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-
-                <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/60 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-lg shadow-lg">
-                  <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
-                  Small actions. Real change.
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-400/15 text-emerald-300 shadow-inner">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-base">Supplier Operations</h3>
+                    <p className="text-xs text-slate-400">Commercial Surplus Console</p>
+                  </div>
                 </div>
 
-                <div className="absolute inset-x-5 bottom-5">
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-400/20 text-emerald-300 backdrop-blur-md shadow-md">
-                    <Sprout className="h-5 w-5" />
-                  </div>
-
-                  <h3 className="text-2xl font-bold tracking-tight text-white">
-                    Waste less.
-                    <span className="block text-emerald-300">
-                      Give more.
-                    </span>
-                  </h3>
-
-                  <p className="mt-2 max-w-xs text-sm leading-6 text-slate-300">
-                    A better tomorrow starts with what we choose to do today.
-                  </p>
+                <div className="rounded-xl border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5">
+                  <span className="flex items-center gap-2 text-xs font-bold text-emerald-300">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                    Live Supply
+                  </span>
                 </div>
               </div>
 
-              {/* Bottom card footer */}
-              <div className="flex items-center justify-between gap-3 px-3 py-4 sm:px-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
-                    <Globe2 className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      Every resource matters
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">
-                      Join the zero-waste movement
-                    </p>
-                  </div>
+              {/* High-res Image Preview */}
+              <div className="relative my-4 overflow-hidden rounded-2xl border border-white/10 group">
+                <img
+                  src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=85&w=1200"
+                  alt="Commercial surplus food recovery"
+                  className="h-44 w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+                <div className="absolute left-3.5 top-3.5 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-slate-950/70 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-md">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-300" />
+                  FSSAI Food Safety Verified
                 </div>
 
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-400/25 bg-emerald-400/10 text-emerald-300">
-                  <ArrowUpRight className="h-4 w-4" />
+                <div className="absolute inset-x-4 bottom-3">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-emerald-300">One Mission</p>
+                  <h4 className="text-lg font-black text-white leading-tight">
+                    Commercial Surplus to Community Meals.
+                  </h4>
                 </div>
+              </div>
+
+              {/* 3-Phase Circular Supply Pipeline */}
+              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2.5">
+                  <span>Circular Supply Pipeline</span>
+                  <span className="text-emerald-300 font-bold">{totalItems} Batches Listed</span>
+                </div>
+
+                <div className="relative flex items-center justify-between gap-2 pt-1 pb-2">
+                  {/* Step 1: Listed */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-400/30 bg-emerald-400/15 text-emerald-300">
+                      <Plus className="h-4 w-4" />
+                    </div>
+                    <span className="mt-1 text-[10px] font-semibold text-slate-300">Listed</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">{unclaimedItems}</span>
+                  </div>
+
+                  {/* Connector 1 */}
+                  <div className="h-0.5 flex-1 bg-gradient-to-r from-emerald-400/60 to-teal-400/60" />
+
+                  {/* Step 2: Claimed */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-400/30 bg-teal-400/15 text-teal-300">
+                      <HeartHandshake className="h-4 w-4" />
+                    </div>
+                    <span className="mt-1 text-[10px] font-semibold text-slate-300">Claimed</span>
+                    <span className="text-[10px] text-teal-400 font-bold">{claimedItems}</span>
+                  </div>
+
+                  {/* Connector 2 */}
+                  <div className="h-0.5 flex-1 bg-gradient-to-r from-teal-400/60 to-cyan-400/60" />
+
+                  {/* Step 3: Rescued */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/15 text-cyan-300">
+                      <Recycle className="h-4 w-4" />
+                    </div>
+                    <span className="mt-1 text-[10px] font-semibold text-slate-300">Diverted</span>
+                    <span className="text-[10px] text-cyan-400 font-bold">{totalQuantity} u</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Action Metric Links */}
+              <div className="mt-3.5 grid grid-cols-2 gap-2.5">
+                <Link
+                  to="/vendor/my-items"
+                  className="group flex flex-col justify-between rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 transition-all hover:border-emerald-400/40 hover:bg-emerald-400/[0.08]"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-slate-400">Available Surplus</span>
+                    <ArrowUpRight className="h-3.5 w-3.5 text-slate-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-emerald-300" />
+                  </div>
+                  <div className="mt-1.5 flex items-baseline gap-1.5">
+                    <span className="text-xl font-black text-white">{unclaimedItems}</span>
+                    <span className="text-[10px] text-emerald-400 font-semibold">Active</span>
+                  </div>
+                </Link>
+
+                <Link
+                  to="/allngos"
+                  className="group flex flex-col justify-between rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 transition-all hover:border-teal-400/40 hover:bg-teal-400/[0.08]"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-slate-400">NGO Network</span>
+                    <ArrowUpRight className="h-3.5 w-3.5 text-slate-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-teal-300" />
+                  </div>
+                  <div className="mt-1.5 flex items-baseline gap-1.5">
+                    <span className="text-xl font-black text-emerald-300">{claimedItems}</span>
+                    <span className="text-[10px] text-slate-400 font-semibold">Claimed</span>
+                  </div>
+                </Link>
+              </div>
+
+              {/* Security Seal Footer */}
+              <div className="mt-4 flex items-center justify-between border-t border-white/[0.08] pt-3 text-xs text-slate-400">
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                  <span>FSSAI Quality Certified</span>
+                </span>
+                <span className="font-semibold text-emerald-300">Zero Landfill Handshake</span>
               </div>
             </div>
 
@@ -716,7 +802,7 @@ const VendorDashboard = () => {
               </div>
               <div>
                 <p className="text-xs font-bold text-white">Reuse. Redistribute.</p>
-                <p className="mt-1 text-[11px] text-slate-400">Make an impact</p>
+                <p className="mt-1 text-[11px] text-slate-400">Zero Waste Certified</p>
               </div>
             </motion.div>
           </motion.div>
