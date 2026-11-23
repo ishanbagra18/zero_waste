@@ -357,7 +357,7 @@ const NgoDashboard = () => {
   const scrollToDashboard = useCallback(() => {
     const nextSection = document.getElementById("dashboard-main");
     if (!nextSection) {
-      window.scrollBy({ top: window.innerHeight * 0.9, behavior: "smooth" });
+      window.scrollBy({ top: window.innerHeight * 1.5, behavior: "smooth" });
       return;
     }
     if (window.__lenis) {
@@ -367,14 +367,32 @@ const NgoDashboard = () => {
     }
   }, []);
 
+  const isAutoPlayingRef = useRef(false);
+
+  // Compute scroll progress within the 220vh hero section
+  const computeScrollProgress = useCallback(() => {
+    const section = sectionRef.current;
+    if (!section) return 0;
+    const rect = section.getBoundingClientRect();
+    // Section starts at y = 64 (navHeight = 4rem = 64px)
+    const navHeight = 64;
+    const totalScrollable = section.offsetHeight - (window.innerHeight - navHeight);
+    if (totalScrollable <= 0) return 0;
+
+    const scrolled = navHeight - rect.top;
+    return Math.max(0, Math.min(1, scrolled / totalScrollable));
+  }, []);
+
   // Play plant growth animation; when it gets over, automatically scroll down to the dashboard
   const handlePlayGrowth = useCallback((autoScrollAfter = true) => {
-    if (isAutoPlaying) return;
+    if (isAutoPlayingRef.current) return;
+    isAutoPlayingRef.current = true;
     setIsAutoPlaying(true);
     const startTime = performance.now();
-    const duration = 2000; // 2.0s smooth cinematic growth
+    const duration = 2200; // 2.2s smooth cinematic growth
 
     const animate = (now) => {
+      if (!isAutoPlayingRef.current) return;
       const elapsed = now - startTime;
       const progress = Math.min(1, elapsed / duration);
       const frameIndex = Math.min(
@@ -387,49 +405,59 @@ const NgoDashboard = () => {
       if (progress < 1) {
         autoPlayRafRef.current = requestAnimationFrame(animate);
       } else {
+        isAutoPlayingRef.current = false;
         setIsAutoPlaying(false);
         if (autoScrollAfter) {
           // Plant animation is over: automatically scroll the dashboard down!
           setTimeout(() => {
             scrollToDashboard();
-          }, 400);
+          }, 350);
         }
       }
     };
     autoPlayRafRef.current = requestAnimationFrame(animate);
-  }, [isAutoPlaying, TOTAL_FRAMES, drawFrame, scrollToDashboard]);
+  }, [TOTAL_FRAMES, drawFrame, scrollToDashboard]);
 
-  // Auto-play plant growth on initial load, then smoothly scroll down when animation completes
+  // Auto-play plant growth on initial load if user hasn't scrolled
   useEffect(() => {
     if (framesLoaded && !hasAutoPlayedRef.current) {
       hasAutoPlayedRef.current = true;
       const timer = setTimeout(() => {
-        const alreadyScrolled = window.scrollY > 150;
-        handlePlayGrowth(!alreadyScrolled);
-      }, 500);
+        // If user already scrolled, don't hijack their position
+        const alreadyScrolled = window.scrollY > 80;
+        if (!alreadyScrolled) {
+          handlePlayGrowth(true);
+        }
+      }, 700);
       return () => clearTimeout(timer);
     }
   }, [framesLoaded, handlePlayGrowth]);
 
-  // Scroll handler: map scroll position within the hero to frame index
+  // Scroll handler: map scroll position within the hero to frame index with 60fps rAF
   useEffect(() => {
     if (!framesLoaded) return;
-    // Draw first frame immediately
-    drawFrame(0);
+
+    // Draw initial frame according to current scroll position
+    const initialProgress = computeScrollProgress();
+    const initialFrame = Math.min(
+      TOTAL_FRAMES - 1,
+      Math.max(0, Math.floor(initialProgress * (TOTAL_FRAMES - 1)))
+    );
+    drawFrame(initialFrame);
+    setGrowthProgress(initialProgress);
 
     const onScroll = () => {
-      if (isAutoPlaying) return;
+      // If user starts scrolling manually, cancel auto-play so user has full control
+      if (isAutoPlayingRef.current) {
+        isAutoPlayingRef.current = false;
+        setIsAutoPlaying(false);
+        if (autoPlayRafRef.current) cancelAnimationFrame(autoPlayRafRef.current);
+      }
+
       if (rafIdRef.current) return; // rAF throttle
       rafIdRef.current = requestAnimationFrame(() => {
         rafIdRef.current = null;
-        const section = sectionRef.current;
-        if (!section) return;
-
-        const rect = section.getBoundingClientRect();
-        const scrollDistance = Math.max(0, -rect.top);
-        const maxScroll = Math.max(1, window.innerHeight * 0.6);
-        const progress = Math.max(0, Math.min(1, scrollDistance / maxScroll));
-
+        const progress = computeScrollProgress();
         const frameIndex = Math.min(
           TOTAL_FRAMES - 1,
           Math.max(0, Math.floor(progress * (TOTAL_FRAMES - 1)))
@@ -440,25 +468,37 @@ const NgoDashboard = () => {
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll(); // initial draw
+
+    // Also connect to Lenis smooth scroll updates
+    let lenisTimer = null;
+    let removeLenis = null;
+    if (window.__lenis) {
+      window.__lenis.on('scroll', onScroll);
+      removeLenis = () => window.__lenis?.off('scroll', onScroll);
+    } else {
+      lenisTimer = setTimeout(() => {
+        if (window.__lenis) {
+          window.__lenis.on('scroll', onScroll);
+          removeLenis = () => window.__lenis?.off('scroll', onScroll);
+        }
+      }, 300);
+    }
+
     return () => {
       window.removeEventListener('scroll', onScroll);
+      if (removeLenis) removeLenis();
+      if (lenisTimer) clearTimeout(lenisTimer);
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       if (autoPlayRafRef.current) cancelAnimationFrame(autoPlayRafRef.current);
     };
-  }, [framesLoaded, drawFrame, isAutoPlaying]);
+  }, [framesLoaded, drawFrame, computeScrollProgress, TOTAL_FRAMES]);
 
   // Resize handler to re-draw current frame on viewport change
   useEffect(() => {
     if (!framesLoaded) return;
     const onResize = () => {
       lastDrawnFrameRef.current = -1; // force redraw
-      const section = sectionRef.current;
-      if (!section) return;
-      const rect = section.getBoundingClientRect();
-      const scrollDistance = Math.max(0, -rect.top);
-      const maxScroll = Math.max(1, window.innerHeight * 0.6);
-      const progress = Math.max(0, Math.min(1, scrollDistance / maxScroll));
+      const progress = computeScrollProgress();
       const frameIndex = Math.min(
         TOTAL_FRAMES - 1,
         Math.max(0, Math.floor(progress * (TOTAL_FRAMES - 1)))
@@ -468,7 +508,7 @@ const NgoDashboard = () => {
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [framesLoaded, drawFrame]);
+  }, [framesLoaded, drawFrame, computeScrollProgress, TOTAL_FRAMES]);
 
   // Text is always visible from the start (no scroll-dependent reveal)
 
@@ -477,309 +517,314 @@ const NgoDashboard = () => {
       <Toaster />
 
 
-      {/* Hero Section — Plant Growth Frame Animation */}
+      {/* Hero Section — Scroll-Driven Plant Growth Frame Animation */}
    
 
 <section
   ref={sectionRef}
-  className="relative isolate min-h-[calc(100vh-4rem)] w-full overflow-hidden border-b border-white/[0.06] bg-[#070b14] flex flex-col justify-center py-12 lg:py-0"
+  className="relative isolate h-[220vh] border-b border-white/[0.06] bg-[#070b14]"
 >
-  {/* Loading screen */}
-  {!framesLoaded && (
-    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#070b14]">
-      <div className="relative flex h-20 w-20 items-center justify-center">
-        <div className="absolute inset-0 animate-ping rounded-full border border-emerald-400/20" />
-        <div className="absolute inset-2 rounded-full border border-emerald-400/30" />
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
-          <Sprout size={26} />
+  {/* Sticky viewport: stays pinned at top-16 right below the fixed Navbar (64px) for 220vh */}
+  <div className="sticky top-16 h-[calc(100vh-4rem)] h-[calc(100svh-4rem)] w-full overflow-hidden flex flex-col justify-center">
+    {/* Loading screen */}
+    {!framesLoaded && (
+      <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#070b14]">
+        <div className="relative flex h-20 w-20 items-center justify-center">
+          <div className="absolute inset-0 animate-ping rounded-full border border-emerald-400/20" />
+          <div className="absolute inset-2 rounded-full border border-emerald-400/30" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
+            <Sprout size={26} />
+          </div>
+        </div>
+
+        <p className="mt-6 text-sm font-semibold text-white">
+          Preparing your eco experience
+        </p>
+        <p className="mt-2 text-xs text-slate-500">
+          Growing a greener tomorrow...
+        </p>
+
+        <div className="mt-5 h-1 w-36 overflow-hidden rounded-full bg-white/[0.07]">
+          <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-emerald-400 to-teal-300" />
         </div>
       </div>
+    )}
 
-      <p className="mt-6 text-sm font-semibold text-white">
-        Preparing your eco experience
-      </p>
-      <p className="mt-2 text-xs text-slate-500">
-        Growing a greener tomorrow...
-      </p>
-
-      <div className="mt-5 h-1 w-36 overflow-hidden rounded-full bg-white/[0.07]">
-        <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-emerald-400 to-teal-300" />
-      </div>
-    </div>
-  )}
-
-  {/* 🌿 1. Atmospheric Background Image Layer (Community Food Bank & Rescue Operations) */}
-  <div
-    className="pointer-events-none absolute inset-0 -z-30 overflow-hidden"
-    style={{
-      backgroundImage: `
-        linear-gradient(90deg, rgba(7, 11, 20, 0.97) 0%, rgba(7, 11, 20, 0.88) 46%, rgba(7, 11, 20, 0.58) 100%),
-        linear-gradient(0deg, #070b14 0%, transparent 45%),
-        url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=85&w=2000')
-      `,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    }}
-  />
-
-  {/* 🌌 2. Ambient Lighting Glow Meshes & Perspective Grid */}
-  <div className="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
-    {/* Emerald aura left */}
-    <div className="absolute -left-36 top-10 h-[34rem] w-[34rem] rounded-full bg-emerald-500/[0.14] blur-[130px]" />
-    {/* Cyan/Teal halo right behind the growing plant, giving its leaves an ethereal highlight */}
-    <div className="absolute -right-28 top-1/4 h-[36rem] w-[36rem] rounded-full bg-teal-400/[0.12] blur-[140px]" />
-    {/* Deep green ambient pool bottom-center */}
-    <div className="absolute bottom-[-10rem] left-1/3 h-96 w-96 rounded-full bg-green-500/[0.08] blur-[120px]" />
-
-    {/* Perspective Matrix Grid */}
+    {/* 🌿 1. Atmospheric Background Image Layer (Community Food Bank & Rescue Operations) */}
     <div
-      className="absolute inset-0 opacity-[0.06]"
+      className="pointer-events-none absolute inset-0 -z-30 overflow-hidden"
       style={{
-        backgroundImage:
-          "linear-gradient(rgba(255,255,255,0.32) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.32) 1px, transparent 1px)",
-        backgroundSize: "60px 60px",
-        maskImage:
-          "linear-gradient(to bottom, black 25%, transparent 95%)",
+        backgroundImage: `
+          linear-gradient(90deg, rgba(7, 11, 20, 0.97) 0%, rgba(7, 11, 20, 0.88) 46%, rgba(7, 11, 20, 0.58) 100%),
+          linear-gradient(0deg, #070b14 0%, transparent 45%),
+          url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=85&w=2000')
+        `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     />
 
-    {/* Top glowing boundary line */}
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
-  </div>
+    {/* 🌌 2. Ambient Lighting Glow Meshes & Perspective Grid */}
+    <div className="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+      {/* Emerald aura left */}
+      <div className="absolute -left-36 top-10 h-[34rem] w-[34rem] rounded-full bg-emerald-500/[0.14] blur-[130px]" />
+      {/* Cyan/Teal halo right behind the growing plant, giving its leaves an ethereal highlight */}
+      <div className="absolute -right-28 top-1/4 h-[36rem] w-[36rem] rounded-full bg-teal-400/[0.12] blur-[140px]" />
+      {/* Deep green ambient pool bottom-center */}
+      <div className="absolute bottom-[-10rem] left-1/3 h-96 w-96 rounded-full bg-green-500/[0.08] blur-[120px]" />
 
-  {/* Plant animation canvas — keep the entire right side visible and transparent */}
-  <canvas
-    ref={canvasRef}
-    className="absolute inset-0 z-0 h-full w-full pointer-events-none"
-    style={{
-      display: framesLoaded ? "block" : "none",
-      willChange: "transform",
-    }}
-  />
+      {/* Perspective Matrix Grid */}
+      <div
+        className="absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.32) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.32) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+          maskImage:
+            "linear-gradient(to bottom, black 25%, transparent 95%)",
+        }}
+      />
 
-  {/* Background lighting & reading area veil — protects left text area while keeping plant area transparent */}
-  <div className="pointer-events-none absolute inset-0 z-[1]">
-    {/* Dark reading area on the left only */}
-    <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#070b14] via-[#070b14]/94 via-[42%] to-transparent sm:via-[38%] lg:w-[74%] lg:via-[#070b14]/85 lg:via-[48%] lg:to-transparent" />
+      {/* Top glowing boundary line */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+    </div>
 
-    {/* Slight bottom fade */}
-    <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#070b14]/75 to-transparent" />
+    {/* Plant animation canvas — keep the entire right side visible and transparent */}
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 z-0 h-full w-full pointer-events-none"
+      style={{
+        display: framesLoaded ? "block" : "none",
+        willChange: "transform",
+      }}
+    />
 
-    {/* Gentle glow behind the text, not over the plant */}
-    <div className="absolute -left-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-emerald-500/[0.08] blur-[130px]" />
+    {/* Background lighting & reading area veil — protects left text area while keeping plant area transparent */}
+    <div className="pointer-events-none absolute inset-0 z-[1]">
+      {/* Dark reading area on the left only */}
+      <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#070b14] via-[#070b14]/94 via-[42%] to-transparent sm:via-[38%] lg:w-[74%] lg:via-[#070b14]/85 lg:via-[48%] lg:to-transparent" />
 
-    {/* Very subtle top vignette */}
-    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#070b14]/30 to-transparent" />
-  </div>
+      {/* Slight bottom fade */}
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#070b14]/75 to-transparent" />
 
-  {/* Hero content — deliberately constrained to the left */}
-  <div className="relative z-10 flex w-full items-center">
-    <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-14 xl:px-20">
-      <div data-gsap-intro className="w-full max-w-[590px] lg:w-[49%] xl:max-w-[640px]">
+      {/* Gentle glow behind the text, not over the plant */}
+      <div className="absolute -left-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-emerald-500/[0.08] blur-[130px]" />
 
-        {/* Eyebrow */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-7 inline-flex max-w-full items-center gap-3 rounded-full border border-emerald-400/20 bg-slate-950/50 px-4 py-2.5 backdrop-blur-md"
-        >
-          <span className="relative flex h-2.5 w-2.5 shrink-0">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-            <span className="relative h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
-          </span>
+      {/* Very subtle top vignette */}
+      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#070b14]/30 to-transparent" />
+    </div>
 
-          <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300 sm:text-xs sm:tracking-[0.2em]">
-            Ecosystem Hub Portal
-          </span>
-        </motion.div>
+    {/* Hero content — deliberately constrained to the left */}
+    <div className="relative z-10 flex w-full items-center">
+      <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-14 xl:px-20">
+        <div data-gsap-intro className="w-full max-w-[590px] lg:w-[49%] xl:max-w-[640px]">
 
-        {/* Main heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.08 }}
-          className="relative border-l-2 border-emerald-400/50 py-1 pl-4 sm:pl-6"
-        >
-          <h1 className="text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl xl:text-7xl">
-            Welcome,
-            <span className="mt-2 block bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text pb-2 text-transparent">
-              Changemaker.
-            </span>
-          </h1>
-
-          <h2 className="mt-5 text-xl font-bold leading-snug tracking-tight text-slate-100 sm:text-2xl md:text-3xl">
-            Small things today.
-            <span className="mt-1 block text-slate-400">
-              A better world tomorrow.
-            </span>
-          </h2>
-
-          <p className="mt-5 max-w-lg text-sm leading-7 text-slate-300/90 sm:text-base sm:leading-8 md:text-lg">
-            Your actions can shape a more sustainable future.
-            Reduce waste, uplift communities, and help valuable
-            resources find a second life — one meaningful step
-            at a time.
-          </p>
-        </motion.div>
-
-        {/* Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="pointer-events-auto mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
-        >
-          <motion.button
-            type="button"
-            whileHover={{
-              scale: 1.025,
-              boxShadow: "0 10px 30px rgba(16,185,129,0.25)",
-            }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => navigate("/vendor/allitems")}
-            className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-400 to-teal-300 px-5 py-4 text-sm font-extrabold text-slate-950 shadow-lg shadow-emerald-950/30 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950 sm:px-6"
+          {/* Eyebrow */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-7 inline-flex max-w-full items-center gap-3 rounded-full border border-emerald-400/20 bg-slate-950/50 px-4 py-2.5 backdrop-blur-md"
           >
-            <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 group-hover:translate-x-full" />
-
-            <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950/10">
-              <PackageOpen size={19} />
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+              <span className="relative h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
             </span>
 
-            <span className="relative">Explore Surplus Items</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300 sm:text-xs sm:tracking-[0.2em]">
+              Ecosystem Hub Portal
+            </span>
+          </motion.div>
 
-            <ArrowUpRight
-              size={17}
-              className="relative transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-            />
-          </motion.button>
-
-          <motion.button
-            type="button"
-            whileHover={{
-              scale: 1.025,
-              backgroundColor: "rgba(255,255,255,0.08)",
-            }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => navigate("/readmore")}
-            className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/15 bg-slate-950/30 px-6 py-4 text-sm font-semibold text-slate-100 backdrop-blur-md transition-colors hover:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+          {/* Main heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.08 }}
+            className="relative border-l-2 border-emerald-400/50 py-1 pl-4 sm:pl-6"
           >
-            <span>Discover Our Mission</span>
-            <ArrowRight
-              size={17}
-              className="text-emerald-300 transition-transform duration-300 group-hover:translate-x-1"
-            />
-          </motion.button>
+            <h1 className="text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl xl:text-7xl">
+              Welcome,
+              <span className="mt-2 block bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text pb-2 text-transparent">
+                Changemaker.
+              </span>
+            </h1>
 
-          {/* Replay Plant Growth + Auto-Scroll Button */}
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.025 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => handlePlayGrowth(true)}
-            className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-6 py-4 text-sm font-semibold backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
-              isAutoPlaying
-                ? "border-emerald-400 bg-emerald-500/25 text-emerald-300 shadow-lg shadow-emerald-500/20"
-                : "border-emerald-400/30 bg-emerald-500/10 text-emerald-300 hover:border-emerald-400/50 hover:bg-emerald-500/20"
-            }`}
+            <h2 className="mt-5 text-xl font-bold leading-snug tracking-tight text-slate-100 sm:text-2xl md:text-3xl">
+              Small things today.
+              <span className="mt-1 block text-slate-400">
+                A better world tomorrow.
+              </span>
+            </h2>
+
+            <p className="mt-5 max-w-lg text-sm leading-7 text-slate-300/90 sm:text-base sm:leading-8 md:text-lg">
+              Your actions can shape a more sustainable future.
+              Reduce waste, uplift communities, and help valuable
+              resources find a second life — one meaningful step
+              at a time.
+            </p>
+          </motion.div>
+
+          {/* Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="pointer-events-auto mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
           >
-            <Sprout className={`h-4 w-4 transition-transform duration-300 ${isAutoPlaying ? "animate-spin text-emerald-400" : "text-emerald-400 group-hover:scale-110"}`} />
-            <span>{isAutoPlaying ? "Growing... 🌱" : "Grow Plant 🌱"}</span>
-          </motion.button>
+            <motion.button
+              type="button"
+              whileHover={{
+                scale: 1.025,
+                boxShadow: "0 10px 30px rgba(16,185,129,0.25)",
+              }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate("/vendor/allitems")}
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-400 to-teal-300 px-5 py-4 text-sm font-extrabold text-slate-950 shadow-lg shadow-emerald-950/30 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950 sm:px-6"
+            >
+              <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 group-hover:translate-x-full" />
 
-          <motion.button
-            type="button"
-            whileHover={{
-              scale: 1.025,
-            }}
-            whileTap={{ scale: 0.97 }}
-            onClick={toggleLeaves}
-            className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-6 py-4 text-sm font-semibold backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
-              leavesEnabled
-                ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-300 shadow-lg shadow-emerald-500/10 hover:bg-emerald-500/30"
-                : "border-white/15 bg-slate-950/30 text-slate-100 hover:border-emerald-400/40 hover:bg-white/[0.08]"
-            }`}
+              <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950/10">
+                <PackageOpen size={19} />
+              </span>
+
+              <span className="relative">Explore Surplus Items</span>
+
+              <ArrowUpRight
+                size={17}
+                className="relative transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
+            </motion.button>
+
+            <motion.button
+              type="button"
+              whileHover={{
+                scale: 1.025,
+                backgroundColor: "rgba(255,255,255,0.08)",
+              }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate("/readmore")}
+              className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/15 bg-slate-950/30 px-6 py-4 text-sm font-semibold text-slate-100 backdrop-blur-md transition-colors hover:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+            >
+              <span>Discover Our Mission</span>
+              <ArrowRight
+                size={17}
+                className="text-emerald-300 transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </motion.button>
+
+            {/* Replay Plant Growth + Auto-Scroll Button */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.025 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => handlePlayGrowth(true)}
+              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-6 py-4 text-sm font-semibold backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
+                isAutoPlaying
+                  ? "border-emerald-400 bg-emerald-500/25 text-emerald-300 shadow-lg shadow-emerald-500/20"
+                  : "border-emerald-400/30 bg-emerald-500/10 text-emerald-300 hover:border-emerald-400/50 hover:bg-emerald-500/20"
+              }`}
+            >
+              <Sprout className={`h-4 w-4 transition-transform duration-300 ${isAutoPlaying ? "animate-spin text-emerald-400" : "text-emerald-400 group-hover:scale-110"}`} />
+              <span>{isAutoPlaying ? "Growing... 🌱" : "Grow Plant 🌱"}</span>
+            </motion.button>
+
+            <motion.button
+              type="button"
+              whileHover={{
+                scale: 1.025,
+              }}
+              whileTap={{ scale: 0.97 }}
+              onClick={toggleLeaves}
+              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-6 py-4 text-sm font-semibold backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
+                leavesEnabled
+                  ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-300 shadow-lg shadow-emerald-500/10 hover:bg-emerald-500/30"
+                  : "border-white/15 bg-slate-950/30 text-slate-100 hover:border-emerald-400/40 hover:bg-white/[0.08]"
+              }`}
+            >
+              <Leaf className={`h-4 w-4 transition-transform duration-300 ${leavesEnabled ? "rotate-12 text-emerald-400 scale-110" : "text-emerald-400"}`} />
+              <span>{leavesEnabled ? "Stop Leaf Animation 🍃" : "Start Leaf Animation 🍃"}</span>
+            </motion.button>
+          </motion.div>
+
+          {/* Compact value propositions */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.32 }}
+            className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-white/10 pt-5 sm:gap-x-6"
           >
-            <Leaf className={`h-4 w-4 transition-transform duration-300 ${leavesEnabled ? "rotate-12 text-emerald-400 scale-110" : "text-emerald-400"}`} />
-            <span>{leavesEnabled ? "Stop Leaf Animation 🍃" : "Start Leaf Animation 🍃"}</span>
-          </motion.button>
-        </motion.div>
+            <div className="flex items-center gap-2">
+              <Recycle size={16} className="shrink-0 text-emerald-300" />
+              <span className="text-xs font-medium text-slate-300 sm:text-sm">
+                Reduce waste
+              </span>
+            </div>
 
-        {/* Compact value propositions */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.32 }}
-          className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-white/10 pt-5 sm:gap-x-6"
-        >
-          <div className="flex items-center gap-2">
-            <Recycle size={16} className="shrink-0 text-emerald-300" />
-            <span className="text-xs font-medium text-slate-300 sm:text-sm">
-              Reduce waste
-            </span>
-          </div>
+            <span className="hidden h-4 w-px bg-white/15 sm:block" />
 
-          <span className="hidden h-4 w-px bg-white/15 sm:block" />
+            <div className="flex items-center gap-2">
+              <HeartHandshake size={16} className="shrink-0 text-teal-300" />
+              <span className="text-xs font-medium text-slate-300 sm:text-sm">
+                Support communities
+              </span>
+            </div>
 
-          <div className="flex items-center gap-2">
-            <HeartHandshake size={16} className="shrink-0 text-teal-300" />
-            <span className="text-xs font-medium text-slate-300 sm:text-sm">
-              Support communities
-            </span>
-          </div>
+            <span className="hidden h-4 w-px bg-white/15 sm:block" />
 
-          <span className="hidden h-4 w-px bg-white/15 sm:block" />
-
-          <div className="flex items-center gap-2">
-            <Leaf size={16} className="shrink-0 text-cyan-300" />
-            <span className="text-xs font-medium text-slate-300 sm:text-sm">
-              Protect our planet
-            </span>
-          </div>
-        </motion.div>
+            <div className="flex items-center gap-2">
+              <Leaf size={16} className="shrink-0 text-cyan-300" />
+              <span className="text-xs font-medium text-slate-300 sm:text-sm">
+                Protect our planet
+              </span>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
-  </div>
 
-  {/* Small decorative label on the bottom-right, not a card */}
-  {framesLoaded && (
-    <div className="pointer-events-none absolute bottom-8 right-6 z-10 hidden items-center gap-2 rounded-full border border-white/10 bg-slate-950/25 px-4 py-2 text-xs font-medium text-slate-300/80 backdrop-blur-sm md:flex lg:right-10">
-      <Sprout size={14} className="text-emerald-300" />
-      <span>Growth begins with one small action</span>
-    </div>
-  )}
+    {/* Small decorative label on the bottom-right, not a card */}
+    {framesLoaded && (
+      <div className="pointer-events-none absolute bottom-8 right-6 z-10 hidden items-center gap-2 rounded-full border border-white/10 bg-slate-950/25 px-4 py-2 text-xs font-medium text-slate-300/80 backdrop-blur-sm md:flex lg:right-10">
+        <Sprout size={14} className="text-emerald-300" />
+        <span>Growth begins with one small action</span>
+      </div>
+    )}
 
-  {/* Interactive Scroll & Growth indicator */}
-  {framesLoaded && (
-    <motion.button
-      type="button"
-      onClick={scrollToDashboard}
-      initial={{ opacity: 0, y: -4 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.5, delay: 0.8 }}
-      className="group pointer-events-auto cursor-pointer absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-1.5 focus:outline-none"
-    >
-      <span className="rounded-full border border-emerald-400/30 bg-slate-950/70 px-4 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-emerald-300 backdrop-blur-md shadow-lg group-hover:border-emerald-400 group-hover:bg-slate-900 transition-all">
-        {growthProgress > 0.85
-          ? "Plant in Full Bloom • Scroll Down ↓"
-          : "Scroll or Click to Grow 🌱"}
-      </span>
-
-      <motion.div
-        animate={{ y: [0, 5, 0] }}
-        transition={{
-          duration: 1.6,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="flex h-7 w-7 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/10 text-emerald-300 shadow-md group-hover:bg-emerald-400/25 group-hover:border-emerald-300 transition-colors"
+    {/* Interactive Scroll & Growth indicator with real-time percentage */}
+    {framesLoaded && (
+      <motion.button
+        type="button"
+        onClick={scrollToDashboard}
+        initial={{ opacity: 0, y: -4 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+        className="group pointer-events-auto cursor-pointer absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-1.5 focus:outline-none"
       >
-        <ChevronDown size={15} />
-      </motion.div>
-    </motion.button>
-  )}
+        <span className="rounded-full border border-emerald-400/30 bg-slate-950/70 px-4 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-emerald-300 backdrop-blur-md shadow-lg group-hover:border-emerald-400 group-hover:bg-slate-900 transition-all">
+          {growthProgress >= 0.95
+            ? "✨ Plant in Full Bloom • Scroll Down ↓"
+            : growthProgress > 0.05
+            ? `🌿 Growing (${Math.round(growthProgress * 100)}%) • Scroll to bloom`
+            : "🌱 Scroll down to grow the plant"}
+        </span>
+
+        <motion.div
+          animate={{ y: [0, 5, 0] }}
+          transition={{
+            duration: 1.6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="flex h-7 w-7 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/10 text-emerald-300 shadow-md group-hover:bg-emerald-400/25 group-hover:border-emerald-300 transition-colors"
+        >
+          <ChevronDown size={15} />
+        </motion.div>
+      </motion.button>
+    )}
+  </div>
 </section>
 
 

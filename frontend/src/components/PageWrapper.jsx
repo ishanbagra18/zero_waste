@@ -28,7 +28,7 @@ export default function PageWrapper({ children, className = "" }) {
       initial="initial"
       animate="animate"
       exit="exit"
-      className={`min-h-screen w-full max-w-full overflow-x-clip ${className}`}
+      className={`min-h-screen w-full max-w-full ${className}`}
     >
       {children}
     </motion.div>

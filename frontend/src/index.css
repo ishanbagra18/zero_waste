@@ -6,7 +6,6 @@
   html {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     max-width: 100vw;
-    overflow-x: clip;
   }
   
   h1, h2, h3, h4, h5, h6, .font-display {
@@ -17,14 +16,12 @@
     @apply bg-slate-950 text-slate-100 antialiased selection:bg-emerald-500 selection:text-white min-h-screen;
     font-family: 'Plus Jakarta Sans', sans-serif;
     max-width: 100vw;
-    overflow-x: clip;
     position: relative;
     -webkit-tap-highlight-color: transparent;
   }
 
   #root {
     max-width: 100vw;
-    overflow-x: clip;
     width: 100%;
   }
 
