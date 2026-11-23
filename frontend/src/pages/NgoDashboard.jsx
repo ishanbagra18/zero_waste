@@ -171,11 +171,8 @@ const NgoDashboard = () => {
   const sectionRef = useRef(null);
   const framesRef = useRef([]);
   const rafIdRef = useRef(null);
-  const autoPlayRafRef = useRef(null);
   const lastDrawnFrameRef = useRef(-1);
   const [framesLoaded, setFramesLoaded] = useState(false);
-  const [growthProgress, setGrowthProgress] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
 
   // Sample every 3rd frame (55 frames total): cuts network requests & memory by 67%
   // while preserving buttery-smooth 60fps scroll animation
@@ -188,7 +185,7 @@ const NgoDashboard = () => {
   const processFrame = (img) => {
     try {
       const off = document.createElement('canvas');
-      const targetW = 540;
+      const targetW = 640;
       const aspect = (img.naturalWidth || 1280) / (img.naturalHeight || 720);
       const targetH = Math.round(targetW / aspect);
       off.width = targetW;
@@ -227,7 +224,7 @@ const NgoDashboard = () => {
     }
   };
 
-  // Preload frames with instant Frame 0 and rapid parallel batching
+  // Preload frames with instant Frame 0 and background idle batching
   useEffect(() => {
     let cancelled = false;
     const images = new Array(TOTAL_FRAMES).fill(null);
@@ -256,11 +253,11 @@ const NgoDashboard = () => {
           images[0] = processFrame(firstImg);
           setFramesLoaded(true);
 
-          // Step 2: Load remaining frames in fast parallel batches of 8
+          // Step 2: Lazy load remaining frames gradually on idle without blocking main thread
           let nextIdx = 1;
           const scheduleNextBatch = () => {
             if (cancelled || nextIdx >= TOTAL_FRAMES) return;
-            const batchEnd = Math.min(nextIdx + 8, TOTAL_FRAMES);
+            const batchEnd = Math.min(nextIdx + 4, TOTAL_FRAMES);
             for (let i = nextIdx; i < batchEnd; i++) {
               const num = frameNumbers.current[i];
               const loader = loaderByNumber[num];
@@ -280,11 +277,19 @@ const NgoDashboard = () => {
             }
             nextIdx = batchEnd;
             if (nextIdx < TOTAL_FRAMES) {
-              setTimeout(scheduleNextBatch, 25);
+              if ('requestIdleCallback' in window) {
+                requestIdleCallback(scheduleNextBatch, { timeout: 150 });
+              } else {
+                setTimeout(scheduleNextBatch, 40);
+              }
             }
           };
 
-          setTimeout(scheduleNextBatch, 35);
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(scheduleNextBatch, { timeout: 200 });
+          } else {
+            setTimeout(scheduleNextBatch, 80);
+          }
         };
       });
     }
@@ -326,33 +331,18 @@ const NgoDashboard = () => {
       ctx.scale(dpr, dpr);
     }
 
-    // Responsive plant sizing and placement
+    // Draw plant smaller and positioned further to the right
     const imgWidth = img.naturalWidth || img.width;
     const imgHeight = img.naturalHeight || img.height;
     const imgRatio = imgWidth / imgHeight;
+    const plantScale = 0.55; // 55% of viewport height
+    const drawH = h * plantScale;
+    const drawW = drawH * imgRatio;
+    // Position: shifted further right towards right edge
+    const drawX = w - drawW + (w * 0.04);
+    const drawY = (h - drawH) / 2;
 
-    let drawW, drawH, drawX, drawY;
-    if (w < 768) {
-      const plantScale = 0.42;
-      drawH = Math.min(h * plantScale, 280);
-      drawW = drawH * imgRatio;
-      drawX = (w - drawW) / 2;
-      drawY = h - drawH - 20;
-    } else if (w < 1024) {
-      const plantScale = 0.48;
-      drawH = h * plantScale;
-      drawW = drawH * imgRatio;
-      drawX = w - drawW * 0.86;
-      drawY = (h - drawH) / 2;
-    } else {
-      const plantScale = 0.56;
-      drawH = h * plantScale;
-      drawW = drawH * imgRatio;
-      drawX = w - drawW + (w * 0.04);
-      drawY = (h - drawH) / 2;
-    }
-
-    // 1. Clear canvas transparently
+    // 1. Clear canvas transparently so the background image, perspective grid, and ambient lighting show through
     ctx.clearRect(0, 0, w, h);
 
     // 2. Draw the transparent plant frame cleanly
@@ -361,33 +351,6 @@ const NgoDashboard = () => {
     lastDrawnFrameRef.current = index;
   }, []);
 
-  // Auto-play growth demo trigger
-  const handlePlayGrowth = () => {
-    if (isAutoPlaying) return;
-    setIsAutoPlaying(true);
-    const startTime = performance.now();
-    const duration = 2200;
-
-    const animate = (now) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(1, elapsed / duration);
-      const frameIndex = Math.min(
-        TOTAL_FRAMES - 1,
-        Math.floor(progress * (TOTAL_FRAMES - 1))
-      );
-      drawFrame(frameIndex);
-      setGrowthProgress(progress);
-
-      if (progress < 1) {
-        autoPlayRafRef.current = requestAnimationFrame(animate);
-      } else {
-        setIsAutoPlaying(false);
-        toast.success("🌿 Plant in full bloom! Community impact maximized.", { icon: "🌱" });
-      }
-    };
-    autoPlayRafRef.current = requestAnimationFrame(animate);
-  };
-
   // Scroll handler: map scroll position within the section to frame index
   useEffect(() => {
     if (!framesLoaded) return;
@@ -395,7 +358,6 @@ const NgoDashboard = () => {
     drawFrame(0);
 
     const onScroll = () => {
-      if (isAutoPlaying) return;
       if (rafIdRef.current) return; // rAF throttle
       rafIdRef.current = requestAnimationFrame(() => {
         rafIdRef.current = null;
@@ -405,7 +367,7 @@ const NgoDashboard = () => {
         const rect = section.getBoundingClientRect();
         const sectionHeight = section.scrollHeight - window.innerHeight;
         if (sectionHeight <= 0) return;
-        const scrolled = Math.max(0, -rect.top);
+        const scrolled = -rect.top;
         const progress = Math.max(0, Math.min(1, scrolled / sectionHeight));
 
         const frameIndex = Math.min(
@@ -413,30 +375,16 @@ const NgoDashboard = () => {
           Math.max(0, Math.floor(progress * (TOTAL_FRAMES - 1)))
         );
         drawFrame(frameIndex);
-        setGrowthProgress(progress);
       });
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    let unsubscribeLenis;
-    if (window.__lenis) {
-      unsubscribeLenis = window.__lenis.on('scroll', onScroll);
-    }
-    const lenisTimer = setTimeout(() => {
-      if (window.__lenis && !unsubscribeLenis) {
-        unsubscribeLenis = window.__lenis.on('scroll', onScroll);
-      }
-    }, 250);
-
     onScroll(); // initial draw
     return () => {
       window.removeEventListener('scroll', onScroll);
-      clearTimeout(lenisTimer);
-      if (unsubscribeLenis) unsubscribeLenis();
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-      if (autoPlayRafRef.current) cancelAnimationFrame(autoPlayRafRef.current);
     };
-  }, [framesLoaded, drawFrame, isAutoPlaying]);
+  }, [framesLoaded, drawFrame]);
 
   // Resize handler to re-draw current frame on viewport change
   useEffect(() => {
@@ -447,14 +395,13 @@ const NgoDashboard = () => {
       if (!section) return;
       const rect = section.getBoundingClientRect();
       const sectionHeight = section.scrollHeight - window.innerHeight;
-      const scrolled = Math.max(0, -rect.top);
+      const scrolled = -rect.top;
       const progress = Math.max(0, Math.min(1, scrolled / sectionHeight));
       const frameIndex = Math.min(
         TOTAL_FRAMES - 1,
         Math.max(0, Math.floor(progress * (TOTAL_FRAMES - 1)))
       );
       drawFrame(frameIndex);
-      setGrowthProgress(progress);
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
@@ -471,11 +418,12 @@ const NgoDashboard = () => {
    
 
 <section
+  data-gsap-intro
   ref={sectionRef}
-  className="relative isolate h-[220vh] sm:h-[240vh] border-b border-white/[0.06] bg-[#070b14]"
+  className="relative isolate h-[300vh] border-b border-white/[0.06] bg-[#070b14]"
 >
   {/* Sticky viewport for scroll-driven plant animation */}
-  <div className="sticky top-0 h-screen min-h-[600px] w-full overflow-hidden">
+  <div className="sticky top-0 h-screen h-[100svh] min-h-[600px] w-full overflow-hidden">
 
     {/* Loading screen */}
     {!framesLoaded && (
@@ -670,23 +618,6 @@ const NgoDashboard = () => {
                 scale: 1.025,
               }}
               whileTap={{ scale: 0.97 }}
-              onClick={handlePlayGrowth}
-              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-6 py-4 text-sm font-semibold backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
-                isAutoPlaying
-                  ? "border-emerald-400 bg-emerald-500/25 text-emerald-300 shadow-lg shadow-emerald-500/20"
-                  : "border-emerald-400/30 bg-emerald-500/10 text-emerald-300 hover:border-emerald-400/50 hover:bg-emerald-500/20"
-              }`}
-            >
-              <Sprout className={`h-4 w-4 transition-transform duration-300 ${isAutoPlaying ? "animate-spin text-emerald-400" : "text-emerald-400 group-hover:scale-110"}`} />
-              <span>{isAutoPlaying ? "Growing... 🌱" : "Grow Plant 🌱"}</span>
-            </motion.button>
-
-            <motion.button
-              type="button"
-              whileHover={{
-                scale: 1.025,
-              }}
-              whileTap={{ scale: 0.97 }}
               onClick={toggleLeaves}
               className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl border px-6 py-4 text-sm font-semibold backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
                 leavesEnabled
@@ -735,19 +666,11 @@ const NgoDashboard = () => {
       </div>
     </div>
 
-    {/* Dynamic live growth stage pill */}
+    {/* Small decorative label on the bottom-right, not a card */}
     {framesLoaded && (
-      <div className="pointer-events-none absolute bottom-8 right-6 z-10 hidden items-center gap-2.5 rounded-full border border-emerald-400/25 bg-slate-950/75 px-4 py-2 text-xs font-semibold text-emerald-300 backdrop-blur-md shadow-lg shadow-emerald-950/40 sm:flex md:right-10">
-        <Sprout size={15} className={`text-emerald-400 ${growthProgress > 0 ? "scale-110 animate-pulse" : ""}`} />
-        <span>
-          {growthProgress === 0
-            ? "Scroll or click to grow plant 🌱"
-            : growthProgress < 0.35
-            ? `Sprouting Seedling • ${Math.round(growthProgress * 100)}%`
-            : growthProgress < 0.75
-            ? `Active Growth • ${Math.round(growthProgress * 100)}%`
-            : `Full Bloom 🌿 • ${Math.round(growthProgress * 100)}%`}
-        </span>
+      <div className="pointer-events-none absolute bottom-8 right-6 z-10 hidden items-center gap-2 rounded-full border border-white/10 bg-slate-950/25 px-4 py-2 text-xs font-medium text-slate-300/80 backdrop-blur-sm md:flex lg:right-10">
+        <Sprout size={14} className="text-emerald-300" />
+        <span>Growth begins with one small action</span>
       </div>
     )}
 
@@ -760,7 +683,7 @@ const NgoDashboard = () => {
         className="pointer-events-none absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 sm:bottom-7"
       >
         <span className="rounded-full border border-white/[0.08] bg-slate-950/50 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 backdrop-blur-md">
-          {growthProgress > 0.85 ? "Keep scrolling down ↓" : "Scroll to grow"}
+          Scroll to grow
         </span>
 
         <motion.div
