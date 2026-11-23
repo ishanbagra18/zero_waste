@@ -5,6 +5,7 @@ import { fileURLToPath, URL } from 'node:url'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: process.env.VITE_BASE_PATH || (process.env.GITHUB_PAGES === 'true' ? '/zero_waste/' : '/'),
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

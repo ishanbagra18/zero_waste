@@ -19,7 +19,8 @@ Unlike typical CRUD showcase projects, ZeroWaste is built around **system-level 
 
 | Component | Target URL | Tech Stack Details |
 | :--- | :--- | :--- |
-| **Live Web Application** | [zero-waste200.netlify.app](https://zero-waste200.netlify.app) | React 18, Vite, Tailwind CSS, Netlify Edge CDN (Vercel-ready) |
+| **GitHub Pages Deployment** | [ishanbagra18.github.io/zero_waste](https://ishanbagra18.github.io/zero_waste/) | React 18, Vite, GitHub Pages & Actions CI/CD |
+| **Live Web Application (Netlify)** | [zero-waste200.netlify.app](https://zero-waste200.netlify.app) | React 18, Vite, Tailwind CSS, Netlify Edge CDN (Vercel-ready) |
 | **Backend API Service** | [zero-waste-2xxf.onrender.com](https://zero-waste-2xxf.onrender.com) | Node.js 20, Express, Socket.io, Render Cloud Container |
 | **Database Cluster** | MongoDB Atlas Cluster0 | Managed MongoDB Replica Set with `2dsphere` Geospatial Index |
 | **Liveness Health Check** | [`/health/live`](https://zero-waste-2xxf.onrender.com/health/live) | Process uptime, heap memory, and PID diagnostics |
